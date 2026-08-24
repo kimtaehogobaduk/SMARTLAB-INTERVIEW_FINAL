@@ -1,0 +1,15 @@
+{
+  "entities": {
+    "app_state": {
+      "description": "SmartLab interview rooms, candidates, evaluations, audit logs and system settings.",
+      "fields": {
+        "rooms": { "type": "array", "description": "List of interview rooms created by admin" },
+        "candidates": { "type": "array", "description": "List of candidates and their STT/AI data" },
+        "evaluations": { "type": "array", "description": "Blind score evaluations per candidate and interviewer" },
+        "auditLogs": { "type": "array", "description": "Audit trail logs for modifications" },
+        "settings": { "type": "object", "description": "Platform settings and weights" },
+        "lastUpdatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    }
+  }
+}

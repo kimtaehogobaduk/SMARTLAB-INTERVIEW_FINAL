@@ -1,0 +1,7 @@
+{
+  "name": "SmartLab AI Interview Evaluator",
+  "description": "SmartLab club interviewer-only real-time AI interview evaluation platform with live STT, blind scoring, dynamic mindmaps, and audit logs.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
