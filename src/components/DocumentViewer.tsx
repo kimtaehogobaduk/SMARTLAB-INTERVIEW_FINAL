@@ -27,13 +27,15 @@ import {
   Link2,
   Globe,
   RefreshCw,
-  FileCheck
+  FileCheck,
+  Trash2
 } from 'lucide-react';
 
 interface DocumentViewerProps {
   documents: DocumentItem[];
   candidateName: string;
   onAddDocument?: (doc: DocumentItem) => void;
+  onDeleteDocument?: (docId: string) => void;
 }
 
 /**
@@ -117,7 +119,8 @@ function getEmbeddableUrl(rawUrl: string): { embedUrl: string; isEmbeddable: boo
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   documents,
   candidateName,
-  onAddDocument
+  onAddDocument,
+  onDeleteDocument
 }) => {
   const [activeTabId, setActiveTabId] = useState<string>(documents[0]?.id || '');
   const [currentSlide, setCurrentSlide] = useState<number>(1);
@@ -1004,6 +1007,20 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
+                  )}
+                  {onDeleteDocument && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`'${activeDoc.title}' 서류를 지원자 서류함에서 삭제하시겠습니까?`)) {
+                          onDeleteDocument(activeDoc.id);
+                        }
+                      }}
+                      className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors cursor-pointer"
+                      title="이 서류 삭제"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   )}
                 </div>
               </div>

@@ -55,6 +55,7 @@ export default function App() {
   // Candidates & Live Interview State
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [activeCandidateId, setActiveCandidateId] = useState<string>('');
+  const [isObserverMode, setIsObserverMode] = useState<boolean>(false);
   const [myEvaluation, setMyEvaluation] = useState<Evaluation | null>(null);
   const [peerEvaluations, setPeerEvaluations] = useState<Evaluation[]>([]);
   const [isBlind, setIsBlind] = useState<boolean>(true);
@@ -545,6 +546,38 @@ export default function App() {
     }
   };
 
+  const handleDeleteDocument = async (docId: string) => {
+    if (!activeCandidate) return;
+    try {
+      const res = await fetch(`/api/candidates/${activeCandidate.id}/documents/${docId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCandidates(prev => prev.map(c => {
+          if (c.id === activeCandidate.id) {
+            return {
+              ...c,
+              documents: data.documents
+            };
+          }
+          return c;
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to delete candidate document:', e);
+      setCandidates(prev => prev.map(c => {
+        if (c.id === activeCandidate.id) {
+          return {
+            ...c,
+            documents: c.documents.filter(d => d.id !== docId)
+          };
+        }
+        return c;
+      }));
+    }
+  };
+
   const handleAddCandidate = async (candidateData: Partial<Candidate>) => {
     try {
       const res = await fetch('/api/candidates', {
@@ -746,8 +779,9 @@ export default function App() {
           currentUser={currentUser}
           candidates={candidates}
           settings={settings}
-          onSelectCandidate={(id) => {
+          onSelectCandidate={(id, isObserver) => {
             setActiveCandidateId(id);
+            setIsObserverMode(Boolean(isObserver));
             setCurrentView('INTERVIEW_ROOM');
           }}
           onBackToRooms={() => setCurrentView('ROOM_LOBBY')}
@@ -774,12 +808,14 @@ export default function App() {
           isBlind={isBlind}
           timerSeconds={timerSeconds}
           settings={settings}
+          initialObserverMode={isObserverMode}
           onBackToList={() => setCurrentView('CANDIDATE_LIST')}
           onSelectCandidate={(id) => setActiveCandidateId(id)}
           onStatusChange={handleCandidateStatusChange}
           onSaveEvaluation={handleSaveEvaluation}
           onSendMessage={handleSendMessage}
           onAddDocument={handleAddDocument}
+          onDeleteDocument={handleDeleteDocument}
           onUseTailQuestion={(q: TailQuestion) => {
             setCandidates(prev => prev.map(c => {
               if (c.id === activeCandidate?.id) {

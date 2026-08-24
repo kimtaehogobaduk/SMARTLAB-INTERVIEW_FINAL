@@ -171,10 +171,36 @@ export const AIKnowledgeManager: React.FC<AIKnowledgeManagerProps> = ({
       const data = await res.json();
       if (res.ok && data.knowledgeBase) {
         setKnowledgeList(data.knowledgeBase);
-        setSuccessMsg(`'${itemTitle}' 자료가 삭제되었습니다.`);
+        setSuccessMsg(`'${itemTitle}' 자료가 성공적으로 영구 삭제되었습니다.`);
         if (onRefreshSettings) await onRefreshSettings();
       } else {
         alert(data.error || '삭제 실패');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Delete All Knowledge Items
+  const handleDeleteAll = async () => {
+    if (knowledgeList.length === 0) return;
+    if (!window.confirm(`정말로 등록된 모든 AI 학습 자료 (${knowledgeList.length}건)를 전체 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/ai/knowledge', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminPassword: 'admin' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setKnowledgeList([]);
+        setSuccessMsg('모든 AI 학습 자료가 성공적으로 전체 삭제되었습니다.');
+        if (onRefreshSettings) await onRefreshSettings();
+      } else {
+        alert(data.error || '전체 삭제 실패');
       }
     } catch (e) {
       console.error(e);
@@ -618,16 +644,30 @@ export const AIKnowledgeManager: React.FC<AIKnowledgeManagerProps> = ({
               </button>
             </div>
 
-            {/* Search Input */}
-            <div className="relative min-w-[200px]">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="키워드/태그/개념 검색..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+            {/* Search Input & Delete All */}
+            <div className="flex items-center gap-2">
+              <div className="relative min-w-[180px]">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="키워드/태그/개념 검색..."
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              {knowledgeList.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDeleteAll}
+                  className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors shrink-0"
+                  title="모든 학습 데이터 일괄 삭제"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">전체 삭제</span>
+                </button>
+              )}
             </div>
           </div>
 

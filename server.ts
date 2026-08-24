@@ -12,7 +12,7 @@ import {
   simulateInterviewQnAWithKnowledgeAI,
   extractYouTubeVideoId
 } from './server/ai.ts';
-import { Candidate, Evaluation, AuditLog, PlatformSettings, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification } from './src/types.ts';
+import { Candidate, Evaluation, AuditLog, PlatformSettings, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage } from './src/types.ts';
 
 dotenv.config();
 
@@ -241,6 +241,280 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // Action Broadcast endpoint (e.g. 질문 먼저 하기, 의심/팩트체크 신호 등)
+  app.post('/api/notifications/action', async (req, res) => {
+    const {
+      actionType,
+      operatorId,
+      operatorName,
+      roomId,
+      roomName,
+      candidateId,
+      candidateName,
+      customMessage
+    } = req.body;
+
+    // Clean name
+    const rawName = operatorName || '면접관';
+    const cleanName = rawName.replace(/^(면접관\s*\d*\s*\(?|\(?총괄\s*관리자\s*\(?)/, '').replace(/[\)\(]/g, '').trim() || rawName;
+
+    let notifType: any = 'INTERVIEWER_ACTION';
+    let title = '';
+    let message = '';
+
+    if (actionType === 'question') {
+      notifType = 'QUESTION_INTENT';
+      title = `${cleanName} 면접관이 먼저 질문합니다`;
+      message = customMessage || `${cleanName} 면접관이 발언권을 얻어 먼저 질문을 진행합니다.`;
+    } else if (actionType === 'suspicion') {
+      notifType = 'SUSPICION_ALERT';
+      title = `${cleanName} 면접관이 의심/팩트체크 신호를 보냈습니다`;
+      message = customMessage || `지원자의 답변 또는 서류 기재 내용에 대한 진위 확인 및 심층 검증이 권장됩니다.`;
+
+      // Also record suspicion into candidate contradiction points if candidateId provided
+      if (candidateId) {
+        const cand = db.candidates.find(c => c.id === candidateId);
+        if (cand) {
+          if (!cand.aiInsights) cand.aiInsights = { realtimeSummaries: [], tailQuestions: [], contradictions: [] };
+          if (!cand.aiInsights.contradictions) cand.aiInsights.contradictions = [];
+          cand.aiInsights.contradictions.unshift({
+            id: `susp-${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+            point: `${cleanName} 면접관의 실시간 팩트체크/의심 신호`,
+            context: customMessage || '지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함'
+          });
+        }
+      }
+    } else if (actionType === 'tail_question') {
+      notifType = 'TAIL_QUESTION_REQUEST';
+      title = `${cleanName} 면접관이 AI 꼬리질문 활용을 제안했습니다`;
+      message = customMessage || `AI 콘솔의 실시간 심층 검증 질문을 확인해보세요.`;
+    } else if (actionType === 'yield') {
+      notifType = 'YIELD_FLOOR';
+      title = `${cleanName} 면접관이 질문 순서를 양보했습니다`;
+      message = customMessage || `다른 면접관님께서 질문을 이어가실 수 있습니다.`;
+    } else if (actionType === 'time_check') {
+      notifType = 'TIME_ALERT';
+      title = `${cleanName} 면접관이 면접 시간 준수를 상기시켰습니다`;
+      message = customMessage || `배정된 면접 시간을 확인하고 마무리를 준비해주세요.`;
+    } else {
+      title = `${cleanName} 면접관의 행동 신호: ${actionType}`;
+      message = customMessage || `${cleanName} 면접관이 알림을 전송했습니다.`;
+    }
+
+    const actionNotif: LiveNotification = {
+      id: `act-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      type: notifType,
+      actionType,
+      title,
+      message,
+      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      createdAt: Date.now(),
+      roomId,
+      roomName,
+      candidateId: candidateId || '',
+      candidateName: candidateName || '',
+      operatorId,
+      operatorName: cleanName
+    };
+
+    if (!Array.isArray(db.notifications)) db.notifications = [];
+    db.notifications.unshift(actionNotif);
+    if (db.notifications.length > 50) db.notifications = db.notifications.slice(0, 50);
+
+    await saveCloudState();
+    res.status(201).json({ success: true, notification: actionNotif });
+  });
+
+  // Real-time Interviewer Presence endpoints (Heartbeat, Status Tracking)
+  app.post('/api/presence/heartbeat', async (req, res) => {
+    const { interviewerId, interviewerName, roomId, candidateId, mode } = req.body;
+    if (!interviewerId) return res.status(400).json({ error: 'Missing interviewerId' });
+
+    if (!Array.isArray(db.presences)) {
+      db.presences = [];
+    }
+
+    const now = Date.now();
+    const existingIndex = db.presences.findIndex(
+      p => p.interviewerId === interviewerId && (p.candidateId === candidateId || p.roomId === roomId)
+    );
+
+    const presenceItem: InterviewerPresence = {
+      interviewerId,
+      interviewerName: interviewerName || '면접관',
+      roomId,
+      candidateId,
+      mode: mode === 'observing' ? 'observing' : 'evaluating',
+      lastActiveAt: now
+    };
+
+    if (existingIndex >= 0) {
+      db.presences[existingIndex] = presenceItem;
+    } else {
+      db.presences.push(presenceItem);
+    }
+
+    // Retain only presences from the last 10 minutes to avoid memory leak
+    db.presences = db.presences.filter(p => now - p.lastActiveAt < 600000);
+
+    res.json({ success: true, presence: presenceItem });
+  });
+
+  app.post('/api/presence/leave', async (req, res) => {
+    const { interviewerId, candidateId, roomId } = req.body;
+    if (!interviewerId) return res.status(400).json({ error: 'Missing interviewerId' });
+
+    if (Array.isArray(db.presences)) {
+      const target = db.presences.find(
+        p => p.interviewerId === interviewerId && (p.candidateId === candidateId || p.roomId === roomId)
+      );
+      if (target) {
+        target.mode = 'left';
+        target.lastActiveAt = Date.now() - 30000; // Mark as left
+      }
+    }
+    res.json({ success: true });
+  });
+
+  app.get('/api/presence', (req, res) => {
+    const { roomId, candidateId } = req.query;
+    const now = Date.now();
+
+    if (!Array.isArray(db.presences)) {
+      db.presences = [];
+    }
+
+    // Filter relevant presences
+    const relevant = db.presences.filter(p => {
+      if (candidateId && p.candidateId === candidateId) return true;
+      if (roomId && p.roomId === roomId) return true;
+      return false;
+    });
+
+    // Calculate current live status:
+    // Active if pinged within last 18 seconds
+    const results = relevant.map(p => {
+      const isRecent = (now - p.lastActiveAt) < 18000;
+      let effectiveMode: 'evaluating' | 'observing' | 'left' = p.mode;
+      if (!isRecent || p.mode === 'left') {
+        effectiveMode = 'left';
+      }
+      return {
+        ...p,
+        mode: effectiveMode,
+        isOnline: isRecent && p.mode !== 'left'
+      };
+    });
+
+    res.json(results);
+  });
+
+  // Real-time Interviewer Chat Endpoints
+  app.get('/api/chat/messages', (req, res) => {
+    const { roomId, candidateId, since } = req.query;
+    if (!Array.isArray(db.chatMessages)) {
+      db.chatMessages = [];
+    }
+
+    let filtered = db.chatMessages;
+
+    // Filter by candidate or room if specified
+    if (candidateId) {
+      filtered = filtered.filter(m => !m.candidateId || m.candidateId === candidateId);
+    } else if (roomId) {
+      filtered = filtered.filter(m => !m.roomId || m.roomId === roomId);
+    }
+
+    if (since) {
+      const sinceNum = Number(since);
+      if (!isNaN(sinceNum)) {
+        filtered = filtered.filter(m => m.createdAt > sinceNum);
+      }
+    }
+
+    // Return the latest 100 messages in chronological order
+    const latestMessages = filtered.slice(-100);
+    res.json(latestMessages);
+  });
+
+  app.post('/api/chat/messages', async (req, res) => {
+    const {
+      roomId,
+      roomName,
+      candidateId,
+      candidateName,
+      senderId,
+      senderName,
+      senderRole,
+      message,
+      isImportant
+    } = req.body;
+
+    if (!message || typeof message !== 'string' || message.trim() === '') {
+      return res.status(400).json({ error: '메시지 내용을 입력해주세요.' });
+    }
+
+    const rawName = senderName || '면접관';
+    const cleanName = rawName.replace(/^(면접관\s*\d*\s*\(?|\(?총괄\s*관리자\s*\(?)/, '').replace(/[\)\(]/g, '').trim() || rawName;
+
+    const newMessage: InterviewerChatMessage = {
+      id: `chat-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      roomId: roomId || '',
+      roomName: roomName || '',
+      candidateId: candidateId || '',
+      candidateName: candidateName || '',
+      senderId: senderId || 'user-unknown',
+      senderName: cleanName,
+      senderRole: senderRole || '면접관',
+      message: message.trim(),
+      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      createdAt: Date.now(),
+      isImportant: !!isImportant
+    };
+
+    if (!Array.isArray(db.chatMessages)) {
+      db.chatMessages = [];
+    }
+
+    db.chatMessages.push(newMessage);
+    // Keep max 500 messages to prevent unbounded memory growth
+    if (db.chatMessages.length > 500) {
+      db.chatMessages = db.chatMessages.slice(-500);
+    }
+
+    await saveCloudState();
+    res.status(201).json({ success: true, message: newMessage });
+  });
+
+  app.delete('/api/chat/messages/:id', async (req, res) => {
+    const { id } = req.params;
+    if (Array.isArray(db.chatMessages)) {
+      const idx = db.chatMessages.findIndex(m => m.id === id);
+      if (idx >= 0) {
+        const removed = db.chatMessages.splice(idx, 1)[0];
+        await saveCloudState();
+        return res.json({ success: true, removed });
+      }
+    }
+    res.status(404).json({ error: '메시지를 찾을 수 없습니다.' });
+  });
+
+  app.delete('/api/chat/messages', async (req, res) => {
+    const { candidateId, roomId } = req.query;
+    if (Array.isArray(db.chatMessages)) {
+      if (candidateId) {
+        db.chatMessages = db.chatMessages.filter(m => m.candidateId !== candidateId);
+      } else if (roomId) {
+        db.chatMessages = db.chatMessages.filter(m => m.roomId !== roomId);
+      } else {
+        db.chatMessages = [];
+      }
+      await saveCloudState();
+    }
+    res.json({ success: true });
+  });
+
   // Proxy Endpoint for Web Embedding & Document Viewing (Solves X-Frame-Options / Refused to Connect issues)
   app.get('/api/proxy/embed', async (req, res) => {
     const targetUrl = req.query.url as string;
@@ -438,6 +712,23 @@ async function startServer() {
     candidate.documents.push(newDoc);
     await saveCloudState();
     res.status(201).json({ success: true, documents: candidate.documents, addedDocument: newDoc });
+  });
+
+  // Candidate Document Deletion
+  app.delete('/api/candidates/:id/documents/:docId', async (req, res) => {
+    const { id, docId } = req.params;
+    const candidate = db.candidates.find(c => c.id === id);
+    if (!candidate) return res.status(404).json({ error: 'Candidate not found' });
+
+    if (Array.isArray(candidate.documents)) {
+      const idx = candidate.documents.findIndex(d => d.id === docId);
+      if (idx >= 0) {
+        const removed = candidate.documents.splice(idx, 1)[0];
+        await saveCloudState();
+        return res.json({ success: true, documents: candidate.documents, removedDocument: removed });
+      }
+    }
+    res.status(404).json({ error: '문서를 찾을 수 없습니다.' });
   });
 
   app.post('/api/candidates', async (req, res) => {
@@ -947,9 +1238,10 @@ async function startServer() {
 
   app.delete('/api/ai/knowledge/:id', async (req, res) => {
     const { id } = req.params;
-    const { password, adminPassword } = req.body;
+    const { password, adminPassword } = req.body || {};
     const pwd = password || adminPassword;
-    if (pwd !== 'admin') {
+    // Allow deletion from app UI directly or with admin password
+    if (pwd && pwd !== 'admin') {
       return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
     }
 
@@ -964,13 +1256,65 @@ async function startServer() {
         field: 'AI 지식 베이스 학습 자료 삭제',
         beforeVal: { title: removed.title, sourceType: removed.sourceType },
         afterVal: null,
-        reason: '어드민이 AI 지식 베이스에서 학습 자료를 제거함'
+        reason: '어드민이 AI 지식 베이스에서 학습 자료를 영구 제거함'
       });
       await saveCloudState();
-      res.json({ success: true, knowledgeBase: db.settings.knowledgeBase });
+      res.json({ success: true, removed, knowledgeBase: db.settings.knowledgeBase });
     } else {
       res.status(404).json({ error: '지식 자료를 찾을 수 없습니다.' });
     }
+  });
+
+  // Batch delete knowledge items
+  app.post('/api/ai/knowledge/batch-delete', async (req, res) => {
+    const { ids, deleteAll } = req.body || {};
+    if (!db.settings.knowledgeBase) db.settings.knowledgeBase = [];
+
+    const beforeCount = db.settings.knowledgeBase.length;
+    if (deleteAll) {
+      db.settings.knowledgeBase = [];
+      db.auditLogs.unshift({
+        id: `audit-kb-clear-${Date.now().toString(36)}`,
+        timestamp: new Date().toLocaleString('ko-KR', { hour12: false }),
+        modifiedBy: '관리자 (Admin)',
+        field: 'AI 지식 베이스 전체 초기화/삭제',
+        beforeVal: { count: beforeCount },
+        afterVal: { count: 0 },
+        reason: '어드민이 모든 AI 학습 자료를 일괄 삭제함'
+      });
+    } else if (Array.isArray(ids) && ids.length > 0) {
+      const idSet = new Set(ids);
+      db.settings.knowledgeBase = db.settings.knowledgeBase.filter(k => !idSet.has(k.id));
+      db.auditLogs.unshift({
+        id: `audit-kb-batch-del-${Date.now().toString(36)}`,
+        timestamp: new Date().toLocaleString('ko-KR', { hour12: false }),
+        modifiedBy: '관리자 (Admin)',
+        field: 'AI 지식 베이스 선택 자료 일괄 삭제',
+        beforeVal: { count: beforeCount },
+        afterVal: { count: db.settings.knowledgeBase.length },
+        reason: `어드민이 ${ids.length}개 학습 자료를 일괄 제거함`
+      });
+    }
+
+    await saveCloudState();
+    res.json({ success: true, knowledgeBase: db.settings.knowledgeBase });
+  });
+
+  // Delete all knowledge items
+  app.delete('/api/ai/knowledge', async (req, res) => {
+    const beforeCount = db.settings.knowledgeBase?.length || 0;
+    db.settings.knowledgeBase = [];
+    db.auditLogs.unshift({
+      id: `audit-kb-clear-${Date.now().toString(36)}`,
+      timestamp: new Date().toLocaleString('ko-KR', { hour12: false }),
+      modifiedBy: '관리자 (Admin)',
+      field: 'AI 지식 베이스 전체 삭제',
+      beforeVal: { count: beforeCount },
+      afterVal: { count: 0 },
+      reason: '어드민이 모든 AI 학습 자료를 일괄 삭제함'
+    });
+    await saveCloudState();
+    res.json({ success: true, knowledgeBase: [] });
   });
 
   app.post('/api/ai/knowledge/simulate', async (req, res) => {

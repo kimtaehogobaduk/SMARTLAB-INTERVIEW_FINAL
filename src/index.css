@@ -14,6 +14,15 @@
   50% { opacity: 0.4; }
 }
 
+@keyframes toastShrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
 .animate-pulse-glow {
   animation: pulseGlow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-toast-shrink {
+  animation: toastShrink linear forwards;
 }

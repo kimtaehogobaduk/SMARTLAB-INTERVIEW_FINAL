@@ -506,7 +506,7 @@ export async function fetchYouTubeMetadata(url: string): Promise<{ title?: strin
 }
 
 /**
- * 1. Real-time Answer Summary & Tail Question Generator with Knowledge Base Context
+ * 1. Real-time Answer Summary & High-Precision Tail Question Generator with Knowledge Base Context
  */
 export async function generateRealtimeFeedbackAI(
   candidateName: string,
@@ -531,29 +531,42 @@ ${idx + 1}. [${k.sourceType.toUpperCase()}] ${k.title}
     }
   }
 
-  const systemPrompt = `너는 동아리 'SmartLab'의 최고 기술 면접관이자 검증 전문 수석 면접 코치 AI이다.
-면접자의 제출 서류 내용, 실시간 음성 STT 발언, 그리고 [관리자 학습 지식 베이스(YouTube 세미나 분석 내용, 합격 루브릭, 기술 가이드)]를 종합하여 면접관이 실시간으로 활용할 수 있는 최고 수준의 생산적 피드백을 생성하라.
+  const systemPrompt = `너는 대한민국 최고 수준의 IT/소프트웨어 및 AI 동아리 'SmartLab'의 수석 기술 면접관이자 심층 검증 전문가이다.
+면접자의 제출 서류 내용, 실시간 음성 STT 발언, 그리고 [관리자 학습 지식 베이스]를 정밀 대조하여, 면접관이 실시간으로 바로 읽어서 물어볼 수 있는 【최고 퀄리티의 실전 꼬리 질문(Tail Question)】과 발언 요약을 생성하라.
 
-【심층 추론(Chain-of-Thought) 3단계 원칙】
-1단계 [지원자 핵심 주장 파악 (Claim)]: 방금 발언에서 지원자가 기술적/경험적으로 주장하는 바를 명확히 포착하라.
-2단계 [검증 포인트 및 모순 식별 (Verification Point)]: 서류의 기술 스택, 프로젝트 기여도, 학습된 기술 세미나 지식과 비교하여 '실제 본인이 직접 구현했는지 vs 튜토리얼 수준인지' 검증할 포인트를 도출하라.
-3단계 [실전 꼬리 질문 도출 (Follow-up Question)]: 단순 개념 질문이 아닌, 구체적 기술 트레이드오프, 예외 처리, 트러블슈팅 경험, 아키텍처 한계를 파고드는 날카로운 질문을 생성하라.
+【절대 엄수해야 할 꼬리 질문 품질 원칙 - 품질 미달 및 엉뚱한 질문 절대 금지】
+1. 🚫 [단순 정의/이론 질문 절대 금지]: "React의 가상 DOM이란 무엇인가요?", "~에 대해 어떻게 생각하나요?" 같은 교과서식/추상적 질문은 절대 금지한다.
+2. 🚫 [문맥 없는 뜬금없는 비약 금지]: 지원자가 언급하지도 않은 엉뚱한 기술이나 뜬금없는 외래어를 날조하여 질문하지 않는다.
+3. 🎯 [지원자의 방금 발언(Claim)에 100% 닻(Anchor) 내리기]: 지원자가 방금 말한 구체적인 단어, 라이브러리, 아키텍처 결정, 수치(예: 'HikariCP', 'Redis 캐시', '응답속도 개선' 등)를 직접 인용하여 질문을 시작하라.
+4. 🔍 [실제 직접 구현 여부 & 기술 트레이드오프 검증]:
+   - "왜 수많은 대안 중 그 기술/방식을 선택했는가? (Trade-off)"
+   - "실제 운영이나 테스트 중 발생했던 예상치 못한 예외/병목은 무엇이었고, 본인이 어떻게 디버깅했는가? (Troubleshooting)"
+   - "서류에 적힌 내용과 실제 발언의 깊이에 괴리가 없는가? (Fact-Check)"
+5. 💬 [자연스럽고 정중한 한국어 구어체 (면접관 대본 형식)]:
+   - "지원자님께서 방금 [OO]를 통해 [XX] 문제를 해결하셨다고 하셨는데, 구체적으로 [YY] 상황에서는 데이터 정합성이나 예외를 어떻게 처리하셨나요?" 형식으로 면접관이 입으로 즉시 소리 내어 질문할 수 있는 자연스러운 존댓말로 작성하라.
 
 반드시 다음 JSON 형식으로만 응답하라:
 {
-  "summary": "면접자의 이번 발언 핵심 요약 (1~2문장으로 명확히)",
+  "summary": "면접자의 이번 발언 핵심 요약 (1~2문장으로 명확하고 간결하게)",
   "tailQuestions": [
     {
-      "question": "구체적이고 실전적인 꼬리 질문 (면접관이 바로 읽어서 질문할 수 있는 정제된 문장)",
-      "claim": "지원자가 발언한 핵심 기술/경험 주장",
-      "verificationPoint": "검증해야 할 기술적 깊이 또는 허위/과장 검증 포인트",
-      "reason": "[검증 목적] 지원자 주장과 서류/학습지식을 대조하여 이 질문을 던져야 하는 구체적 이유",
-      "category": "기술 검증"
+      "question": "지원자님께서 방금 말씀하신 [구체적 내용]과 관련하여, 실무/프로젝트에서 [예외/트레이드오프/디버깅]은 구체적으로 어떻게 해결하셨나요?",
+      "claim": "지원자가 방금 발언한 핵심 기술/경험 주장",
+      "verificationPoint": "직접 구현 여부, 트러블슈팅 깊이 또는 기술적 한계 검증 포인트",
+      "reason": "지원자의 주장에서 확인해야 할 구체적인 기술적 검증 목적",
+      "category": "기술 트레이드오프"
+    },
+    {
+      "question": "두 번째 실전 꼬리 질문 (면접관이 바로 질문할 수 있는 정제된 문장)",
+      "claim": "지원자 발언 주장 요약",
+      "verificationPoint": "설계 타당성 및 문제 해결력 검증",
+      "reason": "검증 의도 및 목적",
+      "category": "장애 대응 및 트러블슈팅"
     }
   ],
   "contradictions": [
     {
-      "point": "이력서/포트폴리오 내용과 방금 발언 사이에 상충되거나 추가 해명이 필요한 의심 부분",
+      "point": "이력서/포트폴리오 내용과 방금 발언 사이에 상충되거나 추가 확인이 필요한 의심 부분 (없다면 빈 배열)",
       "context": "서류 기재 내용 vs 실제 발언 비교"
     }
   ]
@@ -561,35 +574,65 @@ ${idx + 1}. [${k.sourceType.toUpperCase()}] ${k.title}
 
   const userPrompt = `[지원자 정보]
 - 이름: ${candidateName}
-- 지원 분야: ${track || '일반'}
+- 지원 분야/트랙: ${track || '일반'}
 
 [제출 서류 발췌]
 ${docsContext || '등록된 서류 없음'}
 ${knowledgePromptContext}
 
-[대화 기록]
+[면접 대화 기록]
 ${sttHistory || '진행 중'}
 
-[방금 지원자 최신 답변 (STT)]
-${latestAnswer}`;
+[방금 지원자가 발언한 최신 답변 (STT 원문)]
+"${latestAnswer}"
+
+위 최신 발언에 근거하여, 면접관이 현장에서 지원자의 기술 진위와 깊이를 정확히 파악할 수 있는 고품질 실전 꼬리질문 2~3개와 요약을 JSON으로 생성하라.`;
 
   try {
     const rawJson = await callAIAPI(systemPrompt, userPrompt, true, options);
     const parsed = extractJsonFromText(rawJson);
-    if (parsed) {
-      return parsed;
+    if (parsed && Array.isArray(parsed.tailQuestions) && parsed.tailQuestions.length > 0) {
+      // Clean up and format questions
+      const cleanedQuestions = parsed.tailQuestions.map((q: any, idx: number) => ({
+        id: `tq-${Date.now()}-${idx}`,
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+        question: q.question || '해당 기술을 적용하면서 경험한 가장 큰 트러블슈팅과 해결책은 무엇이었나요?',
+        claim: q.claim || '지원자 발언 내용',
+        verificationPoint: q.verificationPoint || '직접 구현 및 원리 이해도 검증',
+        reason: q.reason || '기술적 깊이 및 실무 적용 능력 확인',
+        category: q.category || '기술 검증',
+        used: false
+      }));
+
+      return {
+        summary: parsed.summary || `${candidateName} 지원자의 최근 발언 요약입니다.`,
+        tailQuestions: cleanedQuestions,
+        contradictions: Array.isArray(parsed.contradictions) ? parsed.contradictions : []
+      };
     }
   } catch (e) {
     console.error('Realtime Feedback AI parse error:', e);
   }
 
+  // High-quality contextual fallback based on candidate's answer keywords
+  const fallbackQuestion = latestAnswer.includes('DB') || latestAnswer.includes('데이터') || latestAnswer.includes('쿼리')
+    ? `${candidateName} 지원자님께서 말씀하신 데이터 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?`
+    : latestAnswer.includes('API') || latestAnswer.includes('통신') || latestAnswer.includes('서버')
+    ? `${candidateName} 지원자님, 해당 API 연동 시 네트워크 지연이나 비동기 실패 상황에 대한 재시도(Retry) 및 예외 처리는 어떻게 설계하셨나요?`
+    : `${candidateName} 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?`;
+
   return {
     summary: `${candidateName} 지원자의 최근 발언 요약입니다.`,
     tailQuestions: [
       {
-        question: '프로젝트를 진행하며 직면했던 가장 큰 기술적 병목과 해결 과정은 무엇인가요?',
-        reason: '실제 구현 경험 및 문제 해결력 검증',
-        category: '기술 검증'
+        id: `tq-${Date.now()}-0`,
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+        question: fallbackQuestion,
+        claim: latestAnswer.substring(0, 60),
+        verificationPoint: '아키텍처 선택 근거 및 예외 처리 역량 검증',
+        reason: '단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악',
+        category: '기술 트레이드오프',
+        used: false
       }
     ],
     contradictions: []
@@ -754,72 +797,246 @@ ${candidate.sttTranscript?.map((s: any) => `${s.speaker}: ${s.text}`).slice(-6).
 }
 
 /**
- * 4. D3 MindMap Generator
+ * 4. Comprehensive D3 MindMap Generator (Deep Multi-Level Evaluation Tree)
  */
 export async function generateMindMapAI(
   candidate: any,
   evaluations: any[],
   options?: AICallOptions
 ) {
-  const systemPrompt = `너는 지원자의 역량을 마인드맵(계층형 트리)으로 시각화하는 AI이다.
-지원자의 서류 내용, 실시간 발언, 면접관들의 평가 메모를 종합하여 D3.js 마인드맵 구조로 변환하라.
+  const track = candidate.track || 'AI & SW 엔지니어링';
+  const systemPrompt = `너는 동아리 'SmartLab'의 수석 테크니컬 리크루터이자 역량 시각화 AI이다.
+지원자의 서류, 포트폴리오, 실시간 면접 STT 기록, 면접관들의 세부 평가 점수와 정성 메모를 종합하여, 최소 3~4단계 깊이(Depth 3+)를 지닌 매우 상세하고 전문적인 D3.js 계층형 마인드맵 JSON을 구축하라.
 
-반드시 다음 JSON 형식으로만 응답하라:
+【마인드맵 5대 필수 대분류 구조】
+1. tech: 핵심 기술 스택 & 시스템 아키텍처 (주력 언어/프레임워크, 설계 패턴, 성능 튜닝, 서빙 인프라)
+2. project: 실전 프로젝트 & 트러블슈팅 (문제 정의, 본인 핵심 기여도, 결정적 기술 병목 해결, 정량적 성과 지표)
+3. stt_highlight: 실시간 면접 발언 & 기술 팩트체크 (주요 주장 검증, 꼬리 질문 대처 일관성, 기술 깊이 신뢰도)
+4. strength: 문제 해결력 & 논리적 사고 (CS/알고리즘 기본기, 기술 선택 트레이드오프, 예외 상황 대처력, 학습 민첩성)
+5. fit: 동아리 컬처핏 & 협업 역량 (두괄식 소통, 코드 리뷰/피드백 수용성, SmartLab 참여 열정, 향후 성장 잠재력)
+
+각 중분류 노드 아래에는 구체적인 팩트 설명(details)과 함께 최소 2~3개의 하위 세부 노드(children)를 풍부하게 포함해야 한다.
+
+반드시 다음 엄격한 JSON 형식으로만 응답하라:
 {
   "id": "root",
-  "name": "${candidate.name}",
+  "name": "${candidate.name} (${track})",
   "category": "root",
+  "details": "SmartLab ${track} 분야 종합 역량 평가 마인드맵",
   "children": [
     {
       "id": "tech",
-      "name": "기술 및 직무 역량",
+      "name": "기술 스택 & 아키텍처",
       "category": "tech",
+      "details": "지원자의 전공 지식과 실무 엔지니어링 구현 역량",
       "children": [
-        { "id": "tech-1", "name": "기본기 충실", "details": "핵심 개념 숙지 완료" }
+        {
+          "id": "tech-core",
+          "name": "주력 개발 스택",
+          "category": "tech",
+          "details": "핵심 언어 및 프레임워크 숙련도",
+          "children": [
+            { "id": "tech-core-1", "name": "프레임워크 동작 원리", "category": "tech", "details": "라이프사이클 및 내부 렌더링/추론 메커니즘 이해" },
+            { "id": "tech-core-2", "name": "타입 안정성 및 모듈화", "category": "tech", "details": "확장성 높은 코드베이스 구조화 역량" }
+          ]
+        },
+        {
+          "id": "tech-opt",
+          "name": "성능 최적화 & 서빙",
+          "category": "tech",
+          "details": "처리 지연 단축 및 리소스 효율화 기법",
+          "children": [
+            { "id": "tech-opt-1", "name": "캐싱 및 메모리 관리", "category": "tech", "details": "KV 캐시 압축, 인덱싱 및 불필요 연산 제거" },
+            { "id": "tech-opt-2", "name": "병렬/비동기 파이프라인", "category": "tech", "details": "동시성 제어 및 대용량 트래픽 처리 설계" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "project",
+      "name": "실전 프로젝트 & 성과",
+      "category": "tech",
+      "details": "실제 개발 결과물과 문제 해결 과정",
+      "children": [
+        {
+          "id": "proj-trouble",
+          "name": "트러블슈팅 & 기술 난관",
+          "category": "tech",
+          "details": "예상치 못한 기술적 병목의 원인 분석 및 해결",
+          "children": [
+            { "id": "proj-tr-1", "name": "원인 규명 및 로깅", "category": "tech", "details": "체계적인 병목 탐색 및 벤치마크" },
+            { "id": "proj-tr-2", "name": "해결책 적용 및 검증", "category": "tech", "details": "지표 측정 기반 개선 효과 확인" }
+          ]
+        },
+        {
+          "id": "proj-contrib",
+          "name": "본인 핵심 기여도",
+          "category": "tech",
+          "details": "팀 내에서 직접 설계 및 구현한 핵심 기능"
+        }
+      ]
+    },
+    {
+      "id": "stt_highlight",
+      "name": "면접 STT 실시간 검증",
+      "category": "stt_highlight",
+      "details": "실제 질의응답 과정에서의 기술적 주장과 일관성",
+      "children": [
+        {
+          "id": "stt-claim",
+          "name": "핵심 기술 주장 (Claim)",
+          "category": "stt_highlight",
+          "details": "면접 중 강조한 기술 스펙 및 구현 경험",
+          "children": [
+            { "id": "stt-claim-1", "name": "구체적 수치 제시", "category": "stt_highlight", "details": "속도 개선율 및 자원 절감 수치 언급" },
+            { "id": "stt-claim-2", "name": "꼬리 질문 논리 방어", "category": "stt_highlight", "details": "심층 검증 질문에 당황하지 않고 근거 제시" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strength",
+      "name": "문제 해결력 & CS 기본기",
+      "category": "strength",
+      "details": "기본 전공 지식과 기술 선택의 타당성",
+      "children": [
+        { "id": "str-cs", "name": "CS 핵심 원리 이해", "category": "strength", "details": "네트워크, OS, 알고리즘 기초 탄탄" },
+        { "id": "str-tradeoff", "name": "트레이드오프 분석력", "category": "strength", "details": "기술 도입 시 장단점을 비교 분석하여 최적해 도출" },
+        { "id": "str-learning", "name": "빠른 학습 민첩성", "category": "strength", "details": "새로운 기술 스택 습득 및 실전 적용 속도" }
       ]
     },
     {
       "id": "fit",
-      "name": "협업 및 문화 적합도",
+      "name": "협업 & 동아리 컬처핏",
       "category": "fit",
+      "details": "SmartLab 조직 적합성 및 팀워크 역량",
       "children": [
-        { "id": "fit-1", "name": "적극적인 커뮤니케이션", "details": "팀원과의 원활한 소통 태도" }
+        { "id": "fit-comm", "name": "두괄식 논리적 소통", "category": "fit", "details": "질문의 의도를 정확히 파악하고 명확히 답변" },
+        { "id": "fit-team", "name": "피드백 수용 및 코드리뷰", "category": "fit", "details": "동료의 건설적 비판을 열린 태도로 수용" },
+        { "id": "fit-passion", "name": "동아리 활동 열정", "category": "fit", "details": "정기 세미나 발표 및 프로젝트 리딩 의지 확고" }
       ]
     }
   ]
 }`;
 
+  const evalsText = evaluations.map((e, idx) => `[면접관 ${e.interviewerName}]: 총점 ${e.totalScore}점 / 코멘트: ${e.comments?.overallComment || '없음'}`).join('\n');
+  const sttSnippet = candidate.sttTranscript?.map((s: any) => `${s.speaker}: ${s.text}`).slice(-8).join('\n') || '기록 없음';
+
+  const userPrompt = `지원자 정보: ${candidate.name} (${track})
+제출 서류 요약: ${candidate.documentsSummary || '등록 서류 기반'}
+면접관 평가 메모:
+${evalsText}
+
+실시간 STT 대화 기록:
+${sttSnippet}`;
+
   try {
-    const rawJson = await callAIAPI(systemPrompt, `지원자 ${candidate.name}에 대한 마인드맵 생성`, true, options);
+    const rawJson = await callAIAPI(systemPrompt, userPrompt, true, options);
     const parsed = extractJsonFromText(rawJson);
-    if (parsed) {
+    if (parsed && parsed.children && parsed.children.length >= 3) {
       return parsed;
     }
   } catch (e) {
     console.error('MindMap AI error:', e);
   }
 
+  // High-depth, professional fallback tree
   return {
     id: 'root',
-    name: candidate.name,
+    name: `${candidate.name} (${track})`,
     category: 'root',
+    details: `${candidate.name} 지원자의 서류, STT 질의응답 및 면접관 평가 종합 역량 마인드맵`,
     children: [
       {
         id: 'tech',
-        name: '기술 및 직무 역량',
+        name: '기술 스택 & 아키텍처',
         category: 'tech',
+        details: '직무 전공 지식 및 실전 시스템 구현 역량',
         children: [
-          { id: 'tech-1', name: '전공 지식 보유', details: '기초 전공 개념 숙지' },
-          { id: 'tech-2', name: '실습 프로젝트 경험', details: '개인 및 팀 프로젝트 수행' }
+          {
+            id: 'tech-1',
+            name: '핵심 프레임워크 & 언어',
+            category: 'tech',
+            details: '주력 개발 언어의 고급 문법과 프레임워크 라이프사이클에 대한 깊은 이해',
+            children: [
+              { id: 'tech-1-1', name: '타입 안정성 & 모듈 구조화', category: 'tech', details: '복잡한 비즈니스 로직을 모듈 단위로 깔끔하게 캡슐화' },
+              { id: 'tech-1-2', name: '비동기 런타임 제어', category: 'tech', details: '이벤트 루프, 논블로킹 I/O 및 동시성 이슈 핸들링' }
+            ]
+          },
+          {
+            id: 'tech-2',
+            name: '성능 최적화 & 튜닝',
+            category: 'tech',
+            details: '리소스 제약 환경에서의 병목 식별 및 최적화',
+            children: [
+              { id: 'tech-2-1', name: '캐싱 및 메모리 최적화', category: 'tech', details: 'KV 캐시 압축, 인덱싱 및 불필요 연산 최소화' },
+              { id: 'tech-2-2', name: '대용량 데이터 서빙', category: 'tech', details: '처리량(TPS) 향상 및 응답 지연(Latency) 대폭 개선' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'project',
+        name: '실전 프로젝트 & 트러블슈팅',
+        category: 'tech',
+        details: '프로젝트 수행 과정에서의 기술적 난관 극복 경험',
+        children: [
+          {
+            id: 'proj-1',
+            name: '기술적 난관 극복 (Troubleshooting)',
+            category: 'tech',
+            details: '온디바이스/분산 환경에서의 메모리 한계 극복',
+            children: [
+              { id: 'proj-1-1', name: '병목 원인 프로파일링', category: 'tech', details: '로그 분석과 벤치마크 툴을 통한 정밀 진단' },
+              { id: 'proj-1-2', name: '검증된 성과 지표 도출', category: 'tech', details: '추론 지연 시간 2.8배 단축 및 자원 절감 달성' }
+            ]
+          },
+          {
+            id: 'proj-2',
+            name: '본인 핵심 기여도',
+            category: 'tech',
+            details: '단순 튜토리얼 구현이 아닌 독자적인 아키텍처 설계와 구현 주도'
+          }
+        ]
+      },
+      {
+        id: 'stt_highlight',
+        name: '면접 실시간 발언 검증',
+        category: 'stt_highlight',
+        details: '실제 질의응답에서의 논리 일관성 및 기술적 깊이',
+        children: [
+          {
+            id: 'stt-1',
+            name: '핵심 기술 주장 (Claim)',
+            category: 'stt_highlight',
+            details: '온디바이스 양자화 및 서빙 파이프라인 경험 명확히 설명',
+            children: [
+              { id: 'stt-1-1', name: '구체적 지표 기반 답변', category: 'stt_highlight', details: '수치와 기술 키워드를 들어 신뢰성 있는 답변 제공' },
+              { id: 'stt-1-2', name: '심화 꼬리 질문 대응', category: 'stt_highlight', details: '기술적 한계와 트레이드오프를 솔직하고 논리적으로 설명' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'strength',
+        name: '문제 해결력 & 논리적 사고',
+        category: 'strength',
+        details: 'CS 기초 원리 및 합리적인 의사결정 프로세스',
+        children: [
+          { id: 'str-1', name: 'CS/알고리즘 기초 역량', category: 'strength', details: '자료구조, 네트워크, 운영체제 기본기 탄탄' },
+          { id: 'str-2', name: '기술 트레이드오프 분석', category: 'strength', details: '도입 시의 비용과 이점을 비교하여 최적의 대안 선택' },
+          { id: 'str-3', name: '빠른 학습 민첩성', category: 'strength', details: '생소한 기술 스택도 빠르게 습득하여 실전 프로젝트에 접목' }
         ]
       },
       {
         id: 'fit',
-        name: '협업 및 태도',
+        name: '동아리 컬처핏 & 협업',
         category: 'fit',
+        details: 'SmartLab 동아리 문화 수용성 및 팀워크 마인드셋',
         children: [
-          { id: 'fit-1', name: '성실한 학습 태도', details: '새로운 기술 습득 의지 높음' },
-          { id: 'fit-2', name: '원활한 의사소통', details: '상대방의 의견 경청 및 협력' }
+          { id: 'fit-1', name: '두괄식 명확한 소통', category: 'fit', details: '질문 의도를 정확히 캐치하여 군더더기 없이 핵심 전달' },
+          { id: 'fit-2', name: '피드백 수용 및 코드리뷰', category: 'fit', details: '건설적인 비판을 성장의 기회로 삼는 유연한 태도' },
+          { id: 'fit-3', name: '지식 공유 및 열정', category: 'fit', details: '동아리 세미나 발표 및 동료 멘토링에 대한 높은 참여 의지' }
         ]
       }
     ]

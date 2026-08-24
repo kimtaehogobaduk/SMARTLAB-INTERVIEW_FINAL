@@ -172,9 +172,33 @@ export interface PanelVisibility {
   showSTT: boolean;
   showDocs: boolean;
   showEval: boolean;
+  showChat?: boolean;
 }
 
-export type LayoutPreset = 'ALL_THREE' | 'DOCS_AND_EVAL' | 'STT_AND_EVAL' | 'EVAL_ONLY';
+export type LayoutStructure =
+  | 'COLUMNS'
+  | 'TOP_ONE_BOTTOM_TWO'
+  | 'TOP_TWO_BOTTOM_ONE'
+  | 'LEFT_ONE_RIGHT_TWO'
+  | 'GRID_2X2';
+
+export type PanelId = 'STT' | 'DOCS' | 'EVAL' | 'CHAT';
+
+export type LayoutPreset =
+  | 'ALL_THREE'
+  | 'ALL_FOUR'
+  | 'TOP_BOTTOM_T'
+  | 'TOP_BOTTOM_INV_T'
+  | 'LEFT_RIGHT_STACK'
+  | 'GRID_2X2'
+  | 'DOCS_AND_EVAL'
+  | 'STT_AND_EVAL'
+  | 'EVAL_AND_CHAT'
+  | 'STT_AND_CHAT'
+  | 'DOCS_AND_CHAT'
+  | 'EVAL_ONLY'
+  | 'CHAT_ONLY'
+  | 'ALL_OFF';
 
 export type KnowledgeSourceType = 'youtube' | 'document' | 'web' | 'text' | 'rule';
 
@@ -205,7 +229,8 @@ export interface AIKnowledgeItem {
 
 export interface LiveNotification {
   id: string;
-  type: 'INTERVIEW_STARTED' | 'INTERVIEW_FINISHED' | 'EVALUATION_SUBMITTED' | 'NO_SHOW_VOTE';
+  type: 'INTERVIEW_STARTED' | 'INTERVIEW_FINISHED' | 'EVALUATION_SUBMITTED' | 'NO_SHOW_VOTE' | 'INTERVIEWER_ACTION' | 'QUESTION_INTENT' | 'SUSPICION_ALERT' | 'TAIL_QUESTION_REQUEST' | 'TIME_ALERT' | 'YIELD_FLOOR';
+  actionType?: 'question' | 'suspicion' | 'tail_question' | 'yield' | 'time_check' | string;
   title: string;
   message: string;
   timestamp: string;
@@ -232,4 +257,28 @@ export interface PlatformSettings {
   aiModel?: string;
   cerebrasModel?: string;
   knowledgeBase?: AIKnowledgeItem[];
+}
+
+export interface InterviewerPresence {
+  interviewerId: string;
+  interviewerName: string;
+  roomId?: string;
+  candidateId?: string;
+  mode: 'evaluating' | 'observing' | 'left';
+  lastActiveAt: number;
+}
+
+export interface InterviewerChatMessage {
+  id: string;
+  roomId?: string;
+  roomName?: string;
+  candidateId?: string;
+  candidateName?: string;
+  senderId: string;
+  senderName: string;
+  senderRole?: string;
+  message: string;
+  timestamp: string;
+  createdAt: number;
+  isImportant?: boolean;
 }

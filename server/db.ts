@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
-import { Candidate, Evaluation, PlatformSettings, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification } from '../src/types';
+import { Candidate, Evaluation, PlatformSettings, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage } from '../src/types';
 
 // Load config safely in Node environment
 let firebaseConfig: any = null;
@@ -41,6 +41,8 @@ export interface DatabaseState {
   evaluations: Evaluation[];
   auditLogs: AuditLog[];
   notifications: LiveNotification[];
+  presences: InterviewerPresence[];
+  chatMessages: InterviewerChatMessage[];
   settings: PlatformSettings;
   adminUnlock: {
     candidateId: string | null;
@@ -401,7 +403,6 @@ export const db: DatabaseState = {
   rooms: [...initialRooms],
   candidates: [...initialCandidates],
   evaluations: [],
-  notifications: [],
   auditLogs: [
     {
       id: 'log-init',
@@ -413,10 +414,11 @@ export const db: DatabaseState = {
       reason: '시스템 부팅'
     }
   ],
+  notifications: [],
+  presences: [],
+  chatMessages: [],
   settings: {
     isCriteriaConfirmed: false, // Must be confirmed by Admin before interview evaluations have effect
-    criteriaConfirmedAt: undefined,
-    criteriaConfirmedBy: undefined,
     scoringFormula: 'TRIMMED_MEAN',
     passThresholdScore: 70,
     criteria: defaultCriteria,
@@ -441,6 +443,25 @@ export const db: DatabaseState = {
 const DOC_ID = 'smartlab_state_v1';
 const COLLECTION_NAME = 'app_state';
 const LOCAL_CACHE_PATH = path.join(process.cwd(), '.smartlab_state_cache.json');
+
+/**
+ * Deeply sanitizes any JavaScript object or array to ensure it contains
+ * no `undefined` values, which are strictly disallowed by Firebase Firestore SDK.
+ */
+function sanitizeForFirestore(val: any): any {
+  if (val === undefined) return null;
+  if (val === null || typeof val !== 'object') return val;
+  if (Array.isArray(val)) {
+    return val.map(item => (item === undefined ? null : sanitizeForFirestore(item)));
+  }
+  const cleanObj: Record<string, any> = {};
+  for (const [key, value] of Object.entries(val)) {
+    if (value !== undefined) {
+      cleanObj[key] = sanitizeForFirestore(value);
+    }
+  }
+  return cleanObj;
+}
 
 // Try reading local cache immediately on module load for instant server boot
 try {
@@ -518,6 +539,7 @@ export async function loadCloudState(): Promise<void> {
         }
         if (Array.isArray(data.evaluations)) db.evaluations = data.evaluations;
         if (Array.isArray(data.auditLogs)) db.auditLogs = data.auditLogs;
+        if (Array.isArray(data.chatMessages)) db.chatMessages = data.chatMessages;
         if (data.settings) db.settings = { ...db.settings, ...data.settings };
         console.log(`[Firebase Cloud Store] State successfully loaded. Rooms: ${db.rooms.length}, Candidates: ${db.candidates.length}, Evaluations: ${db.evaluations.length}`);
       } else {
@@ -553,6 +575,7 @@ export async function saveCloudState(): Promise<void> {
           candidates: db.candidates,
           evaluations: db.evaluations,
           auditLogs: db.auditLogs.slice(0, 100),
+          chatMessages: (db.chatMessages || []).slice(-100),
           settings: db.settings,
           lastUpdatedAt: new Date().toISOString()
         },
@@ -572,14 +595,17 @@ export async function saveCloudState(): Promise<void> {
     saveTimeout = setTimeout(async () => {
       try {
         const docRef = doc(firestoreInstance!, COLLECTION_NAME, DOC_ID);
-        await setDoc(docRef, {
+        const payload = sanitizeForFirestore({
           rooms: db.rooms,
           candidates: db.candidates,
           evaluations: db.evaluations,
           auditLogs: db.auditLogs.slice(0, 100), // Keep recent 100 logs
+          chatMessages: (db.chatMessages || []).slice(-100), // Keep recent 100 chat messages
           settings: db.settings,
           lastUpdatedAt: new Date().toISOString()
         });
+        await setDoc(docRef, payload);
+        console.log('[Firebase Cloud Store] Successfully synchronized state to Firestore.');
       } catch (e) {
         console.error('[Firebase Cloud Store] Error saving state:', e);
       } finally {

@@ -7,6 +7,7 @@
         "candidates": { "type": "array", "description": "List of candidates and their STT/AI data" },
         "evaluations": { "type": "array", "description": "Blind score evaluations per candidate and interviewer" },
         "auditLogs": { "type": "array", "description": "Audit trail logs for modifications" },
+        "chatMessages": { "type": "array", "description": "Interviewer real-time chat messages" },
         "settings": { "type": "object", "description": "Platform settings and weights" },
         "lastUpdatedAt": { "type": "string", "description": "ISO timestamp of last update" }
       }

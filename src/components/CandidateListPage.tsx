@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Candidate, InterviewerUser, InterviewRoomItem, PlatformSettings } from '../types';
+import React, { useState, useRef } from 'react';
+import { Candidate, InterviewerUser, InterviewRoomItem, PlatformSettings, InterviewerChatMessage } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
+import { EntryModeModal } from './EntryModeModal';
+import { InterviewerChat } from './InterviewerChat';
+import { formatInterviewerDisplayName } from './ObserverDashboard';
 import {
   Users,
   Plus,
@@ -27,7 +30,10 @@ import {
   Upload,
   Link2,
   Paperclip,
-  Eye
+  Eye,
+  CheckSquare,
+  MessageSquare,
+  X
 } from 'lucide-react';
 
 interface CandidateListPageProps {
@@ -67,6 +73,23 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedCandidateForEntry, setSelectedCandidateForEntry] = useState<Candidate | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  // Mini Toast Notification for incoming chat messages (작게 알림 뜨게)
+  const [chatToast, setChatToast] = useState<InterviewerChatMessage | null>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleNewMessageToast = (msg: InterviewerChatMessage) => {
+    if (!isChatOpen) {
+      setChatToast(msg);
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = setTimeout(() => {
+        setChatToast(null);
+      }, 5000);
+    }
+  };
 
   // New Candidate Form State
   const [newName, setNewName] = useState('');
@@ -244,6 +267,25 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
               title="PostgreSQL 스키마 & API 명세"
             >
               <Database className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className={`px-3 py-1.5 rounded-md font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                isChatOpen
+                  ? 'bg-indigo-600 text-white shadow-2xs'
+                  : 'text-indigo-700 hover:bg-white'
+              }`}
+              title="면접관 실시간 대화방"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>면접관 대화</span>
+              {unreadChatCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-extrabold font-mono animate-pulse">
+                  {unreadChatCount}
+                </span>
+              )}
             </button>
           </div>
 
@@ -522,10 +564,10 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                       </button>
 
                       <button
-                        onClick={() => onSelectCandidate(c.id, false)}
+                        onClick={() => setSelectedCandidateForEntry(c)}
                         className="px-4 py-2 bg-slate-900 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
                       >
-                        <span>실시간 면접실 입장</span>
+                        <span>면접실 입장</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -721,6 +763,118 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Entry Mode Selection Modal (평가 vs 관전) */}
+      {selectedCandidateForEntry && (
+        <EntryModeModal
+          candidate={selectedCandidateForEntry}
+          currentUser={currentUser}
+          isOpen={Boolean(selectedCandidateForEntry)}
+          onClose={() => setSelectedCandidateForEntry(null)}
+          onSelectMode={(isObserver) => {
+            const candId = selectedCandidateForEntry.id;
+            setSelectedCandidateForEntry(null);
+            onSelectCandidate(candId, isObserver);
+          }}
+        />
+      )}
+
+      {/* Floating Interviewer Chat Window */}
+      <InterviewerChat
+        currentUser={{ id: currentUser.id, name: currentUser.name, role: currentUser.role }}
+        roomId={currentRoom.id}
+        roomName={currentRoom.name || currentRoom.title || 'SmartLab 면접실'}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        isFloating={true}
+        onUnreadCountChange={setUnreadChatCount}
+        onNewMessageToast={handleNewMessageToast}
+      />
+
+      {/* Mini Chat Toast Notification (작게 알림 뜨게) */}
+      {chatToast && !isChatOpen && (
+        <div className="fixed bottom-20 right-5 z-50 max-w-sm w-88 bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border border-indigo-500/40 flex items-start gap-3 animate-fade-in">
+          <div
+            className={`p-2 rounded-xl shrink-0 ${
+              chatToast.isImportant
+                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+          </div>
+
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex items-center justify-between gap-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="font-bold text-xs text-indigo-200 truncate">
+                  {formatInterviewerDisplayName(chatToast.senderName)} 면접관
+                </span>
+                {chatToast.isImportant && (
+                  <span className="px-1.5 py-0.2 bg-rose-500 text-white rounded text-[9px] font-extrabold font-mono">
+                    긴급
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                {chatToast.timestamp || '방금'}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-200 line-clamp-2 leading-relaxed break-words font-medium">
+              {chatToast.message}
+            </p>
+
+            <div className="pt-1 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  setChatToast(null);
+                  setIsChatOpen(true);
+                }}
+                className="text-[11px] font-bold text-indigo-300 hover:text-indigo-100 flex items-center gap-1 cursor-pointer"
+              >
+                <span>대화 열기 &rarr;</span>
+              </button>
+              {unreadChatCount > 0 && (
+                <span className="text-[10px] text-slate-400 font-mono">
+                  안읽은 메시지 {unreadChatCount}건
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setChatToast(null)}
+            className="text-slate-400 hover:text-white p-1 rounded-md transition-colors cursor-pointer shrink-0"
+            title="알림 닫기"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Floating Chat Button */}
+      {!isChatOpen && (
+        <button
+          type="button"
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-5 right-5 z-40 px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-2xl shadow-xl flex items-center gap-2 font-bold text-xs transition-all hover:scale-105 active:scale-95 border border-indigo-400/40 cursor-pointer animate-fade-in group select-none"
+          title="면접관 실시간 대화방 열기"
+        >
+          <div className="relative">
+            <MessageSquare className="w-4 h-4 text-white" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          </div>
+          <span>면접관 대화방</span>
+          {unreadChatCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold font-mono shadow-sm animate-bounce">
+              {unreadChatCount}
+            </span>
+          )}
+        </button>
       )}
     </div>
   );
