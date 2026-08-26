@@ -506,7 +506,7 @@ export async function fetchYouTubeMetadata(url: string): Promise<{ title?: strin
 }
 
 /**
- * 1. Real-time Answer Summary & High-Precision Tail Question Generator with Knowledge Base Context
+ * 1. Real-time Answer Summary & High-Precision Tail Question Generator with Knowledge Base Context & Room Criteria
  */
 export async function generateRealtimeFeedbackAI(
   candidateName: string,
@@ -514,7 +514,12 @@ export async function generateRealtimeFeedbackAI(
   docsContext: string,
   sttHistory: string,
   latestAnswer: string,
-  options?: AICallOptions & { knowledgeBase?: any[] }
+  options?: AICallOptions & {
+    knowledgeBase?: any[];
+    criteria?: Array<{ id: string; name: string; description: string; weight: number }>;
+    personaStyle?: string;
+    customFocusPrompt?: string;
+  }
 ) {
   let knowledgePromptContext = '';
   if (options?.knowledgeBase && Array.isArray(options.knowledgeBase) && options.knowledgeBase.length > 0) {
@@ -531,19 +536,55 @@ ${idx + 1}. [${k.sourceType.toUpperCase()}] ${k.title}
     }
   }
 
-  const systemPrompt = `너는 대한민국 최고 수준의 IT/소프트웨어 및 AI 동아리 'SmartLab'의 수석 기술 면접관이자 심층 검증 전문가이다.
-면접자의 제출 서류 내용, 실시간 음성 STT 발언, 그리고 [관리자 학습 지식 베이스]를 정밀 대조하여, 면접관이 실시간으로 바로 읽어서 물어볼 수 있는 【최고 퀄리티의 실전 꼬리 질문(Tail Question)】과 발언 요약을 생성하라.
+  // Active Evaluation Criteria Context from Room/Settings
+  const criteriaList = (options?.criteria && options.criteria.length > 0)
+    ? options.criteria
+    : [
+        { id: 'technical', name: '1. 기술 직무 역량', description: '직무 이해도, 기술 스택 깊이, 문제 접근 및 설계 논리', weight: 40 },
+        { id: 'problemSolving', name: '2. 논리적 문제 해결력', description: '돌발 질문 대응, 트러블슈팅 논리, 한계 극복 및 문제 분해 역량', weight: 30 },
+        { id: 'communication', name: '3. 의사소통 및 전달력', description: '두괄식 설명, 경청 태도 및 질문 의도 파악 역량', weight: 20 },
+        { id: 'cultureFit', name: '4. 조직 적합도 & 성장성', description: 'SmartLab 동아리 문화 수용성, 열정 및 협업 주도성', weight: 10 }
+      ];
 
-【절대 엄수해야 할 꼬리 질문 품질 원칙 - 품질 미달 및 엉뚱한 질문 절대 금지】
-1. 🚫 [단순 정의/이론 질문 절대 금지]: "React의 가상 DOM이란 무엇인가요?", "~에 대해 어떻게 생각하나요?" 같은 교과서식/추상적 질문은 절대 금지한다.
-2. 🚫 [문맥 없는 뜬금없는 비약 금지]: 지원자가 언급하지도 않은 엉뚱한 기술이나 뜬금없는 외래어를 날조하여 질문하지 않는다.
-3. 🎯 [지원자의 방금 발언(Claim)에 100% 닻(Anchor) 내리기]: 지원자가 방금 말한 구체적인 단어, 라이브러리, 아키텍처 결정, 수치(예: 'HikariCP', 'Redis 캐시', '응답속도 개선' 등)를 직접 인용하여 질문을 시작하라.
-4. 🔍 [실제 직접 구현 여부 & 기술 트레이드오프 검증]:
-   - "왜 수많은 대안 중 그 기술/방식을 선택했는가? (Trade-off)"
-   - "실제 운영이나 테스트 중 발생했던 예상치 못한 예외/병목은 무엇이었고, 본인이 어떻게 디버깅했는가? (Troubleshooting)"
-   - "서류에 적힌 내용과 실제 발언의 깊이에 괴리가 없는가? (Fact-Check)"
-5. 💬 [자연스럽고 정중한 한국어 구어체 (면접관 대본 형식)]:
-   - "지원자님께서 방금 [OO]를 통해 [XX] 문제를 해결하셨다고 하셨는데, 구체적으로 [YY] 상황에서는 데이터 정합성이나 예외를 어떻게 처리하셨나요?" 형식으로 면접관이 입으로 즉시 소리 내어 질문할 수 있는 자연스러운 존댓말로 작성하라.
+  const criteriaPromptContext = `\n[현재 면접방 확정 평가 기준 (각 질문이 어떤 항목을 평가하는지 반드시 매핑할 것)]\n` +
+    criteriaList.map(c => `- [${c.id}] ${c.name} (배점 가중치: ${c.weight}%): ${c.description}`).join('\n');
+
+  // Persona Style Tuning
+  const personaStyle = options?.personaStyle || 'BALANCED';
+  let personaInstruction = '';
+  if (personaStyle === 'LOGIC_PRESSURE') {
+    personaInstruction = `\n[질문 스타일: 압박 및 논리 모순 검증 (Pressure & Logic Check)]\n- 발언의 모순, 극단적인 예외 상황, 한계점, 데이터 정합성 실패 시나리오를 집요하게 파고드는 압박형 질문을 최소 2개 이상 포함하라.`;
+  } else if (personaStyle === 'TROUBLESHOOTING') {
+    personaInstruction = `\n[질문 스타일: 실무 트러블슈팅 및 장애 대응 (Troubleshooting & Debugging)]\n- 실제 서비스 운영 중 발생할 수 있는 메모리 누수, 병목, 타임아웃, 롤백 실패 등 구체적 장애 상황 해결 경험을 검증하는 질문에 집중하라.`;
+  } else if (personaStyle === 'ARCHITECTURE') {
+    personaInstruction = `\n[질문 스타일: 시스템 설계 및 아키텍처 트레이드오프 (System Design & Trade-offs)]\n- 왜 특정 라이브러리/DB/패턴을 선택했는지 대안과의 비교(Trade-off) 및 확장성(Scalability) 검증 질문에 집중하라.`;
+  } else if (personaStyle === 'STAR_COLLABORATION') {
+    personaInstruction = `\n[질문 스타일: 협업, 갈등 해결 및 컬처핏 (STAR Method & Culture Fit)]\n- 팀 프로젝트 협업 중 의견 충돌, 코드 리뷰 갈등, 동료 설득 경험을 STAR 기법(상황-과제-행동-결과)으로 끌어내는 질문에 집중하라.`;
+  } else if (personaStyle === 'GROWTH_FUNDAMENTALS') {
+    personaInstruction = `\n[질문 스타일: CS 기본기 및 잠재력 (CS Fundamentals & Potential)]\n- 프레임워크 뒤에 숨은 컴퓨터 사이언스 기초 원리(네트워크, OS, 자료구조, 메모리) 및 학습 속도를 확인하라.`;
+  }
+
+  const customFocusPrompt = options?.customFocusPrompt ? `\n[면접관이 지정한 특별 집중 평가 키워드/주제]\n"${options.customFocusPrompt}"\n-> 위 집중 키워드를 최신 지원자 답변과 즉시 결합하여 고품질 질문을 반드시 2개 이상 생성하라!` : '';
+
+  const systemPrompt = `너는 대한민국 최고 수준의 IT/소프트웨어 및 AI 동아리 'SmartLab'의 수석 기술 면접관이자 채점 전문가 AI이다.
+면접자의 제출 서류 내용, 실시간 음성 STT 발언, [면접방 평가 기준], 그리고 [면접관 설정 스타일/키워드]를 정밀 대조하여, 면접관이 현장에서 즉시 지원자에게 질문할 수 있는 【최고 퀄리티의 실전 심층 질문 3~5개】와 발언 요약을 생성하라.
+
+【질문 생성 엄수 원칙】
+1. 🎯 [지원자의 방금 발언(Claim)에 100% 닻(Anchor) 내리기]:
+   - 지원자가 방금 발언한 구체적 단어, 기술명, 수치, 아키텍처 결정(예: 'HikariCP', 'Redis 캐시', 'DLQ', '비동기 큐')을 정확히 인용(Claim)하여 질문의 출발점으로 삼으라.
+2. 🚫 [단순 이론/정의형 질문 절대 금지]:
+   - "Redis란 무엇인가요?", "~에 대해 어떻게 생각하나요?" 같은 교과서식 암기 질문은 엄격히 금지한다.
+3. 📊 [평가 가능 항목(Evaluated Criteria) 상세 명시]:
+   - 각 질문이 [현재 면접방 평가 기준] 중 어떤 항목([technical], [problemSolving], [communication], [cultureFit] 등)을 측정하는지 구체적인 가이드라인과 함께 매핑하라.
+4. 🌟 [우수 답변(Ideal Signals) vs ⚠️ 미흡/감점 답변(Red Flags) 체크리스트 제공]:
+   - 면접관이 지원자의 답변을 들으면서 즉시 판별할 수 있는 핵심 지표 3개씩을 명시하라.
+5. 🔄 [2차 후속 유도 질문(Probing Follow-ups) 탑재]:
+   - 지원자의 1차 답변 이후 추가로 파고들 수 있는 후속 질문 2개를 작성하라.
+6. 💬 [자연스러운 면접관 구어체 존댓말]:
+   - "지원자님께서 방금 [OO] 방식으로 [XX] 문제를 해결하셨다고 하셨는데, 구체적으로 [YY 상황]에서는 데이터 정합성이나 예외를 어떻게 처리하셨나요?" 형식의 자연스러운 면접관 대본.
+${criteriaPromptContext}
+${personaInstruction}
+${customFocusPrompt}
 
 반드시 다음 JSON 형식으로만 응답하라:
 {
@@ -551,17 +592,43 @@ ${idx + 1}. [${k.sourceType.toUpperCase()}] ${k.title}
   "tailQuestions": [
     {
       "question": "지원자님께서 방금 말씀하신 [구체적 내용]과 관련하여, 실무/프로젝트에서 [예외/트레이드오프/디버깅]은 구체적으로 어떻게 해결하셨나요?",
-      "claim": "지원자가 방금 발언한 핵심 기술/경험 주장",
+      "claim": "지원자가 방금 발언한 핵심 기술/경험 주장 인용",
+      "category": "심층 기술 검증",
+      "categoryLabel": "기술 심층",
+      "difficulty": "ADVANCED",
+      "evaluatedCriteria": ["technical", "problemSolving"],
+      "evaluatedCriteriaDetails": [
+        {
+          "criterionId": "technical",
+          "criterionName": "1. 기술 직무 역량 (40%)",
+          "relevanceScore": 95,
+          "evaluationGuideline": "대용량 트래픽 환경에서의 커넥션 풀 고갈 원인 파악 및 파라미터 튜닝 원리를 정확히 알고 구현했는지 검증"
+        },
+        {
+          "criterionId": "problemSolving",
+          "criterionName": "2. 논리적 문제 해결력 (30%)",
+          "relevanceScore": 85,
+          "evaluationGuideline": "장애 발생 시 체계적인 원인 분해 및 단계별 해결 접근법 검증"
+        }
+      ],
+      "intent": "단순 설정 복사가 아닌 장애 발생 메커니즘과 메모리/커넥션 병목 원리를 정확히 파악하고 직접 트러블슈팅했는지 검증",
       "verificationPoint": "직접 구현 여부, 트러블슈팅 깊이 또는 기술적 한계 검증 포인트",
       "reason": "지원자의 주장에서 확인해야 할 구체적인 기술적 검증 목적",
-      "category": "기술 트레이드오프"
-    },
-    {
-      "question": "두 번째 실전 꼬리 질문 (면접관이 바로 질문할 수 있는 정제된 문장)",
-      "claim": "지원자 발언 주장 요약",
-      "verificationPoint": "설계 타당성 및 문제 해결력 검증",
-      "reason": "검증 의도 및 목적",
-      "category": "장애 대응 및 트러블슈팅"
+      "idealAnswerSignals": [
+        "HikariCP의 maximumPoolSize 및 connectionTimeout 설정 배경을 수치/지표 기반으로 설명함",
+        "Redis 캐시 적용 시 Cache Aside 또는 Write-Through 전략의 장단점을 명확히 인지함",
+        "캐시 갱신 지연이나 Cache Stampede에 대한 방어 로직을 언급함"
+      ],
+      "redFlagSignals": [
+        "설정값을 기본 권장값으로 무지성 복사 붙여넣기만 했음",
+        "동시 요청 부하 테스트 없이 단순히 체감상 개선되었다고 답변함",
+        "DB 부하 70% 경감의 측정 기준이나 프로파일링 도구를 제시하지 못함"
+      ],
+      "followUpProbing": [
+        "만약 Redis 캐시 인스턴스가 예기치 않게 다운되었을 때 DB로 트래픽이 한 번에 몰리는 현상은 어떻게 방어하셨나요?",
+        "커넥션 풀 반환이 누락되는 Connection Leak 상황은 어떻게 모니터링하고 탐지하셨나요?"
+      ],
+      "matchScore": 96
     }
   ],
   "contradictions": [
@@ -586,23 +653,56 @@ ${sttHistory || '진행 중'}
 [방금 지원자가 발언한 최신 답변 (STT 원문)]
 "${latestAnswer}"
 
-위 최신 발언에 근거하여, 면접관이 현장에서 지원자의 기술 진위와 깊이를 정확히 파악할 수 있는 고품질 실전 꼬리질문 2~3개와 요약을 JSON으로 생성하라.`;
+위 최신 발언에 근거하여, 면접관이 현장에서 지원자의 기술 진위와 깊이를 정확히 파악할 수 있는 고품질 실전 심층 질문 3~5개(각 카테고리별 다채로운 관점)와 상세 평가 가이드를 JSON으로 생성하라.`;
 
   try {
     const rawJson = await callAIAPI(systemPrompt, userPrompt, true, options);
     const parsed = extractJsonFromText(rawJson);
     if (parsed && Array.isArray(parsed.tailQuestions) && parsed.tailQuestions.length > 0) {
-      // Clean up and format questions
-      const cleanedQuestions = parsed.tailQuestions.map((q: any, idx: number) => ({
-        id: `tq-${Date.now()}-${idx}`,
-        timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-        question: q.question || '해당 기술을 적용하면서 경험한 가장 큰 트러블슈팅과 해결책은 무엇이었나요?',
-        claim: q.claim || '지원자 발언 내용',
-        verificationPoint: q.verificationPoint || '직접 구현 및 원리 이해도 검증',
-        reason: q.reason || '기술적 깊이 및 실무 적용 능력 확인',
-        category: q.category || '기술 검증',
-        used: false
-      }));
+      const cleanedQuestions = parsed.tailQuestions.map((q: any, idx: number) => {
+        const cat = q.category || '심층 기술 검증';
+        const criteriaIds = Array.isArray(q.evaluatedCriteria) ? q.evaluatedCriteria : ['technical'];
+        
+        return {
+          id: `tq-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+          timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+          question: q.question || '해당 기술을 적용하면서 경험한 가장 큰 트러블슈팅과 해결책은 무엇이었나요?',
+          claim: q.claim || latestAnswer.substring(0, 80),
+          category: cat,
+          categoryLabel: q.categoryLabel || cat,
+          difficulty: q.difficulty || 'ADVANCED',
+          evaluatedCriteria: criteriaIds,
+          evaluatedCriteriaDetails: Array.isArray(q.evaluatedCriteriaDetails) && q.evaluatedCriteriaDetails.length > 0
+            ? q.evaluatedCriteriaDetails
+            : criteriaIds.map((cid: string) => {
+                const matched = criteriaList.find(c => c.id === cid);
+                return {
+                  criterionId: cid,
+                  criterionName: matched ? `${matched.name} (${matched.weight}%)` : cid,
+                  weight: matched?.weight || 30,
+                  relevanceScore: 90,
+                  evaluationGuideline: `${matched?.name || '직무 역량'}에 대한 이해도 및 실무 응용 능력 검증`
+                };
+              }),
+          intent: q.intent || q.reason || '지원자의 직전 발언에 대한 기술적 실체 및 논리적 근거 검증',
+          verificationPoint: q.verificationPoint || '직접 구현 여부 및 원리 이해도 검증',
+          reason: q.reason || '기술적 깊이 및 실무 적용 능력 확인',
+          idealAnswerSignals: Array.isArray(q.idealAnswerSignals) && q.idealAnswerSignals.length > 0
+            ? q.idealAnswerSignals
+            : ['구체적 수치와 지표 기반으로 설계 의도를 명확히 설명함', '트레이드오프와 한계점을 인지하고 대안을 제시함'],
+          redFlagSignals: Array.isArray(q.redFlagSignals) && q.redFlagSignals.length > 0
+            ? q.redFlagSignals
+            : ['단순 라이브러리 사용법만 나열하고 원리 설명을 회피함', '본인이 직접 구현하지 않은 내용에 대해 얼버무림'],
+          followUpProbing: Array.isArray(q.followUpProbing) && q.followUpProbing.length > 0
+            ? q.followUpProbing
+            : ['해당 방식을 적용했을 때 발생할 수 있는 가장 큰 부작용은 무엇이라고 생각하시나요?'],
+          matchScore: q.matchScore || Math.floor(88 + Math.random() * 10),
+          personaStyle: (personaStyle as any),
+          customFocusKeyword: options?.customFocusPrompt || undefined,
+          used: false,
+          isBookmarked: false
+        };
+      });
 
       return {
         summary: parsed.summary || `${candidateName} 지원자의 최근 발언 요약입니다.`,
@@ -614,27 +714,106 @@ ${sttHistory || '진행 중'}
     console.error('Realtime Feedback AI parse error:', e);
   }
 
-  // High-quality contextual fallback based on candidate's answer keywords
-  const fallbackQuestion = latestAnswer.includes('DB') || latestAnswer.includes('데이터') || latestAnswer.includes('쿼리')
-    ? `${candidateName} 지원자님께서 말씀하신 데이터 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?`
-    : latestAnswer.includes('API') || latestAnswer.includes('통신') || latestAnswer.includes('서버')
-    ? `${candidateName} 지원자님, 해당 API 연동 시 네트워크 지연이나 비동기 실패 상황에 대한 재시도(Retry) 및 예외 처리는 어떻게 설계하셨나요?`
-    : `${candidateName} 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?`;
+  // High-quality contextual fallback based on candidate's answer keywords and criteria
+  const isDb = latestAnswer.includes('DB') || latestAnswer.includes('데이터') || latestAnswer.includes('쿼리') || latestAnswer.includes('트랜잭션');
+  const isNetwork = latestAnswer.includes('API') || latestAnswer.includes('통신') || latestAnswer.includes('서버') || latestAnswer.includes('비동기');
+
+  const fallbackQuestions = [
+    {
+      id: `tq-${Date.now()}-0`,
+      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      question: isDb
+        ? `${candidateName} 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?`
+        : isNetwork
+        ? `${candidateName} 지원자님, 방금 말씀하신 API 연동 시 네트워크 지연이나 비동기 실패 상황에 대한 재시도(Retry) 및 장애 격리는 어떻게 설계하셨나요?`
+        : `${candidateName} 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?`,
+      claim: latestAnswer.substring(0, 70),
+      category: '심층 기술 검증',
+      categoryLabel: '기술 심층',
+      difficulty: 'ADVANCED' as const,
+      evaluatedCriteria: ['technical', 'problemSolving'],
+      evaluatedCriteriaDetails: [
+        {
+          criterionId: 'technical',
+          criterionName: '1. 기술 직무 역량 (40%)',
+          weight: 40,
+          relevanceScore: 95,
+          evaluationGuideline: '아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증'
+        },
+        {
+          criterionId: 'problemSolving',
+          criterionName: '2. 논리적 문제 해결력 (30%)',
+          weight: 30,
+          relevanceScore: 85,
+          evaluationGuideline: '예외/장애 상황에 대한 논리적 방어 기제 설계 검증'
+        }
+      ],
+      intent: '단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증',
+      verificationPoint: '아키텍처 선택 근거 및 예외 처리 역량 검증',
+      reason: '단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악',
+      idealAnswerSignals: [
+        '수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함',
+        '발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함'
+      ],
+      redFlagSignals: [
+        '대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함',
+        '에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함'
+      ],
+      followUpProbing: [
+        '해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?'
+      ],
+      matchScore: 94,
+      used: false,
+      isBookmarked: false
+    },
+    {
+      id: `tq-${Date.now()}-1`,
+      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      question: `${candidateName} 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?`,
+      claim: '팀 협업 및 프로젝트 구현 과정',
+      category: '협업 및 갈등 해결',
+      categoryLabel: '협업/컬처핏',
+      difficulty: 'INTERMEDIATE' as const,
+      evaluatedCriteria: ['communication', 'cultureFit'],
+      evaluatedCriteriaDetails: [
+        {
+          criterionId: 'communication',
+          criterionName: '3. 의사소통 및 전달력 (20%)',
+          weight: 20,
+          relevanceScore: 90,
+          evaluationGuideline: '상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증'
+        },
+        {
+          criterionId: 'cultureFit',
+          criterionName: '4. 동아리 적합도 & 성장성 (10%)',
+          weight: 10,
+          relevanceScore: 85,
+          evaluationGuideline: 'SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증'
+        }
+      ],
+      intent: '팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악',
+      verificationPoint: '소통 방식 및 팀워크 기여도 검증',
+      reason: '협업 및 커뮤니케이션 성향 파악',
+      idealAnswerSignals: [
+        '상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시',
+        '팀의 공동 목표를 우선시하는 태도'
+      ],
+      redFlagSignals: [
+        '독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급',
+        '팀원의 탓으로 책임을 전가하는 태도'
+      ],
+      followUpProbing: [
+        '만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?'
+      ],
+      matchScore: 90,
+      used: false,
+      isBookmarked: false
+    }
+  ];
 
   return {
     summary: `${candidateName} 지원자의 최근 발언 요약입니다.`,
-    tailQuestions: [
-      {
-        id: `tq-${Date.now()}-0`,
-        timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-        question: fallbackQuestion,
-        claim: latestAnswer.substring(0, 60),
-        verificationPoint: '아키텍처 선택 근거 및 예외 처리 역량 검증',
-        reason: '단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악',
-        category: '기술 트레이드오프',
-        used: false
-      }
-    ],
+    tailQuestions: fallbackQuestions,
     contradictions: []
   };
 }

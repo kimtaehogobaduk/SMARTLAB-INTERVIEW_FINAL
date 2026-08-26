@@ -11,6 +11,7 @@ import {
   TailQuestion,
   InterviewerUser,
   InterviewRoomItem,
+  LiveNotification,
   AppView
 } from './types';
 import { LandingEntryPage } from './components/LandingEntryPage';
@@ -25,7 +26,6 @@ import { AdminAuditModal } from './components/AdminAuditModal';
 import { DBSchemaModal } from './components/DBSchemaModal';
 import { AIQualitativeModal } from './components/AIQualitativeModal';
 import { LiveNotificationToast } from './components/LiveNotificationToast';
-import { LiveNotification } from './types';
 import confetti from 'canvas-confetti';
 
 const DEFAULT_INTERVIEWERS: InterviewerUser[] = [
@@ -420,7 +420,7 @@ export default function App() {
 
   // Status Transitions
   const handleCandidateStatusChange = async (
-    action: 'start' | 'no_show' | 'vote_no_show' | 'cancel_vote_no_show' | 'cancel_no_show' | 'finish' | 'cancel_finish',
+    action: 'start' | 'no_show' | 'vote_no_show' | 'cancel_vote_no_show' | 'cancel_no_show' | 'finish' | 'cancel_finish' | 'admin_reopen_5min',
     reason?: string
   ) => {
     if (!activeCandidate) return;

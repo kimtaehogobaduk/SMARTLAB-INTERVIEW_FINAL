@@ -432,6 +432,7 @@ export const db: DatabaseState = {
     adminOverrideWindowSeconds: 300,
     aiProvider: 'groq',
     aiModel: 'llama-3.3-70b-versatile',
+    adminMasterPassword: 'admin',
     knowledgeBase: [...initialKnowledgeBase]
   },
   adminUnlock: {

@@ -26,15 +26,53 @@ export interface STTMessage {
   isImportant?: boolean;
 }
 
+export interface EvaluatedCriterionDetail {
+  criterionId: string;
+  criterionName: string;
+  weight?: number;
+  relevanceScore?: number; // 0 ~ 100
+  evaluationGuideline: string; // e.g. "지원자의 데이터 일관성 제어 능력과 DB 트랜잭션 깊이 검증 (가중치 40% 기술 직무 역량 반영)"
+}
+
+export type QuestionPersonaStyle =
+  | 'BALANCED'
+  | 'LOGIC_PRESSURE'
+  | 'TROUBLESHOOTING'
+  | 'ARCHITECTURE'
+  | 'STAR_COLLABORATION'
+  | 'GROWTH_FUNDAMENTALS'
+  | 'CUSTOM';
+
 export interface TailQuestion {
   id: string;
   timestamp: string;
   question: string;
   reason: string;
   category: string;
-  claim?: string;
+  categoryLabel?: string;
+  claim?: string; // 지원자의 직전 발언 닻 (Claim/Anchor)
   verificationPoint?: string;
+  intent?: string; // 출제 의도 및 목적
+  difficulty?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'HARD';
+  evaluatedCriteria?: string[]; // 기준 ID 리스트 (e.g. ['technical', 'problemSolving'])
+  evaluatedCriteriaDetails?: EvaluatedCriterionDetail[]; // 평가 가능한 항목 상세 매핑
+  idealAnswerSignals?: string[]; // 우수 답변 핵심 시그널 (체크포인트)
+  redFlagSignals?: string[]; // 감점 / 주의 시그널
+  followUpProbing?: string[]; // 답변에 따른 2단계 심화 질문 제안
   used?: boolean;
+  isBookmarked?: boolean;
+  matchScore?: number; // 최근 발언 적합도 (%)
+  personaStyle?: QuestionPersonaStyle;
+  customFocusKeyword?: string;
+  // Sharing & User Custom Intent
+  isShared?: boolean;
+  sharedBy?: string;
+  sharedById?: string;
+  sharedAt?: string;
+  isUserCreated?: boolean;
+  userTypedIntent?: string;
+  isCustomGenerated?: boolean;
+  shareCount?: number;
 }
 
 export interface ContradictionPoint {
@@ -98,12 +136,18 @@ export interface Candidate {
   aiInsights: {
     realtimeSummaries: RealtimeSummary[];
     tailQuestions: TailQuestion[];
+    customQuestions?: TailQuestion[];
     contradictions: ContradictionPoint[];
   };
   qualitativeAiSummary?: QualitativeSummary;
   mindMapData?: MindMapNode;
   auditLogs?: AuditLog[];
   noShowVotes?: string[]; // Interviewer IDs or names who agreed to mark as No-Show
+  completedAt?: string; // Original completion timestamp in KST (면접 완료 시간)
+  initialCompletedAt?: string; // Preserved initial completion timestamp in KST (처음 완료된 시간 유지)
+  reopenedUntil?: number; // Epoch timestamp (ms) until which 5-minute admin re-edit is active
+  reopenedAt?: string; // When the 5-minute grace period was triggered (KST)
+  reopenedBy?: string; // Who authorized the 5-minute re-edit
   isModifiedUnderAdmin?: boolean;
   lastModifiedAt?: string;
 }
@@ -162,6 +206,22 @@ export interface InterviewRoomInfo {
   panelCount?: number;
   minutesPerPerson?: number;
   interviewers?: InterviewerUser[];
+  // Room-specific evaluation criteria and scoring formula
+  isCriteriaConfirmed?: boolean;
+  criteriaConfirmedAt?: string;
+  criteriaConfirmedBy?: string;
+  scoringFormula?: ScoringFormula;
+  passThresholdScore?: number;
+  criteria?: EvaluationCriterion[];
+  weights?: Record<string, number>;
+  defaultQuestionPersona?: QuestionPersonaStyle;
+  customFocusKeywords?: string[];
+  // Room-specific Access Security (Password or Security Question)
+  securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
+  password?: string;
+  securityQuestion?: string;
+  securityAnswer?: string;
+  hasSecurityLock?: boolean;
 }
 
 export type InterviewRoomItem = InterviewRoomInfo;
@@ -229,18 +289,19 @@ export interface AIKnowledgeItem {
 
 export interface LiveNotification {
   id: string;
-  type: 'INTERVIEW_STARTED' | 'INTERVIEW_FINISHED' | 'EVALUATION_SUBMITTED' | 'NO_SHOW_VOTE' | 'INTERVIEWER_ACTION' | 'QUESTION_INTENT' | 'SUSPICION_ALERT' | 'TAIL_QUESTION_REQUEST' | 'TIME_ALERT' | 'YIELD_FLOOR';
-  actionType?: 'question' | 'suspicion' | 'tail_question' | 'yield' | 'time_check' | string;
+  type: 'INTERVIEW_STARTED' | 'INTERVIEW_FINISHED' | 'EVALUATION_SUBMITTED' | 'NO_SHOW_VOTE' | 'INTERVIEWER_ACTION' | 'QUESTION_INTENT' | 'SUSPICION_ALERT' | 'TAIL_QUESTION_REQUEST' | 'TIME_ALERT' | 'YIELD_FLOOR' | 'SHARED_QUESTION' | 'ADMIN_ALERT';
+  actionType?: 'question' | 'suspicion' | 'tail_question' | 'yield' | 'time_check' | 'share_question' | 'admin_reopen' | string;
   title: string;
   message: string;
   timestamp: string;
   createdAt: number;
   roomId?: string;
   roomName?: string;
-  candidateId: string;
-  candidateName: string;
+  candidateId?: string;
+  candidateName?: string;
   operatorId?: string;
   operatorName?: string;
+  questionId?: string;
 }
 
 export interface PlatformSettings {
@@ -257,6 +318,7 @@ export interface PlatformSettings {
   aiModel?: string;
   cerebrasModel?: string;
   knowledgeBase?: AIKnowledgeItem[];
+  adminMasterPassword?: string;
 }
 
 export interface InterviewerPresence {
@@ -281,4 +343,5 @@ export interface InterviewerChatMessage {
   timestamp: string;
   createdAt: number;
   isImportant?: boolean;
+  sharedQuestion?: TailQuestion;
 }

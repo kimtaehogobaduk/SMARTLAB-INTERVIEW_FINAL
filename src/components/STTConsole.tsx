@@ -1,30 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { STTMessage, RealtimeSummary, TailQuestion, ContradictionPoint, PlatformSettings } from '../types';
-import { Mic, MicOff, Sparkles, Send, Bot, AlertTriangle, HelpCircle, Check, Play, RefreshCw, Zap, Youtube, BookOpen } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  STTMessage,
+  RealtimeSummary,
+  TailQuestion,
+  ContradictionPoint,
+  PlatformSettings,
+  QuestionPersonaStyle,
+  EvaluationCriterion
+} from '../types';
+import {
+  Mic,
+  MicOff,
+  Sparkles,
+  Send,
+  Bot,
+  AlertTriangle,
+  HelpCircle,
+  Check,
+  Play,
+  RefreshCw,
+  Zap,
+  Bookmark,
+  Share2,
+  Copy,
+  Search,
+  Eye,
+  Target,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
+  PlusCircle,
+  PenTool,
+  CheckCircle2,
+  Users,
+  MessageSquareQuote,
+  Lightbulb,
+  ArrowRight
+} from 'lucide-react';
+import { QuestionPersonaSelector } from './QuestionPersonaSelector';
+import { QuestionDetailModal } from './QuestionDetailModal';
+import { COLOR_MAP } from '../lib/scoring';
 
 interface STTConsoleProps {
   transcript: STTMessage[];
   realtimeSummaries: RealtimeSummary[];
   tailQuestions: TailQuestion[];
+  customQuestions?: TailQuestion[];
   contradictions: ContradictionPoint[];
+  candidateId?: string;
   candidateName: string;
   candidateTrack: string;
+  roomId?: string;
+  currentUserName?: string;
+  currentUserId?: string;
   settings?: PlatformSettings;
+  roomCriteria?: EvaluationCriterion[];
   onSendMessage: (message: STTMessage, triggerAI: boolean) => void;
   onUseTailQuestion?: (q: TailQuestion) => void;
+  onShareQuestionToChat?: (q: TailQuestion) => void;
+  onRefreshQuestions?: (personaStyle: QuestionPersonaStyle, customPrompt: string) => Promise<void>;
   isLoadingAI?: boolean;
 }
 
 export const STTConsole: React.FC<STTConsoleProps> = ({
   transcript,
   realtimeSummaries,
-  tailQuestions,
+  tailQuestions: initialTailQuestions,
+  customQuestions: initialCustomQuestions,
   contradictions,
+  candidateId,
   candidateName,
   candidateTrack,
+  roomId,
+  currentUserName,
+  currentUserId,
   settings,
+  roomCriteria,
   onSendMessage,
   onUseTailQuestion,
+  onShareQuestionToChat,
+  onRefreshQuestions,
   isLoadingAI = false
 }) => {
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -33,9 +88,66 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   const [interimText, setInterimText] = useState<string>('');
   const [simIndex, setSimIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [sharedId, setSharedId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Local standard tail questions vs on-demand custom questions (separate states)
+  const [localTailQuestions, setLocalTailQuestions] = useState<TailQuestion[]>(initialTailQuestions || []);
+  const [localCustomQuestions, setLocalCustomQuestions] = useState<TailQuestion[]>(initialCustomQuestions || []);
+
+  useEffect(() => {
+    setLocalTailQuestions(initialTailQuestions || []);
+  }, [initialTailQuestions]);
+
+  useEffect(() => {
+    setLocalCustomQuestions(initialCustomQuestions || []);
+  }, [initialCustomQuestions]);
+
+  // Active Main Tab: 'CUSTOM' (맞춤 질문) or 'TAIL' (실시간 꼬리질문) or 'ALL'
+  const [activeQuestionTab, setActiveQuestionTab] = useState<'CUSTOM' | 'TAIL' | 'ALL'>('CUSTOM');
+
+  // Question Engine & Persona States
+  const [selectedPersona, setSelectedPersona] = useState<QuestionPersonaStyle>('BALANCED');
+  const [customFocusKeyword, setCustomFocusKeyword] = useState<string>('');
+  const [isGeneratingCustom, setIsGeneratingCustom] = useState<boolean>(false);
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedQuestionForDetail, setSelectedQuestionForDetail] = useState<TailQuestion | null>(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+  const [showPersonaPanel, setShowPersonaPanel] = useState<boolean>(false);
+  const [showCustomCreator, setShowCustomCreator] = useState<boolean>(false);
+
+  // Custom Typed Question & Intent Form State
+  const [customTypedIntent, setCustomTypedIntent] = useState<string>('');
+  const [customQuestionText, setCustomQuestionText] = useState<string>('');
+  const [customCategory, setCustomCategory] = useState<string>('기술 심층 검증');
+  const [customDifficulty, setCustomDifficulty] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'HARD'>('ADVANCED');
+  const [customSelectedCriteria, setCustomSelectedCriteria] = useState<string[]>([]);
+  const [customShouldShare, setCustomShouldShare] = useState<boolean>(true);
+  const [isSubmittingCustom, setIsSubmittingCustom] = useState<boolean>(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
+
+  const effectiveCriteria: EvaluationCriterion[] = roomCriteria && roomCriteria.length > 0
+    ? roomCriteria
+    : (settings?.criteria && settings.criteria.length > 0 ? settings.criteria : [
+        { id: 'technical', name: '전문 기술 역량', description: '직무 지식 및 실무 능력', weight: 40, maxScore: 100, color: 'blue' },
+        { id: 'problemSolving', name: '논리적 문제 해결력', description: '트러블슈팅 및 분석력', weight: 30, maxScore: 100, color: 'purple' },
+        { id: 'communication', name: '소통 및 컬처핏', description: '협업 태도 및 전달력', weight: 30, maxScore: 100, color: 'emerald' }
+      ]);
+
+  // Set default selected criteria when criteria load
+  useEffect(() => {
+    if (customSelectedCriteria.length === 0 && effectiveCriteria.length > 0) {
+      setCustomSelectedCriteria([effectiveCriteria[0].id]);
+    }
+  }, [effectiveCriteria]);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   // Auto-scroll STT terminal to bottom
   useEffect(() => {
@@ -104,7 +216,7 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
 
   const toggleMic = () => {
     if (!recognitionRef.current) {
-      alert('현재 브라우저 환경에서 Web Speech API를 지원하지 않습니다. 시뮬레이션 버튼 또는 텍스트 입력을 사용해주세요.');
+      alert('현재 브라우저 환경에서 Web Speech API를 지원하지 않습니다. 모의 발언 생성 또는 텍스트 입력을 사용해주세요.');
       return;
     }
 
@@ -138,7 +250,7 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     setInputText('');
   };
 
-  // Preset realistic speech simulation scripts for instant demonstration
+  // Realistic Simulation Scripts
   const SIMULATION_SCRIPTS = [
     {
       speaker: 'interviewer' as const,
@@ -151,6 +263,14 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     {
       speaker: 'candidate' as const,
       text: '또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.'
+    },
+    {
+      speaker: 'interviewer' as const,
+      text: '팀 프로젝트에서 프론트엔드와 백엔드 간 API 스펙 변경으로 갈등이 생겼을 때는 어떻게 조율하셨나요?'
+    },
+    {
+      speaker: 'candidate' as const,
+      text: '초기 API 명세 불일치로 인한 병목을 막기 위해 Swagger 기반 Mock 서버를 선제 배포하고, 변경 사항 발생 시 Slack 웹훅으로 자동 브로드캐스트되는 파이프라인을 구축해 소통 비용을 획기적으로 줄였습니다.'
     }
   ];
 
@@ -171,181 +291,818 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     navigator.clipboard.writeText(q.question);
     setCopiedId(q.id);
     onUseTailQuestion?.(q);
+    showToast('📋 질문이 클립보드에 복사되었습니다.');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // Real-time Share to All Interviewers
+  const handleShareQuestion = async (q: TailQuestion) => {
+    setSharedId(q.id);
+    try {
+      if (candidateId) {
+        const res = await fetch(`/api/candidates/${candidateId}/tail-questions/share`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionId: q.id,
+            question: q,
+            sharedByName: currentUserName || '면접관',
+            sharedById: currentUserId || 'user-unknown',
+            roomId: roomId || '',
+            candidateName
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.tailQuestions) {
+            setLocalTailQuestions(data.tailQuestions);
+          }
+          setLocalCustomQuestions(prev => prev.map(item => item.id === q.id ? { ...item, isShared: true, sharedBy: currentUserName || '면접관' } : item));
+          setLocalTailQuestions(prev => prev.map(item => item.id === q.id ? { ...item, isShared: true, sharedBy: currentUserName || '면접관' } : item));
+        }
+      }
+
+      if (onShareQuestionToChat) {
+        onShareQuestionToChat(q);
+      }
+      showToast('💡 모든 면접관의 채팅방과 실시간 알림 피드에 질문이 공유되었습니다!');
+    } catch (e) {
+      console.error('Error sharing question:', e);
+      showToast('질문 공유 중 오류가 발생했습니다.');
+    } finally {
+      setTimeout(() => setSharedId(null), 2500);
+    }
+  };
+
+  const toggleBookmark = (id: string) => {
+    setBookmarkedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // On-Demand Custom Question Generation (Fast & Separated output)
+  const handleGenerateOnDemandQuestions = async () => {
+    setIsGeneratingCustom(true);
+    try {
+      if (candidateId) {
+        const res = await fetch(`/api/candidates/${candidateId}/generate-questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            personaStyle: selectedPersona,
+            customFocusPrompt: customFocusKeyword
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.customQuestions) {
+            setLocalCustomQuestions(data.customQuestions);
+          } else if (data.generatedQuestions) {
+            setLocalCustomQuestions(prev => [...data.generatedQuestions, ...prev]);
+          }
+          setActiveQuestionTab('CUSTOM');
+          showToast(`✨ [${selectedPersona}] 맞춤 질문이 독립 출력 영역에 즉시 생성되었습니다!`);
+        }
+      } else if (onRefreshQuestions) {
+        await onRefreshQuestions(selectedPersona, customFocusKeyword);
+        showToast('✨ 맞춤 면접 질문이 생성되었습니다!');
+      }
+    } catch (e) {
+      console.error('Failed generating custom questions:', e);
+      showToast('질문 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsGeneratingCustom(false);
+    }
+  };
+
+  // Submit User Custom-Typed Question & Evaluation Intent
+  const handleCustomQuestionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customQuestionText.trim() && !customTypedIntent.trim()) {
+      alert('평가하고 싶은 의도나 직접 출제할 질문 문장을 입력해주세요.');
+      return;
+    }
+
+    setIsSubmittingCustom(true);
+    try {
+      const qText = customQuestionText.trim() || `[${customCategory}] ${customTypedIntent.trim()}에 대한 실제 경험과 접근 방식에 대해 설명해주세요.`;
+
+      if (candidateId) {
+        const res = await fetch(`/api/candidates/${candidateId}/custom-question`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionText: qText,
+            userTypedIntent: customTypedIntent.trim(),
+            category: customCategory,
+            difficulty: customDifficulty,
+            evaluatedCriteria: customSelectedCriteria,
+            shouldShareWithEveryone: customShouldShare,
+            operatorName: currentUserName || '면접관',
+            operatorId: currentUserId || 'user-unknown',
+            roomId: roomId || '',
+            candidateName
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.customQuestions) {
+            setLocalCustomQuestions(data.customQuestions);
+          } else if (data.question) {
+            setLocalCustomQuestions(prev => [data.question, ...prev]);
+          }
+          if (data.tailQuestions) {
+            setLocalTailQuestions(data.tailQuestions);
+          }
+
+          setCustomQuestionText('');
+          setCustomTypedIntent('');
+          setShowCustomCreator(false);
+          setActiveQuestionTab('CUSTOM');
+          showToast(customShouldShare ? '✨ 맞춤 질문이 등록되고 모든 면접관에게 공유되었습니다!' : '✅ 맞춤 질문이 목록에 등록되었습니다!');
+        } else {
+          const err = await res.json();
+          alert(err.error || '질문 등록에 실패했습니다.');
+        }
+      } else {
+        const fallbackQ: TailQuestion = {
+          id: `tq-custom-${Date.now()}`,
+          timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+          question: qText,
+          category: customCategory,
+          categoryLabel: customCategory,
+          difficulty: customDifficulty,
+          evaluatedCriteria: customSelectedCriteria,
+          intent: customTypedIntent || '면접관 직접 출제 질문',
+          verificationPoint: customTypedIntent || '직무 역량 검증',
+          reason: customTypedIntent || '면접관 맞춤형 직접 질문',
+          matchScore: 99,
+          isUserCreated: true,
+          isCustomGenerated: true,
+          userTypedIntent: customTypedIntent
+        };
+        setLocalCustomQuestions(prev => [fallbackQ, ...prev]);
+        setCustomQuestionText('');
+        setCustomTypedIntent('');
+        setShowCustomCreator(false);
+        setActiveQuestionTab('CUSTOM');
+        showToast('✅ 맞춤 질문이 등록되었습니다!');
+      }
+    } catch (err: any) {
+      console.error('Error creating custom question:', err);
+      alert('질문 등록 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmittingCustom(false);
+    }
+  };
+
+  // Determine current active question pool based on activeQuestionTab
+  const currentPool = useMemo(() => {
+    if (activeQuestionTab === 'CUSTOM') return localCustomQuestions;
+    if (activeQuestionTab === 'TAIL') return localTailQuestions;
+    // ALL: Custom questions first, then tail questions
+    return [...localCustomQuestions, ...localTailQuestions.filter(t => !localCustomQuestions.some(c => c.id === t.id))];
+  }, [activeQuestionTab, localCustomQuestions, localTailQuestions]);
+
+  // Filter questions based on Category, Search query, and Bookmark
+  const filteredQuestions = useMemo(() => {
+    return currentPool.filter((q) => {
+      const isBookmarked = bookmarkedIds.has(q.id) || q.isBookmarked;
+
+      if (activeCategoryFilter === 'BOOKMARKED' && !isBookmarked) return false;
+      if (activeCategoryFilter === 'SHARED' && !q.isShared) return false;
+      if (activeCategoryFilter === 'TECH' && !q.category.includes('기술') && !q.category.includes('직무') && q.category !== 'DEEP_DIVE') return false;
+      if (activeCategoryFilter === 'TROUBLE' && !q.category.includes('장애') && !q.category.includes('트러블') && q.category !== 'PROBLEM_SOLVING') return false;
+      if (activeCategoryFilter === 'ARCH' && !q.category.includes('설계') && !q.category.includes('아키텍처') && !q.category.includes('트레이드오프') && q.category !== 'TECH_TRADEOFF') return false;
+      if (activeCategoryFilter === 'CULTURE' && !q.category.includes('협업') && !q.category.includes('컬처') && !q.category.includes('인성') && q.category !== 'COLLABORATION') return false;
+      if (activeCategoryFilter === 'LOGIC' && !q.category.includes('모순') && !q.category.includes('논리') && !q.category.includes('팩트') && q.category !== 'LOGIC_VERIFICATION') return false;
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchText = (q.question + ' ' + (q.claim || '') + ' ' + (q.reason || '') + ' ' + (q.category || '') + ' ' + (q.intent || '')).toLowerCase();
+        if (!matchText.includes(query)) return false;
+      }
+
+      return true;
+    });
+  }, [currentPool, activeCategoryFilter, bookmarkedIds, searchQuery]);
+
+  const sharedCount = currentPool.filter(q => q.isShared).length;
+
   return (
-    <div id="stt-console-panel" className="h-full flex flex-col bg-white border-r border-slate-200 overflow-hidden select-none">
-      {/* 1. AI Realtime Insights Header & Cards */}
-      <div className="bg-slate-50 border-b border-slate-200 p-3 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-purple-600 fill-purple-600 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              AI 실시간 피드백 & 요약
-            </span>
+    <div id="stt-console-panel" className="h-full flex flex-col bg-slate-900 border-r border-slate-800 overflow-hidden select-none font-sans text-slate-100 relative">
+      
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-2xl shadow-xl border border-blue-400/40 flex items-center gap-2 animate-fade-in pointer-events-none">
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* 1. Top Intelligent Question Center */}
+      <div className="bg-slate-950/90 border-b border-slate-800 p-3 sm:p-4 space-y-3 shrink-0 overflow-y-auto max-h-[58vh] scrollbar-thin">
+        
+        {/* Header bar: Title, Action Toggles */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 text-white shrink-0">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-100 whitespace-nowrap">
+                    실시간 맞춤 면접 질문
+                  </span>
+                  <span className="text-[10px] bg-blue-500/20 border border-blue-500/30 text-blue-400 font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    100% 매칭
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+              {/* Direct Question / Intent Creator Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCustomCreator(!showCustomCreator);
+                  if (showPersonaPanel && !showCustomCreator) setShowPersonaPanel(false);
+                }}
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border whitespace-nowrap ${
+                  showCustomCreator
+                    ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30'
+                    : 'bg-slate-900 hover:bg-slate-800 text-purple-300 border-purple-500/30'
+                }`}
+              >
+                <PenTool className="w-3.5 h-3.5 text-purple-400" />
+                <span>{showCustomCreator ? '작성 닫기' : '직접 질문 작성'}</span>
+              </button>
+
+              {/* Persona Settings Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPersonaPanel(!showPersonaPanel);
+                  if (showCustomCreator && !showPersonaPanel) setShowCustomCreator(false);
+                }}
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer border whitespace-nowrap ${
+                  showPersonaPanel
+                    ? 'bg-blue-600 text-white border-blue-400 shadow-md'
+                    : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700/80'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-blue-400" />
+                <span>{showPersonaPanel ? '스타일 닫기' : 'AI 스타일'}</span>
+                {showPersonaPanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-sm flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-              초고속 분석
-            </span>
-            <span className="text-[10px] font-mono text-purple-600 font-semibold">
-              실시간 동기화
-            </span>
-          </div>
+
+          <p className="text-[11px] text-slate-400 leading-tight">
+            지원자 발언을 분석하여 심층 꼬리질문과 평가 지표를 실시간 생성 및 공유합니다
+          </p>
         </div>
 
-        {/* AI Answer Summary Box */}
-        {realtimeSummaries.length > 0 ? (
-          <div className="p-2.5 bg-sky-50/80 border border-sky-200 rounded-lg text-xs animate-fade-in">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wide flex items-center gap-1">
-                <Bot className="w-3 h-3 text-sky-600" />
-                STT 실시간 답변 요약
+        {/* Custom Question & Intent Creator Panel */}
+        {showCustomCreator && (
+          <form
+            onSubmit={handleCustomQuestionSubmit}
+            className="p-4 rounded-2xl bg-gradient-to-br from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 shadow-lg space-y-3.5 font-sans"
+          >
+            <div className="flex items-center justify-between border-b border-purple-500/20 pb-2">
+              <span className="text-xs font-black text-purple-300 flex items-center gap-1.5">
+                <PenTool className="w-3.5 h-3.5 text-purple-400" />
+                <span>면접관 직접 평가 항목 & 맞춤 질문 작성기</span>
               </span>
-              <span className="text-[10px] text-sky-600 font-mono">
+              <span className="text-[10px] text-slate-400">
+                원하는 평가 목적을 적고 모든 면접관에게 즉시 공유할 수 있습니다
+              </span>
+            </div>
+
+            {/* 1. Evaluation Intent / Goal */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <Target className="w-3 h-3 text-purple-400" />
+                <span>1. 평가하고 싶은 검증 포인트 / 의도 (직접 입력)</span>
+              </label>
+              <input
+                type="text"
+                value={customTypedIntent}
+                onChange={(e) => setCustomTypedIntent(e.target.value)}
+                placeholder="예: 대용량 트래픽 동시성 제어 시 낙관적 락 vs 비관적 락 트레이드오프 검증"
+                className="w-full px-3 py-2 bg-slate-950/90 border border-purple-500/30 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+
+            {/* 2. Direct Question Text (Optional) */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <MessageSquareQuote className="w-3 h-3 text-blue-400" />
+                <span>2. 실전 면접 질문 문장 (비워두면 AI가 의도에 맞춰 생성)</span>
+              </label>
+              <textarea
+                value={customQuestionText}
+                onChange={(e) => setCustomQuestionText(e.target.value)}
+                rows={2}
+                placeholder="예: 지원자님, 본인이 설계하셨던 DB 구조에서 동시 주문 요청이 몰렸을 때 락 경합을 어떻게 방지하셨습니까?"
+                className="w-full px-3 py-2 bg-slate-950/90 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
+
+            {/* 3. Criteria & Difficulty Pickers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Evaluated Criteria Checkboxes */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-400 block">
+                  3. 연계할 면접방 평가 기준 (다중 선택):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {effectiveCriteria.map((crit) => {
+                    const isSelected = customSelectedCriteria.includes(crit.id);
+                    return (
+                      <button
+                        key={crit.id}
+                        type="button"
+                        onClick={() => {
+                          setCustomSelectedCriteria(prev =>
+                            isSelected ? prev.filter(id => id !== crit.id) : [...prev, crit.id]
+                          );
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-purple-600 text-white border-purple-400 shadow-xs'
+                            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {isSelected ? '✓ ' : ''}{crit.name} ({crit.weight}%)
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Difficulty & Category */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-400 block">
+                  4. 난이도 및 카테고리:
+                </span>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={customDifficulty}
+                    onChange={(e: any) => setCustomDifficulty(e.target.value)}
+                    className="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  >
+                    <option value="BASIC">초급 / 기본기</option>
+                    <option value="INTERMEDIATE">중급 / 실무 적용</option>
+                    <option value="ADVANCED">고급 / 심층 설계</option>
+                    <option value="HARD">하드 / 극단적 압박</option>
+                  </select>
+
+                  <select
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  >
+                    <option value="기술 심층 검증">기술 심층 검증</option>
+                    <option value="실무 장애 트러블슈팅">실무 장애 트러블슈팅</option>
+                    <option value="아키텍처 트레이드오프">아키텍처 트레이드오프</option>
+                    <option value="협업 및 갈등 해결">협업 및 갈등 해결</option>
+                    <option value="논리적 모순 검증">논리적 모순 검증</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Share Option & Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
+              <label className="flex items-center gap-1.5 text-xs text-purple-200 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={customShouldShare}
+                  onChange={(e) => setCustomShouldShare(e.target.checked)}
+                  className="rounded text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"
+                />
+                <span className={customShouldShare ? 'font-bold text-amber-300' : 'text-slate-400'}>
+                  👥 등록 즉시 모든 면접관 채팅방 및 알림에 공유
+                </span>
+              </label>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCustomCreator(false)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  취소
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmittingCustom}
+                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-purple-600/20 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  {isSubmittingCustom ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>등록 중...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>맞춤 질문 등록</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {/* Persona Selector & Custom Focus Input */}
+        {showPersonaPanel && (
+          <QuestionPersonaSelector
+            selectedPersona={selectedPersona}
+            onSelectPersona={setSelectedPersona}
+            customFocusKeyword={customFocusKeyword}
+            onChangeCustomFocus={setCustomFocusKeyword}
+            onGenerateQuestions={handleGenerateOnDemandQuestions}
+            isLoading={isGeneratingCustom || isLoadingAI}
+          />
+        )}
+
+        {/* Real-time Summary Box */}
+        {realtimeSummaries.length > 0 && (
+          <div className="p-3 bg-gradient-to-r from-blue-950/40 via-slate-900 to-indigo-950/30 border border-blue-500/20 rounded-2xl text-xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-blue-400 flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5" />
+                <span>지원자 최신 발언 요약</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">
                 {realtimeSummaries[0]?.timestamp}
               </span>
             </div>
-            <p className="text-slate-800 text-[11px] leading-snug font-medium">
+            <p className="text-slate-200 text-xs leading-relaxed font-medium">
               {realtimeSummaries[0]?.text}
             </p>
-          </div>
-        ) : (
-          <div className="p-2 bg-slate-100/70 border border-dashed border-slate-300 rounded-lg text-center text-[11px] text-slate-500">
-            지원자의 답변이 인식되면 AI가 실시간으로 핵심을 요약합니다.
           </div>
         )}
 
         {/* Contradiction Alert if detected */}
         {contradictions.length > 0 && (
-          <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg text-xs animate-bounce-short">
-            <div className="flex items-center gap-1 text-amber-800 font-bold text-[10px] uppercase">
-              <AlertTriangle className="w-3 h-3 text-amber-600" />
-              서류 vs 답변 모순 감지
+          <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-2xl text-xs space-y-1">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>서류 vs 발언 모순 및 팩트체크 의심 지점</span>
             </div>
-            <p className="text-slate-800 text-[11px] mt-0.5 leading-snug font-medium">
+            <p className="text-amber-200/90 text-xs leading-relaxed font-medium">
               {contradictions[0]?.point}
             </p>
           </div>
         )}
 
-        {/* Suggested Tail Questions (Follow-up) */}
-        {tailQuestions.length > 0 && (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
-              <span className="flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5 text-purple-600" />
-                추천 심층 꼬리 질문 (Follow-up)
+        {/* Primary View Switcher: Custom Generated Questions vs Realtime Tail Questions */}
+        <div className="flex items-center justify-between gap-2 p-1 bg-slate-900/90 rounded-2xl border border-slate-800">
+          <div className="flex items-center gap-1 flex-1">
+            <button
+              type="button"
+              onClick={() => setActiveQuestionTab('CUSTOM')}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeQuestionTab === 'CUSTOM'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30 ring-1 ring-purple-400'
+                  : 'text-purple-300 hover:text-white hover:bg-slate-800/80'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>맞춤 생성 질문</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeQuestionTab === 'CUSTOM' ? 'bg-white/20 text-white' : 'bg-purple-950/80 text-purple-300 border border-purple-500/30'
+              }`}>
+                {localCustomQuestions.length}
               </span>
-              <div className="flex items-center gap-1">
-                {settings?.knowledgeBase && settings.knowledgeBase.some(k => k.isActive && k.sourceType === 'youtube') && (
-                  <span className="text-[9px] bg-rose-50 text-rose-600 border border-rose-200 px-1.5 py-0.5 rounded font-semibold flex items-center gap-0.5">
-                    <Youtube className="w-2.5 h-2.5 text-rose-600" />
-                    YouTube RAG
-                  </span>
-                )}
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {tailQuestions.length}건
-                </span>
-              </div>
-            </div>
+            </button>
 
-            <div className="max-h-36 overflow-y-auto space-y-1.5 pr-0.5">
-              {tailQuestions.slice(0, 3).map((q) => (
-                <div
-                  key={q.id}
-                  className={`p-2 rounded-lg border text-left transition-all ${
-                    q.used
-                      ? 'bg-slate-100 border-slate-200 opacity-60'
-                      : 'bg-purple-50/70 border-purple-200 hover:border-purple-300 shadow-2xs'
+            <button
+              type="button"
+              onClick={() => setActiveQuestionTab('TAIL')}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeQuestionTab === 'TAIL'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>실시간 꼬리질문</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeQuestionTab === 'TAIL' ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+              }`}>
+                {localTailQuestions.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveQuestionTab('ALL')}
+              className={`py-1.5 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                activeQuestionTab === 'ALL'
+                  ? 'bg-slate-700 text-white shadow-sm ring-1 ring-slate-500'
+                  : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/80'
+              }`}
+              title="맞춤 질문과 실시간 꼬리질문 전체 보기"
+            >
+              <span>전체</span>
+              <span className="text-[10px] opacity-80">
+                ({localCustomQuestions.length + localTailQuestions.length})
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Tabs & Search Bar */}
+        <div className="space-y-2 pt-0.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none text-[11px]">
+              {[
+                { id: 'ALL', label: `필터 전체 (${currentPool.length})` },
+                { id: 'SHARED', label: `👥 공유 (${sharedCount})` },
+                { id: 'TECH', label: '기술 심층' },
+                { id: 'TROUBLE', label: '장애 대응' },
+                { id: 'ARCH', label: '아키텍처' },
+                { id: 'CULTURE', label: '협업/인성' },
+                { id: 'LOGIC', label: '논리/검증' },
+                { id: 'BOOKMARKED', label: `★ 북마크 (${bookmarkedIds.size})` }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveCategoryFilter(tab.id)}
+                  className={`px-2.5 py-1 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeCategoryFilter === tab.id
+                      ? tab.id === 'SHARED'
+                        ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400'
+                        : 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-200 text-purple-800 uppercase">
-                      {q.category}
-                    </span>
-                    <button
-                      onClick={() => handleCopyTailQuestion(q)}
-                      className="text-[10px] text-purple-700 hover:text-purple-900 font-semibold flex items-center gap-0.5 hover:underline"
-                    >
-                      {copiedId === q.id ? (
-                        <>
-                          <Check className="w-2.5 h-2.5 text-emerald-600" />
-                          <span>복사됨</span>
-                        </>
-                      ) : (
-                        <span>질문 사용</span>
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-slate-900 text-[11px] font-semibold leading-snug">
-                    "{q.question}"
-                  </p>
-                  {q.claim && (
-                    <p className="text-[10px] text-slate-600 mt-1 leading-tight flex items-start gap-1">
-                      <span className="font-bold text-slate-700 shrink-0">발언:</span>
-                      <span className="truncate">{q.claim}</span>
-                    </p>
-                  )}
-                  {q.verificationPoint && (
-                    <p className="text-[10px] text-purple-700 mt-0.5 leading-tight flex items-start gap-1">
-                      <span className="font-bold text-purple-900 shrink-0">검증:</span>
-                      <span>{q.verificationPoint}</span>
-                    </p>
-                  )}
-                  <p className="text-[10px] text-slate-600 mt-0.5 leading-tight">
-                    💡 <span className="font-bold text-slate-700">목적:</span> {q.reason}
-                  </p>
-                </div>
+                  {tab.label}
+                </button>
               ))}
             </div>
+
+            {/* Quick Search */}
+            <div className="relative w-full sm:w-48">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="질문 검색..."
+                className="w-full pl-7 pr-2.5 py-1 bg-slate-950 border border-slate-800 rounded-xl text-[11px] text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <Search className="w-3 h-3 text-slate-500 absolute left-2 top-2" />
+            </div>
           </div>
-        )}
+
+          {/* Question List Cards */}
+          <div className="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+            {filteredQuestions.length === 0 ? (
+              <div className="p-6 text-center bg-slate-950/40 border border-dashed border-slate-800/80 rounded-2xl text-slate-500 text-xs space-y-2">
+                <HelpCircle className="w-6 h-6 mx-auto opacity-30 text-blue-400" />
+                <p>해당 조건에 맞는 면접 질문이 없습니다.</p>
+                <p className="text-[11px] text-slate-600">
+                  상단의 [직접 평가·질문 작성] 또는 [AI 질문 스타일]을 통해 질문을 생성해보세요.
+                </p>
+              </div>
+            ) : (
+              filteredQuestions.map((q) => {
+                const isBookmarked = bookmarkedIds.has(q.id) || q.isBookmarked;
+                const criteriaDetails = q.evaluatedCriteriaDetails || [];
+                const evaluatedIds = q.evaluatedCriteria || [];
+
+                return (
+                  <div
+                    key={q.id}
+                    className={`p-3.5 rounded-2xl border transition-all space-y-2.5 ${
+                      q.isShared
+                        ? 'bg-gradient-to-r from-indigo-950/40 via-slate-950/90 to-slate-950/90 border-indigo-500/40 shadow-md ring-1 ring-indigo-500/20'
+                        : q.used
+                        ? 'bg-slate-950/40 border-slate-800/60 opacity-70'
+                        : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 shadow-md'
+                    }`}
+                  >
+                    {/* Card Top: Badges & Actions */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${
+                          q.isCustomGenerated || q.isUserCreated
+                            ? 'bg-purple-950/80 text-purple-300 border-purple-500/40'
+                            : 'bg-blue-950/80 text-blue-400 border-blue-500/30'
+                        }`}>
+                          {q.isCustomGenerated ? '맞춤 질문' : q.categoryLabel || q.category}
+                        </span>
+
+                        {q.isCustomGenerated && !q.isUserCreated && (
+                          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5 text-indigo-300" />
+                            <span>AI 맞춤</span>
+                          </span>
+                        )}
+
+                        {q.isShared && (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-indigo-950/80 text-indigo-300 border border-indigo-400/40 flex items-center gap-1 shadow-xs">
+                            <Users className="w-2.5 h-2.5 text-indigo-400" />
+                            <span>{q.sharedBy ? `${q.sharedBy} 면접관 공유` : '공유된 질문'}</span>
+                          </span>
+                        )}
+
+                        {q.isUserCreated && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-950/60 text-purple-300 border border-purple-500/30">
+                            직접 작성
+                          </span>
+                        )}
+
+                        {q.difficulty && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
+                            {q.difficulty === 'ADVANCED' ? '심층' : q.difficulty === 'HARD' ? '압박' : '기본'}
+                          </span>
+                        )}
+
+                        {q.matchScore && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/30">
+                            적합도 {q.matchScore}%
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Card Action Buttons */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleBookmark(q.id)}
+                          className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                            isBookmarked
+                              ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                              : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                          }`}
+                          title="질문 북마크"
+                        >
+                          <Bookmark className={`w-3 h-3 ${isBookmarked ? 'fill-amber-400' : ''}`} />
+                        </button>
+
+                        {/* One-Click Share with All Interviewers */}
+                        <button
+                          type="button"
+                          onClick={() => handleShareQuestion(q)}
+                          className={`px-2 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                            sharedId === q.id || q.isShared
+                              ? 'bg-indigo-600 text-white border-indigo-400 shadow-xs'
+                              : 'bg-slate-900 hover:bg-indigo-950 hover:text-indigo-300 text-slate-300 border-slate-800'
+                          }`}
+                          title="모든 면접관의 채팅방과 실시간 알림 피드에 질문 공유"
+                        >
+                          <Share2 className="w-3 h-3 text-indigo-400" />
+                          <span>{sharedId === q.id ? '공유 완료!' : q.isShared ? '공유됨' : '동료 공유'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedQuestionForDetail(q)}
+                          className="px-2 py-1 rounded-lg bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-500/30 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                          title="질문 상세 보기 및 평가 가이드"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>상세보기</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleCopyTailQuestion(q)}
+                          className="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                          title="질문 클립보드 복사"
+                        >
+                          {copiedId === q.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-300" />
+                              <span>복사됨</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>복사</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Question Statement */}
+                    <p className="text-slate-100 text-xs sm:text-sm font-bold leading-snug select-text">
+                      "{q.question}"
+                    </p>
+
+                    {/* Intent or Anchor Claim Quote */}
+                    {(q.intent || q.userTypedIntent || q.claim) && (
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-300 flex items-start gap-1.5">
+                        <Target className="w-3 h-3 text-purple-400 shrink-0 mt-0.5" />
+                        <span className="truncate">
+                          <strong className="text-purple-300 mr-1">검증 의도:</strong>
+                          {q.userTypedIntent || q.intent || q.claim}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Evaluated Criteria Badges (Target Items) */}
+                    <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                      <span className="text-[10px] font-bold text-slate-500 mr-1 flex items-center gap-1">
+                        <Sliders className="w-2.5 h-2.5 text-purple-400" />
+                        평가 항목:
+                      </span>
+                      {criteriaDetails.length > 0 ? (
+                        criteriaDetails.map((crit, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 text-[10px] font-black rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300"
+                          >
+                            {crit.criterionName}
+                          </span>
+                        ))
+                      ) : evaluatedIds.length > 0 ? (
+                        evaluatedIds.map((cid, idx) => {
+                          const matched = effectiveCriteria.find(c => c.id === cid);
+                          return (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 text-[10px] font-black rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300"
+                            >
+                              {matched ? `${matched.name} (${matched.weight}%)` : cid}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <span className="text-[10px] text-slate-500">종합 직무 역량</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* 2. Live STT Stream Terminal (Professional Slate-900 High-Contrast) */}
       <div className="flex-1 flex flex-col bg-slate-900 text-slate-100 min-h-0 overflow-hidden">
+        
         {/* Terminal Header */}
-        <div className="flex items-center justify-between px-3 py-2 bg-slate-950 border-b border-slate-800 text-xs">
+        <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950 border-b border-slate-800 text-xs shrink-0">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-emerald-400 animate-ping' : 'bg-slate-600'}`}></span>
-            <span className="font-bold text-slate-300 text-[11px] uppercase tracking-wide">
-              Live STT Stream
+            <span className="font-bold text-slate-300 text-[11px] uppercase tracking-wide flex items-center gap-1.5">
+              <span>Live STT 음성 스트림</span>
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleSimulateNextSpeech}
-              title="다음 모의 면접 발언 자동 생성"
-              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-medium flex items-center gap-1 transition-colors border border-slate-700"
+              title="다음 모의 면접 발언 자동 시뮬레이션"
+              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[11px] font-medium flex items-center gap-1 transition-colors border border-slate-700 cursor-pointer"
             >
-              <Play className="w-2.5 h-2.5 text-blue-400" />
-              모의 발언
+              <Play className="w-3 h-3 text-blue-400" />
+              <span>모의 발언 생성</span>
             </button>
+
             <button
               onClick={toggleMic}
-              className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition-colors ${
+              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-sm ${
                 isListening
-                  ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
+                  : 'bg-blue-600 hover:bg-blue-500 text-white'
               }`}
             >
-              {isListening ? <MicOff className="w-2.5 h-2.5" /> : <Mic className="w-2.5 h-2.5" />}
-              {isListening ? '마이크 끄기' : '실시간 STT'}
+              {isListening ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
+              <span>{isListening ? '마이크 종료' : '실시간 마이크 STT'}</span>
             </button>
           </div>
         </div>
 
         {/* Scrollable Subtitle Stream */}
-        <div ref={scrollRef} className="flex-1 p-3 overflow-y-auto space-y-2 font-sans text-xs leading-relaxed">
+        <div ref={scrollRef} className="flex-1 p-3 overflow-y-auto space-y-2 font-sans text-xs leading-relaxed scrollbar-thin">
           {transcript.length === 0 && !interimText && (
-            <div className="h-full flex flex-col items-center justify-center text-slate-500 text-center p-4">
-              <Mic className="w-6 h-6 mb-2 opacity-40" />
-              <p className="text-[11px]">면접관 및 지원자의 발언이 실시간 자막으로 스트리밍됩니다.</p>
-              <p className="text-[10px] text-slate-600 mt-1">상단의 [모의 발언] 또는 [실시간 STT]를 눌러보세요.</p>
+            <div className="h-full flex flex-col items-center justify-center text-slate-500 text-center p-6 space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400">
+                <Mic className="w-5 h-5" />
+              </div>
+              <p className="text-xs font-bold text-slate-400">면접관 및 지원자의 발언이 실시간 자막으로 스트리밍됩니다.</p>
+              <p className="text-[11px] text-slate-600">상단의 [모의 발언 생성] 또는 [실시간 마이크 STT]를 시작해보세요.</p>
             </div>
           )}
 
@@ -354,10 +1111,10 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
             return (
               <div
                 key={msg.id}
-                className={`p-2 rounded-md transition-all ${
+                className={`p-2.5 rounded-xl transition-all ${
                   isCandidate
-                    ? 'bg-slate-800/80 border-l-3 border-sky-400 text-slate-200'
-                    : 'bg-slate-800/40 border-l-3 border-slate-600 text-slate-400'
+                    ? 'bg-slate-800/90 border-l-4 border-sky-400 text-slate-200 shadow-xs'
+                    : 'bg-slate-800/40 border-l-4 border-slate-600 text-slate-400'
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px] mb-1 font-mono">
@@ -366,52 +1123,67 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
                   </span>
                   <span className="text-slate-500 text-[9px]">{msg.timestamp}</span>
                 </div>
-                <p className="text-[12px] whitespace-pre-wrap">{msg.text}</p>
+                <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.text}</p>
               </div>
             );
           })}
 
           {/* Current Interim Speech (Live typing preview) */}
           {interimText && (
-            <div className="p-2 rounded-md bg-sky-950/60 border-l-3 border-sky-400 text-sky-200 animate-pulse">
-              <span className="text-[9px] font-mono text-sky-400 block mb-0.5">
+            <div className="p-2.5 rounded-xl bg-sky-950/60 border-l-4 border-sky-400 text-sky-200 animate-pulse">
+              <span className="text-[10px] font-mono text-sky-400 block mb-0.5">
                 실시간 음성 인식 중...
               </span>
-              <p className="text-[12px]">{interimText}</p>
+              <p className="text-xs">{interimText}</p>
             </div>
           )}
         </div>
 
         {/* Input Bar for Manual Text/Speech Injection */}
-        <form onSubmit={handleSendManual} className="p-2 bg-slate-950 border-t border-slate-800 flex items-center gap-1.5">
+        <form onSubmit={handleSendManual} className="p-2.5 bg-slate-950 border-t border-slate-800 flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setSpeaker(prev => prev === 'candidate' ? 'interviewer' : 'candidate')}
-            className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors shrink-0 ${
+            className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold uppercase transition-colors shrink-0 cursor-pointer ${
               speaker === 'candidate'
-                ? 'bg-sky-700 text-white'
-                : 'bg-slate-700 text-slate-300'
+                ? 'bg-sky-600 text-white shadow-xs'
+                : 'bg-slate-800 text-slate-300 border border-slate-700'
             }`}
             title="화자 전환 (지원자 / 면접관)"
           >
-            {speaker === 'candidate' ? '지원자' : '면접관'}
+            {speaker === 'candidate' ? '지원자 답변' : '면접관 질문'}
           </button>
           <input
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             placeholder={`${speaker === 'candidate' ? '지원자 답변' : '면접관 질문'} 텍스트 입력...`}
-            className="flex-1 bg-slate-900 text-slate-200 text-xs px-2.5 py-1.5 rounded border border-slate-800 focus:outline-hidden focus:border-blue-500"
+            className="flex-1 bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
             disabled={!inputText.trim()}
-            className="p-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded transition-colors shrink-0"
+            className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-xl transition-colors shrink-0 cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
       </div>
+
+      {/* Detail Modal */}
+      {selectedQuestionForDetail && (
+        <QuestionDetailModal
+          question={selectedQuestionForDetail}
+          onClose={() => setSelectedQuestionForDetail(null)}
+          onShareToChat={handleShareQuestion}
+          onToggleBookmark={toggleBookmark}
+          onMarkUsed={onUseTailQuestion ? (qid) => {
+            const q = localCustomQuestions.find(t => t.id === qid) || localTailQuestions.find(t => t.id === qid);
+            if (q) onUseTailQuestion(q);
+          } : undefined}
+          criteria={effectiveCriteria}
+        />
+      )}
     </div>
   );
 };

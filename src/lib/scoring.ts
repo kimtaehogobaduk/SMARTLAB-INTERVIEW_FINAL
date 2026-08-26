@@ -1,4 +1,4 @@
-import { Evaluation, EvaluationCriterion, ScoringFormula } from '../types';
+import { Evaluation, EvaluationCriterion, ScoringFormula, PlatformSettings } from '../types';
 
 export const DEFAULT_CRITERIA: EvaluationCriterion[] = [
   {
@@ -174,6 +174,39 @@ export function calculateAggregatedScore(
   // Default: Arithmetic MEAN
   const sum = evaluatorScores.reduce((a, b) => a + b, 0);
   return Math.round((sum / count) * 10) / 10;
+}
+
+/**
+ * Returns effective criteria, scoring formula, passThresholdScore, and isCriteriaConfirmed
+ * for a specific room, falling back to platform settings or global defaults.
+ */
+export function getEffectiveRoomCriteria(
+  room?: { criteria?: EvaluationCriterion[]; scoringFormula?: ScoringFormula; passThresholdScore?: number; isCriteriaConfirmed?: boolean } | null,
+  settings?: PlatformSettings | null
+): {
+  criteria: EvaluationCriterion[];
+  scoringFormula: ScoringFormula;
+  passThresholdScore: number;
+  isCriteriaConfirmed: boolean;
+  isRoomCustom: boolean;
+} {
+  if (room && Array.isArray(room.criteria) && room.criteria.length > 0) {
+    return {
+      criteria: room.criteria,
+      scoringFormula: room.scoringFormula || settings?.scoringFormula || 'TRIMMED_MEAN',
+      passThresholdScore: room.passThresholdScore ?? settings?.passThresholdScore ?? 70,
+      isCriteriaConfirmed: room.isCriteriaConfirmed ?? settings?.isCriteriaConfirmed ?? false,
+      isRoomCustom: true
+    };
+  }
+
+  return {
+    criteria: (settings?.criteria && settings.criteria.length > 0) ? settings.criteria : DEFAULT_CRITERIA,
+    scoringFormula: settings?.scoringFormula || 'TRIMMED_MEAN',
+    passThresholdScore: settings?.passThresholdScore ?? 70,
+    isCriteriaConfirmed: settings?.isCriteriaConfirmed ?? false,
+    isRoomCustom: false
+  };
 }
 
 /**

@@ -22,12 +22,7 @@ import {
   Maximize2,
   Minimize2,
   X,
-  SlidersHorizontal,
-  ChevronDown,
-  LayoutGrid,
-  RotateCcw,
-  MoveHorizontal,
-  MoveVertical
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface FlexibleWorkspaceProps {
@@ -296,12 +291,17 @@ export const FlexibleWorkspace: React.FC<FlexibleWorkspaceProps> = ({
             transcript={candidate.sttTranscript || []}
             realtimeSummaries={candidate.aiInsights?.realtimeSummaries || []}
             tailQuestions={candidate.aiInsights?.tailQuestions || []}
+            customQuestions={candidate.aiInsights?.customQuestions || []}
             contradictions={candidate.aiInsights?.contradictions || []}
+            candidateId={candidate.id}
             candidateName={candidate.name}
             candidateTrack={candidate.track}
+            roomId={candidate.roomId}
+            currentUserName={currentUser.name}
+            currentUserId={currentUser.id}
             settings={settings}
-            onSendMessage={onSendMessage}
-            onUseTailQuestion={onUseTailQuestion}
+            onSendMessage={(msg, triggerAI) => onSendMessage(msg.text)}
+            onUseTailQuestion={(q) => onUseTailQuestion(typeof q === 'string' ? q : q.question)}
             isLoadingAI={isAiLoading}
           />
         );

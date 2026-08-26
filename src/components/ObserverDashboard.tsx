@@ -1,5 +1,6 @@
 import React from 'react';
 import { Candidate, Evaluation, PlatformSettings } from '../types';
+import { calculateEvaluatorScore } from '../lib/scoring';
 import { Eye, Users, Brain, CheckCircle2, Sparkles, MessageSquare, ShieldCheck, Activity } from 'lucide-react';
 
 // Format interviewer name to display purely as '000'
@@ -21,10 +22,17 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
 }) => {
   const submittedEvaluations = peerEvaluations.filter(e => e.status === 'SUBMITTED');
 
-  // Calculate average score among peer evaluations with scores
-  const scoredEvals = peerEvaluations.filter(e => typeof e.totalScore === 'number' && e.totalScore > 0);
+  // Compute calculated scores for each evaluation
+  const scoredEvals = peerEvaluations.map(e => {
+    const calc = calculateEvaluatorScore(e.scores, e.presentationBonuses, settings.criteria || []);
+    return {
+      ...e,
+      computedTotal: calc.totalScore
+    };
+  }).filter(e => e.computedTotal > 0);
+
   const averageScore = scoredEvals.length > 0
-    ? (scoredEvals.reduce((acc, curr) => acc + curr.totalScore, 0) / scoredEvals.length).toFixed(1)
+    ? (scoredEvals.reduce((acc, curr) => acc + curr.computedTotal, 0) / scoredEvals.length).toFixed(1)
     : '-';
 
   return (
@@ -79,7 +87,8 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
             <div className="space-y-2">
               {peerEvaluations.map((evalItem) => {
                 const isSubmitted = evalItem.status === 'SUBMITTED';
-                const hasScore = typeof evalItem.totalScore === 'number' && evalItem.totalScore > 0;
+                const calc = calculateEvaluatorScore(evalItem.scores, evalItem.presentationBonuses, settings.criteria || []);
+                const hasScore = calc.totalScore > 0;
                 const displayName = formatInterviewerDisplayName(evalItem.interviewerName);
 
                 return (
@@ -119,7 +128,7 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
                     <div className="text-right">
                       {hasScore ? (
                         <div className="text-sm font-black font-mono text-blue-700">
-                          {evalItem.totalScore.toFixed(1)} <span className="text-[10px] font-normal text-slate-400">/ 100</span>
+                          {calc.totalScore.toFixed(1)} <span className="text-[10px] font-normal text-slate-400">/ 100</span>
                         </div>
                       ) : (
                         <span className="text-[11px] text-slate-400 font-medium">채점 진행 중</span>
@@ -193,3 +202,4 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
     </div>
   );
 };
+

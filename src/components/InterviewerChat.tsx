@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { InterviewerChatMessage, InterviewerPresence } from '../types';
+import { InterviewerChatMessage, InterviewerPresence, TailQuestion } from '../types';
 import {
   MessageSquare,
   Send,
@@ -7,24 +7,22 @@ import {
   Sparkles,
   Users,
   AlertCircle,
-  Clock,
-  Check,
-  ShieldCheck,
-  Flame,
   Volume2,
   VolumeX,
   Trash2,
-  Minimize2,
   Maximize2,
   LayoutGrid,
-  ChevronDown,
-  Info,
-  Star,
   GripHorizontal,
   EyeOff,
-  Move
+  Star,
+  Copy,
+  Check,
+  Eye,
+  Sliders,
+  Target
 } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
+import { QuestionDetailModal } from './QuestionDetailModal';
 
 interface InterviewerChatProps {
   currentUser: { id: string; name: string; role: string };
@@ -72,6 +70,15 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const [copiedQuestionId, setCopiedQuestionId] = useState<string | null>(null);
+  const [selectedQuestionForDetail, setSelectedQuestionForDetail] = useState<TailQuestion | null>(null);
+
+  const handleCopySharedQuestion = (q: TailQuestion) => {
+    navigator.clipboard.writeText(q.question);
+    setCopiedQuestionId(q.id);
+    setTimeout(() => setCopiedQuestionId(null), 2000);
+  };
 
   // Draggable Floating Position State
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
@@ -504,19 +511,78 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
                 </div>
 
                 {/* Message Bubble */}
-                <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs break-words ${
-                    isMe
-                      ? m.isImportant
-                        ? 'bg-rose-600 text-white rounded-tr-xs font-medium'
-                        : 'bg-indigo-600 text-white rounded-tr-xs'
-                      : m.isImportant
-                      ? 'bg-rose-50 text-rose-950 border border-rose-200 rounded-tl-xs font-medium'
-                      : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs'
-                  }`}
-                >
-                  {m.message}
-                </div>
+                {m.sharedQuestion ? (
+                  <div
+                    className={`max-w-[90%] rounded-2xl p-3 text-xs leading-relaxed shadow-sm border ${
+                      isMe
+                        ? 'bg-gradient-to-br from-indigo-950 to-slate-900 border-indigo-500/40 text-slate-100 rounded-tr-xs'
+                        : 'bg-gradient-to-br from-slate-900 to-indigo-950/60 border-indigo-400/30 text-slate-100 rounded-tl-xs'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-indigo-500/20">
+                      <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-amber-400 fill-amber-400" />
+                        <span>면접관 추천 질문 공유</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold">
+                        {m.sharedQuestion.category || '맞춤 질문'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-bold text-white mb-2 leading-snug">
+                      "{m.sharedQuestion.question}"
+                    </p>
+
+                    {(m.sharedQuestion.intent || m.sharedQuestion.verificationPoint) && (
+                      <p className="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 mb-2.5">
+                        <strong className="text-indigo-300">평가 의도:</strong> {m.sharedQuestion.intent || m.sharedQuestion.verificationPoint}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-end gap-1.5 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQuestionForDetail(m.sharedQuestion!)}
+                        className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer border border-slate-700"
+                      >
+                        <Eye className="w-3 h-3 text-indigo-400" />
+                        <span>평가 항목 상세</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCopySharedQuestion(m.sharedQuestion!)}
+                        className="px-2 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
+                      >
+                        {copiedQuestionId === m.sharedQuestion.id ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-300" />
+                            <span>복사됨!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>질문 복사</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs break-words ${
+                      isMe
+                        ? m.isImportant
+                          ? 'bg-rose-600 text-white rounded-tr-xs font-medium'
+                          : 'bg-indigo-600 text-white rounded-tr-xs'
+                        : m.isImportant
+                        ? 'bg-rose-50 text-rose-950 border border-rose-200 rounded-tl-xs font-medium'
+                        : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs'
+                    }`}
+                  >
+                    {m.message}
+                  </div>
+                )}
               </div>
             );
           })
@@ -582,6 +648,14 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Detail Modal for Shared Questions clicked from chat */}
+      {selectedQuestionForDetail && (
+        <QuestionDetailModal
+          question={selectedQuestionForDetail}
+          onClose={() => setSelectedQuestionForDetail(null)}
+        />
+      )}
     </div>
   );
 };

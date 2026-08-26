@@ -267,18 +267,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({
           <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
           <span>하단의 <strong>[면접 시작]</strong> 버튼을 누르면 점수 입력이 활성화됩니다.</span>
         </div>
-      ) : (
-        <div className="bg-blue-50/60 border-b border-blue-100 px-4 py-1.5 text-[11px] text-blue-800 flex items-center justify-between">
-          <span className="flex items-center gap-1 font-semibold">
-            <Sliders className="w-3 h-3 text-blue-600" />
-            어드민 가중치 적용됨 ({activeCriteria.map(c => `${c.name.split('.')[1] || c.name}: ${c.weight}%`).join(' / ')})
-          </span>
-          <span className="text-[10px] text-amber-700 font-bold bg-amber-100/70 px-1.5 py-0.5 rounded border border-amber-200 flex items-center gap-0.5">
-            <Mic className="w-2.5 h-2.5" />
-            발표 가산점 최대 +10% 지원
-          </span>
-        </div>
-      )}
+      ) : null}
 
       {/* Evaluation Input Form */}
       <div

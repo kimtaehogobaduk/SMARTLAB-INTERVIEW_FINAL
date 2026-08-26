@@ -124,33 +124,53 @@ export const AdminAuditModal: React.FC<AdminAuditModalProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ShieldAlert className={`w-5 h-5 ${isUnlocked ? 'text-amber-600 animate-pulse' : 'text-slate-500'}`} />
-                <h3 className="font-bold text-sm text-slate-900">
-                  5분 임시 수정 권한 (Admin Temporary Override)
-                </h3>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    관리자 5분 한시 수정 권한 (Admin 5-Min Re-open Override)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    완료된 면접을 5분간 취소하여 점수/평가를 수정한 뒤, 5분 후 원래 완료 시간을 보존하며 자동 재완료합니다.
+                  </p>
+                </div>
               </div>
 
               {isUnlocked ? (
-                <div className="flex items-center gap-2 bg-amber-200/70 text-amber-950 px-3 py-1 rounded-full font-mono font-bold text-xs">
-                  <Clock className="w-3.5 h-3.5 text-amber-800" />
-                  남은 시간: {Math.floor(remainingSeconds / 60)}분 {String(remainingSeconds % 60).padStart(2, '0')}초
+                <div className="flex items-center gap-2 bg-amber-200/70 text-amber-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-xs border border-amber-300">
+                  <Clock className="w-3.5 h-3.5 text-amber-800 animate-spin" />
+                  남은 수정 유예 시간: {Math.floor(remainingSeconds / 60)}분 {String(remainingSeconds % 60).padStart(2, '0')}초
                 </div>
               ) : (
-                <span className="text-[11px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded">
+                <span className="text-[11px] font-bold text-slate-500 bg-slate-200 px-2.5 py-1 rounded-lg">
                   잠금 활성화 (Read-Only)
                 </span>
               )}
             </div>
 
             {!isUnlocked ? (
-              <form onSubmit={handleLoginUnlock} className="flex items-end gap-3 text-xs">
+              <form onSubmit={handleLoginUnlock} className="flex flex-wrap items-end gap-3 text-xs">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">수정 대상 지원자</label>
+                  <select
+                    value={selectedCandidateId}
+                    onChange={e => setSelectedCandidateId(e.target.value)}
+                    className="px-2.5 py-1.5 bg-white border border-slate-300 rounded font-semibold text-xs"
+                  >
+                    <option value="">전체 완료자 (일괄 5분 수정 개방)</option>
+                    {candidates.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.track} - {c.status})
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">관리자 ID</label>
                   <input
                     type="text"
                     value={adminId}
                     onChange={e => setAdminId(e.target.value)}
-                    placeholder="관리자 ID 입력"
-                    className="w-32 px-2.5 py-1.5 bg-white border border-slate-300 rounded font-mono"
+                    placeholder="admin"
+                    className="w-28 px-2.5 py-1.5 bg-white border border-slate-300 rounded font-mono"
                   />
                 </div>
                 <div>
@@ -159,7 +179,7 @@ export const AdminAuditModal: React.FC<AdminAuditModalProps> = ({
                     type="password"
                     value={adminPw}
                     onChange={e => setAdminPw(e.target.value)}
-                    placeholder="비밀번호 입력"
+                    placeholder="비밀번호(admin)"
                     className="w-36 px-2.5 py-1.5 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-red-500 focus:outline-hidden"
                   />
                 </div>
@@ -168,13 +188,16 @@ export const AdminAuditModal: React.FC<AdminAuditModalProps> = ({
                   className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
-                  5분간 수정 권한 승인
+                  5분간 완료 취소 및 수정 승인
                 </button>
               </form>
             ) : (
               <div className="space-y-3 pt-2 border-t border-amber-200">
-                <div className="text-xs text-amber-900 font-medium">
-                  ⚠️ 관리자 권한이 활성화되었습니다. 수정되는 모든 사항은 타임스탬프와 함께 감사 로그(Audit Log)에 영구 기록됩니다.
+                <div className="text-xs text-amber-900 font-bold flex items-center gap-1.5 bg-amber-100/60 p-2 rounded-lg border border-amber-300">
+                  <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>
+                    관리자 수정 권한이 활성화되었습니다. 5분 동안 완료가 취소되어 면접실 및 아래 패널에서 점수를 수정할 수 있으며, 5분이 지나면 자동으로 다시 완료됩니다. (최초 완료 시간은 영구 보존됩니다)
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-amber-200 text-xs">

@@ -7,7 +7,8 @@ import {
   ScoringFormula,
   AuditLog,
   Candidate,
-  Evaluation
+  Evaluation,
+  QuestionPersonaStyle
 } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import { AdminStatsDashboard } from './AdminStatsDashboard';
@@ -46,7 +47,12 @@ import {
   Award,
   BarChart3,
   Save,
-  BookOpen
+  BookOpen,
+  Globe,
+  Tag,
+  Target,
+  Brain,
+  MessageSquareQuote
 } from 'lucide-react';
 
 interface AdminPortalPageProps {
@@ -61,8 +67,20 @@ interface AdminPortalPageProps {
     minutesPerPerson: number;
     panelCount: number;
     interviewers?: string[];
+    securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
+    roomPassword?: string;
+    quizQuestion?: string;
+    quizAnswer?: string;
   }) => Promise<void>;
-  onUpdateRoom: (roomId: string, data: { interviewers?: string[]; name?: string; description?: string }) => Promise<void>;
+  onUpdateRoom: (roomId: string, data: {
+    interviewers?: string[];
+    name?: string;
+    description?: string;
+    securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
+    roomPassword?: string;
+    quizQuestion?: string;
+    quizAnswer?: string;
+  }) => Promise<void>;
   onDeleteRoom: (roomId: string) => Promise<void>;
   onSelectRoomAsAdmin: (room: InterviewRoomItem) => void;
   onBackToLanding: () => void;
@@ -177,16 +195,25 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   const [newRoomDesc, setNewRoomDesc] = useState('');
   const [newMinutes, setNewMinutes] = useState(30);
   const [rawInterviewersText, setRawInterviewersText] = useState('면접관 1, 면접관 2, 면접관 3');
+  const [newSecurityType, setNewSecurityType] = useState<'NONE' | 'PASSWORD' | 'QUIZ'>('NONE');
+  const [newRoomPassword, setNewRoomPassword] = useState('');
+  const [newQuizQuestion, setNewQuizQuestion] = useState('');
+  const [newQuizAnswer, setNewQuizAnswer] = useState('');
   const [isRoomSubmitting, setIsRoomSubmitting] = useState(false);
   const [roomSuccessMsg, setRoomSuccessMsg] = useState('');
   const [roomErrorMsg, setRoomErrorMsg] = useState('');
 
-  // Editing existing room interviewers
+  // Editing existing room interviewers & security
   const [editingRoom, setEditingRoom] = useState<InterviewRoomItem | null>(null);
   const [editInterviewersText, setEditInterviewersText] = useState('');
+  const [editSecurityType, setEditSecurityType] = useState<'NONE' | 'PASSWORD' | 'QUIZ'>('NONE');
+  const [editRoomPassword, setEditRoomPassword] = useState('');
+  const [editQuizQuestion, setEditQuizQuestion] = useState('');
+  const [editQuizAnswer, setEditQuizAnswer] = useState('');
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
 
   // Criteria Configuration State
+  const [selectedRoomScope, setSelectedRoomScope] = useState<'GLOBAL' | string>('GLOBAL');
   const [localCriteria, setLocalCriteria] = useState<EvaluationCriterion[]>(() => {
     return settings.criteria && settings.criteria.length > 0
       ? JSON.parse(JSON.stringify(settings.criteria))
@@ -195,14 +222,68 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
 
   const [localFormula, setLocalFormula] = useState<ScoringFormula>(settings.scoringFormula || 'TRIMMED_MEAN');
   const [localPassScore, setLocalPassScore] = useState<number>(settings.passThresholdScore || 70);
+  const [localRoomPersona, setLocalRoomPersona] = useState<QuestionPersonaStyle>('BALANCED');
+  const [localRoomFocusKeywords, setLocalRoomFocusKeywords] = useState<string>('');
   const [isCriteriaDirty, setIsCriteriaDirty] = useState(false);
   const [criteriaSubmitting, setCriteriaSubmitting] = useState(false);
   const [criteriaSuccessMsg, setCriteriaSuccessMsg] = useState('');
   const [criteriaErrorMsg, setCriteriaErrorMsg] = useState('');
 
-  // Sync when settings change from outside ONLY if the user hasn't made dirty edits
+  // Selected room object
+  const activeSelectedRoom = selectedRoomScope === 'GLOBAL' 
+    ? null 
+    : rooms.find(r => r.id === selectedRoomScope) || null;
+
+  // Function to switch scope (GLOBAL or a specific room)
+  const handleSwitchScope = (newScope: 'GLOBAL' | string) => {
+    if (isCriteriaDirty) {
+      if (!confirm('현재 편집 중인 미저장 내용이 있습니다. 탭을 전환하시겠습니까?')) {
+        return;
+      }
+    }
+
+    setSelectedRoomScope(newScope);
+    setIsCriteriaDirty(false);
+    setCriteriaErrorMsg('');
+    setCriteriaSuccessMsg('');
+
+    if (newScope === 'GLOBAL') {
+      if (settings.criteria && settings.criteria.length > 0) {
+        setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria)));
+      } else {
+        setLocalCriteria(JSON.parse(JSON.stringify(PRESET_TEMPLATES[0].criteria)));
+      }
+      setLocalFormula(settings.scoringFormula || 'TRIMMED_MEAN');
+      setLocalPassScore(settings.passThresholdScore !== undefined ? settings.passThresholdScore : 70);
+      setLocalRoomPersona('BALANCED');
+      setLocalRoomFocusKeywords('');
+    } else {
+      const room = rooms.find(r => r.id === newScope);
+      if (room && room.criteria && room.criteria.length > 0) {
+        // Room has its own custom criteria
+        setLocalCriteria(JSON.parse(JSON.stringify(room.criteria)));
+        setLocalFormula(room.scoringFormula || 'TRIMMED_MEAN');
+        setLocalPassScore(room.passThresholdScore !== undefined ? room.passThresholdScore : 70);
+        setLocalRoomPersona(room.defaultQuestionPersona || 'BALANCED');
+        setLocalRoomFocusKeywords((room.customFocusKeywords || []).join(', '));
+      } else {
+        // Room is currently inheriting global criteria - start with a clone of global
+        if (settings.criteria && settings.criteria.length > 0) {
+          setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria)));
+        } else {
+          setLocalCriteria(JSON.parse(JSON.stringify(PRESET_TEMPLATES[0].criteria)));
+        }
+        setLocalFormula(room?.scoringFormula || settings.scoringFormula || 'TRIMMED_MEAN');
+        setLocalPassScore(room?.passThresholdScore ?? settings.passThresholdScore ?? 70);
+        setLocalRoomPersona(room?.defaultQuestionPersona || 'BALANCED');
+        setLocalRoomFocusKeywords((room?.customFocusKeywords || []).join(', '));
+      }
+    }
+  };
+
+  // Sync when settings change from outside ONLY if in GLOBAL scope and not dirty
   useEffect(() => {
-    if (!isCriteriaDirty) {
+    if (!isCriteriaDirty && selectedRoomScope === 'GLOBAL') {
       if (settings.criteria && settings.criteria.length > 0) {
         setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria)));
       }
@@ -213,7 +294,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
         setLocalPassScore(settings.passThresholdScore);
       }
     }
-  }, [settings, isCriteriaDirty]);
+  }, [settings, isCriteriaDirty, selectedRoomScope]);
 
   // Calculate current weight sum
   const currentTotalWeight = localCriteria.reduce((sum, c) => sum + (Number(c.weight) || 0), 0);
@@ -306,17 +387,32 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
 
   const handleResetToCurrentSettings = () => {
     if (confirm('현재 편집 중인 내용을 취소하고 서버에 저장된 기존 평가 기준으로 원복하시겠습니까?')) {
-      if (settings.criteria && settings.criteria.length > 0) {
-        setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria)));
-      }
-      if (settings.scoringFormula) {
-        setLocalFormula(settings.scoringFormula);
-      }
-      if (settings.passThresholdScore !== undefined) {
-        setLocalPassScore(settings.passThresholdScore);
+      if (selectedRoomScope === 'GLOBAL') {
+        if (settings.criteria && settings.criteria.length > 0) {
+          setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria)));
+        }
+        if (settings.scoringFormula) {
+          setLocalFormula(settings.scoringFormula);
+        }
+        if (settings.passThresholdScore !== undefined) {
+          setLocalPassScore(settings.passThresholdScore);
+        }
+      } else {
+        const room = rooms.find(r => r.id === selectedRoomScope);
+        if (room && room.criteria && room.criteria.length > 0) {
+          setLocalCriteria(JSON.parse(JSON.stringify(room.criteria)));
+          setLocalFormula(room.scoringFormula || 'TRIMMED_MEAN');
+          setLocalPassScore(room.passThresholdScore !== undefined ? room.passThresholdScore : 70);
+          setLocalRoomPersona(room.defaultQuestionPersona || 'BALANCED');
+          setLocalRoomFocusKeywords((room.customFocusKeywords || []).join(', '));
+        } else {
+          setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria || PRESET_TEMPLATES[0].criteria)));
+          setLocalFormula(settings.scoringFormula || 'TRIMMED_MEAN');
+          setLocalPassScore(settings.passThresholdScore !== undefined ? settings.passThresholdScore : 70);
+        }
       }
       setIsCriteriaDirty(false);
-      setCriteriaSuccessMsg('서버에 저장된 기존 설정으로 복원되었습니다.');
+      setCriteriaSuccessMsg('기존 설정으로 복원되었습니다.');
       setTimeout(() => setCriteriaSuccessMsg(''), 3000);
     }
   };
@@ -360,9 +456,52 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
     setCriteriaSuccessMsg('');
 
     try {
-      await onConfirmCriteria(criteriaToSave, localFormula, localPassScore);
-      setIsCriteriaDirty(false);
-      setCriteriaSuccessMsg('✅ 평가 기준과 가중치 공식이 성공적으로 저장 및 실시간 적용되었습니다!');
+      if (selectedRoomScope === 'GLOBAL') {
+        await onConfirmCriteria(criteriaToSave, localFormula, localPassScore);
+        setIsCriteriaDirty(false);
+        setCriteriaSuccessMsg('✅ 플랫폼 공통 평가 기준과 가중치 공식이 저장 및 실시간 적용되었습니다!');
+      } else {
+        // Save to specific room
+        const parsedKeywords = localRoomFocusKeywords
+          .split(/[\n,]+/)
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const res = await fetch(`/api/rooms/${selectedRoomScope}/criteria`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            criteria: criteriaToSave,
+            scoringFormula: localFormula,
+            passThresholdScore: localPassScore,
+            defaultQuestionPersona: localRoomPersona,
+            customFocusKeywords: parsedKeywords
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || '방별 평가 기준 저장에 실패했습니다.');
+        }
+
+        // Auto confirm for this room
+        const confirmRes = await fetch(`/api/rooms/${selectedRoomScope}/confirm-criteria`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            confirmedBy: '동아리 총괄 관리자 (Admin)'
+          })
+        });
+
+        if (!confirmRes.ok) {
+          const err = await confirmRes.json();
+          throw new Error(err.error || '방 평가 기준 확정에 실패했습니다.');
+        }
+
+        setIsCriteriaDirty(false);
+        setCriteriaSuccessMsg(`✅ "${activeSelectedRoom?.name || '해당 면접실'}" 전용 평가 기준 및 AI 질문 스타일이 실시간 적용되었습니다!`);
+        if (onRefreshSettings) await onRefreshSettings();
+      }
       setTimeout(() => setCriteriaSuccessMsg(''), 5000);
     } catch (err: any) {
       setCriteriaErrorMsg(err.message || '평가 기준 저장 중 오류가 발생했습니다.');
@@ -371,12 +510,68 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
     }
   };
 
+  const handleRevertRoomToGlobal = async () => {
+    if (!activeSelectedRoom) return;
+    if (confirm(`"${activeSelectedRoom.name}" 면접방의 전용 기준을 삭제하고 플랫폼 전체 공통 기본 기준을 따르도록 초기화하시겠습니까?`)) {
+      setCriteriaSubmitting(true);
+      try {
+        const res = await fetch(`/api/rooms/${selectedRoomScope}/criteria`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            criteria: null,
+            scoringFormula: null,
+            passThresholdScore: null,
+            defaultQuestionPersona: null,
+            customFocusKeywords: null
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || '초기화에 실패했습니다.');
+        }
+
+        setIsCriteriaDirty(false);
+        // Reload global
+        setLocalCriteria(JSON.parse(JSON.stringify(settings.criteria || PRESET_TEMPLATES[0].criteria)));
+        setLocalFormula(settings.scoringFormula || 'TRIMMED_MEAN');
+        setLocalPassScore(settings.passThresholdScore !== undefined ? settings.passThresholdScore : 70);
+        setLocalRoomPersona('BALANCED');
+        setLocalRoomFocusKeywords('');
+        setCriteriaSuccessMsg(`"${activeSelectedRoom.name}" 방이 플랫폼 공통 기본 기준을 상속받도록 복원되었습니다.`);
+        if (onRefreshSettings) await onRefreshSettings();
+        setTimeout(() => setCriteriaSuccessMsg(''), 4000);
+      } catch (err: any) {
+        setCriteriaErrorMsg(err.message || '초기화에 실패했습니다.');
+      } finally {
+        setCriteriaSubmitting(false);
+      }
+    }
+  };
+
   const handleUnlockForEdit = async () => {
     if (confirm('평가 기준을 임시 미확정(평가 일시 중단) 상태로 변경하시겠습니까?')) {
       setCriteriaSubmitting(true);
       try {
-        await onUnconfirmCriteria();
-        setCriteriaSuccessMsg('평가 기준이 미확정 상태로 전환되었습니다.');
+        if (selectedRoomScope === 'GLOBAL') {
+          await onUnconfirmCriteria();
+          setCriteriaSuccessMsg('플랫폼 기본 평가 기준이 미확정 상태로 전환되었습니다.');
+        } else {
+          const res = await fetch(`/api/rooms/${selectedRoomScope}/unconfirm-criteria`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              operatorName: '동아리 총괄 관리자 (Admin)'
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || '미확정 전환에 실패했습니다.');
+          }
+          setCriteriaSuccessMsg(`"${activeSelectedRoom?.name}" 방의 기준이 미확정 상태로 전환되었습니다.`);
+          if (onRefreshSettings) await onRefreshSettings();
+        }
         setTimeout(() => setCriteriaSuccessMsg(''), 4000);
       } catch (err: any) {
         setCriteriaErrorMsg(err.message || '상태 전환에 실패했습니다.');
@@ -403,6 +598,16 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       return;
     }
 
+    if (newSecurityType === 'PASSWORD' && !newRoomPassword.trim()) {
+      setRoomErrorMsg('방 입장 비밀번호를 설정해주세요.');
+      return;
+    }
+
+    if (newSecurityType === 'QUIZ' && (!newQuizQuestion.trim() || !newQuizAnswer.trim())) {
+      setRoomErrorMsg('퀴즈 질문과 정답을 모두 입력해주세요.');
+      return;
+    }
+
     setIsRoomSubmitting(true);
     setRoomErrorMsg('');
     try {
@@ -411,7 +616,11 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
         description: newRoomDesc.trim() || 'SmartLab 동아리 실시간 면접 평가실',
         minutesPerPerson: Number(newMinutes) || 30,
         panelCount: parsedNewInterviewers.length,
-        interviewers: parsedNewInterviewers
+        interviewers: parsedNewInterviewers,
+        securityType: newSecurityType,
+        roomPassword: newSecurityType === 'PASSWORD' ? newRoomPassword.trim() : undefined,
+        quizQuestion: newSecurityType === 'QUIZ' ? newQuizQuestion.trim() : undefined,
+        quizAnswer: newSecurityType === 'QUIZ' ? newQuizAnswer.trim() : undefined
       });
 
       setRoomSuccessMsg(`"${newRoomName.trim()}" 방과 면접관 ${parsedNewInterviewers.length}명이 등록되었습니다.`);
@@ -419,6 +628,10 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       setNewRoomDesc('');
       setRawInterviewersText('면접관 1, 면접관 2, 면접관 3');
       setNewMinutes(30);
+      setNewSecurityType('NONE');
+      setNewRoomPassword('');
+      setNewQuizQuestion('');
+      setNewQuizAnswer('');
       setTimeout(() => setRoomSuccessMsg(''), 4000);
     } catch (err: any) {
       setRoomErrorMsg(err.message || '방 생성 중 오류가 발생했습니다.');
@@ -433,6 +646,10 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       ? room.interviewers.map(i => i.name).join(', ')
       : '면접관 1, 면접관 2, 면접관 3';
     setEditInterviewersText(existingNames);
+    setEditSecurityType(room.securityType || 'NONE');
+    setEditRoomPassword(room.roomPassword || '');
+    setEditQuizQuestion(room.quizQuestion || '');
+    setEditQuizAnswer(room.quizAnswer || '');
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -449,9 +666,25 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       return;
     }
 
+    if (editSecurityType === 'PASSWORD' && !editRoomPassword.trim()) {
+      alert('방 입장 비밀번호를 설정해주세요.');
+      return;
+    }
+
+    if (editSecurityType === 'QUIZ' && (!editQuizQuestion.trim() || !editQuizAnswer.trim())) {
+      alert('퀴즈 질문과 정답을 모두 입력해주세요.');
+      return;
+    }
+
     setIsEditSubmitting(true);
     try {
-      await onUpdateRoom(editingRoom.id, { interviewers: parsed });
+      await onUpdateRoom(editingRoom.id, {
+        interviewers: parsed,
+        securityType: editSecurityType,
+        roomPassword: editSecurityType === 'PASSWORD' ? editRoomPassword.trim() : undefined,
+        quizQuestion: editSecurityType === 'QUIZ' ? editQuizQuestion.trim() : undefined,
+        quizAnswer: editSecurityType === 'QUIZ' ? editQuizAnswer.trim() : undefined
+      });
       setEditingRoom(null);
     } catch (err: any) {
       alert(err.message || '면접관 명단 수정에 실패했습니다.');
@@ -597,19 +830,98 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       {/* ========================================================================================= */}
       {activeTab === 'CRITERIA' && (
         <div className="max-w-6xl w-full mx-auto mt-8 space-y-6">
+          {/* Room Scope Switcher Bar */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-black text-white flex items-center gap-2">
+                  <Target className="w-4 h-4 text-amber-400" />
+                  <span>평가 기준 적용 대상 범위 (Scope) 설정</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  플랫폼 전체 기본 기준을 설정하거나, 각 면접방마다 독립된 전용 평가 기준 및 AI 질문 스타일을 다르게 구성할 수 있습니다.
+                </p>
+              </div>
+
+              {selectedRoomScope !== 'GLOBAL' && activeSelectedRoom?.criteria && activeSelectedRoom.criteria.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRevertRoomToGlobal}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
+                  title="이 방의 전용 기준을 삭제하고 플랫폼 전체 공통 기준으로 복원합니다"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>플랫폼 공통 기준으로 원복 (상속)</span>
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-1 scrollbar-thin">
+              {/* Global Default Button */}
+              <button
+                type="button"
+                onClick={() => handleSwitchScope('GLOBAL')}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-2 shrink-0 border transition-all cursor-pointer ${
+                  selectedRoomScope === 'GLOBAL'
+                    ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                    : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-800'
+                }`}
+              >
+                <Globe className="w-4 h-4" />
+                <span>🌐 플랫폼 공통 기본 기준 (Global Default)</span>
+                {settings.isCriteriaConfirmed ? (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                ) : (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
+              </button>
+
+              {/* Rooms Buttons */}
+              {rooms.map(r => {
+                const isSelected = selectedRoomScope === r.id;
+                const hasCustomCriteria = Boolean(r.criteria && r.criteria.length > 0);
+
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleSwitchScope(r.id)}
+                    className={`px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shrink-0 border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30'
+                        : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-800'
+                    }`}
+                  >
+                    <DoorOpen className="w-4 h-4" />
+                    <span className="font-black">{r.name}</span>
+                    {hasCustomCriteria ? (
+                      <span className="px-1.5 py-0.5 rounded-md text-[10px] font-mono bg-indigo-950 text-indigo-200 border border-indigo-400/40">
+                        전용 기준 ({r.criteria?.length}항목)
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 rounded-md text-[10px] font-mono bg-slate-900 text-slate-400 border border-slate-700">
+                        글로벌 상속
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Status & Quick Action Bar */}
           <div className={`p-5 rounded-3xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-xl backdrop-blur-md ${
-            settings.isCriteriaConfirmed
+            (selectedRoomScope === 'GLOBAL' ? settings.isCriteriaConfirmed : activeSelectedRoom?.isCriteriaConfirmed !== false)
               ? 'bg-slate-900/95 border-slate-700/80 text-slate-100'
               : 'bg-amber-950/40 border-amber-800/80 text-amber-100'
           }`}>
             <div className="flex items-start gap-3.5">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
-                settings.isCriteriaConfirmed
+                (selectedRoomScope === 'GLOBAL' ? settings.isCriteriaConfirmed : activeSelectedRoom?.isCriteriaConfirmed !== false)
                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                   : 'bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse'
               }`}>
-                {settings.isCriteriaConfirmed ? (
+                {(selectedRoomScope === 'GLOBAL' ? settings.isCriteriaConfirmed : activeSelectedRoom?.isCriteriaConfirmed !== false) ? (
                   <CheckCircle2 className="w-5 h-5" />
                 ) : (
                   <Sliders className="w-5 h-5" />
@@ -618,16 +930,22 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-base font-black text-white">
-                    {settings.isCriteriaConfirmed
-                      ? '평가 기준 및 가중 합산 기준이 실시간 적용 중입니다'
-                      : '평가 기준 설정 및 편집 중'}
+                    {selectedRoomScope === 'GLOBAL' ? (
+                      settings.isCriteriaConfirmed
+                        ? '플랫폼 공통 평가 기준 및 가중 합산 기준이 실시간 적용 중입니다'
+                        : '플랫폼 공통 평가 기준 설정 및 편집 중'
+                    ) : (
+                      `[${activeSelectedRoom?.name}] 전용 평가 기준 설정`
+                    )}
                   </h3>
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                    settings.isCriteriaConfirmed
+                    (selectedRoomScope === 'GLOBAL' ? settings.isCriteriaConfirmed : activeSelectedRoom?.isCriteriaConfirmed !== false)
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                       : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                   }`}>
-                    {settings.isCriteriaConfirmed ? '실시간 평가 활성화됨' : '작성/설정 중'}
+                    {selectedRoomScope === 'GLOBAL'
+                      ? (settings.isCriteriaConfirmed ? '공통 기준 적용 중' : '작성/설정 중')
+                      : (activeSelectedRoom?.criteria && activeSelectedRoom.criteria.length > 0 ? '이 방 전용 기준 활성화' : '글로벌 기준 상속 중')}
                   </span>
                   {isCriteriaDirty && (
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500 text-slate-950 shadow-xs animate-bounce">
@@ -636,7 +954,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   )}
                 </div>
                 <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                  언제든지 평가 항목, 배점 가중치, 합산 방식을 자유롭게 수정한 후 [저장 및 실시간 적용]을 누르면 모든 면접실에 즉각 반영됩니다.
+                  {selectedRoomScope === 'GLOBAL'
+                    ? '플랫폼 전체 기본 평가 항목과 가중치를 설정합니다. 개별 면접방에 전용 기준이 없을 시 이 공통 기준을 따릅니다.'
+                    : `"${activeSelectedRoom?.name}" 방만을 위한 맞춤형 평가 기준, 배점 가중치, AI 질문 성향을 독자적으로 구성합니다.`}
                 </p>
               </div>
             </div>
@@ -663,7 +983,11 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
               >
                 <Save className="w-4 h-4" />
                 <span>
-                  {criteriaSubmitting ? '저장 동기화 중...' : '평가 기준 저장 및 즉시 반영'}
+                  {criteriaSubmitting
+                    ? '저장 동기화 중...'
+                    : selectedRoomScope === 'GLOBAL'
+                    ? '공통 기준 저장 및 즉시 반영'
+                    : '이 방 전용 기준 저장 & 적용'}
                 </span>
               </button>
             </div>
@@ -680,6 +1004,66 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
             <div className="p-4 bg-rose-950/80 border border-rose-700 text-rose-200 rounded-2xl text-xs flex items-center gap-2.5 shadow-lg animate-fade-in">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span className="font-semibold">{criteriaErrorMsg}</span>
+            </div>
+          )}
+
+          {/* Room-specific Question Persona and Focus Tuning */}
+          {selectedRoomScope !== 'GLOBAL' && (
+            <div className="bg-indigo-950/40 border border-indigo-700/60 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-indigo-800/60 pb-3">
+                <div className="flex items-center gap-2 text-white font-black text-sm">
+                  <Brain className="w-4 h-4 text-indigo-400" />
+                  <span>이 면접방 전용 AI 질문 생성 성향 & 실시간 심층 검증 키워드</span>
+                </div>
+                <span className="text-xs text-indigo-300 font-mono">
+                  {activeSelectedRoom?.name}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-200 block">
+                    기본 AI 질문 생성 페르소나 스타일
+                  </label>
+                  <select
+                    value={localRoomPersona}
+                    onChange={(e) => {
+                      setIsCriteriaDirty(true);
+                      setLocalRoomPersona(e.target.value as QuestionPersonaStyle);
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-white focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                  >
+                    <option value="BALANCED">⚖️ 표준 균형형 (기술/문제해결/소통 종합 검증)</option>
+                    <option value="LOGIC_PRESSURE">🔥 논리 압박 / 꼬리 질문 심층 검증 (모순 및 인과관계 파고들기)</option>
+                    <option value="DEEP_TECHNICAL">💻 딥 테크니컬 (코드 아키텍처, 트랜잭션, 동시성, 성능 최적화)</option>
+                    <option value="ARCHITECTURE">🏛️ 시스템 설계 / 대규모 확장성 (트래픽 병목, 분산 시스템)</option>
+                    <option value="CULTURE_BEHAVIORAL">🤝 컬처핏 & 협업 갈등 (STAR 기법, 팀플레이 태도)</option>
+                    <option value="CREATIVE_CRITICAL">💡 창의적 문제 해결 & 비판적 사고 (한계 돌파)</option>
+                  </select>
+                  <p className="text-[11px] text-slate-400">
+                    면접 중 실시간 STT 및 질문 추천 엔진이 이 방의 성향을 최우선으로 반영하여 질문을 도출합니다.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-200 block">
+                    방 전용 집중 검증 키워드 / 평가 지침 (쉼표 구분)
+                  </label>
+                  <input
+                    type="text"
+                    value={localRoomFocusKeywords}
+                    onChange={(e) => {
+                      setIsCriteriaDirty(true);
+                      setLocalRoomFocusKeywords(e.target.value);
+                    }}
+                    placeholder="예: Kafka 이벤트 기반, 트랜잭션 격리, 동시성 락, 발표 전달력"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    입력된 키워드가 지원자의 답변과 서류에서 실시간으로 대조되어 핵심 꼬리질문으로 생성됩니다.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1172,6 +1556,106 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   />
                 </div>
 
+                {/* Room Security Mode Settings */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                  <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                    <span>방 입장 보안 설정 (자유 입장 / 비밀번호 / 퀴즈 질문)</span>
+                  </label>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNewSecurityType('NONE')}
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                        newSecurityType === 'NONE'
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="text-xs">자유 입장</div>
+                      <div className="text-[10px] opacity-75">비번 없음</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewSecurityType('PASSWORD')}
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                        newSecurityType === 'PASSWORD'
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="text-xs flex items-center justify-center gap-1">
+                        <Lock className="w-3 h-3" />
+                        <span>비밀번호</span>
+                      </div>
+                      <div className="text-[10px] opacity-75">코드 입력</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewSecurityType('QUIZ')}
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                        newSecurityType === 'QUIZ'
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="text-xs flex items-center justify-center gap-1">
+                        <HelpCircle className="w-3 h-3" />
+                        <span>퀴즈/질문</span>
+                      </div>
+                      <div className="text-[10px] opacity-75">문제 정답 입력</div>
+                    </button>
+                  </div>
+
+                  {newSecurityType === 'PASSWORD' && (
+                    <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5 animate-fade-in">
+                      <label className="text-[11px] font-bold text-slate-300">
+                        방 입장 비밀번호 설정 *
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={newRoomPassword}
+                        onChange={(e) => setNewRoomPassword(e.target.value)}
+                        placeholder="면접관들이 방 입장 시 입력할 비밀번호"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  )}
+
+                  {newSecurityType === 'QUIZ' && (
+                    <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2.5 animate-fade-in">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300">
+                          퀴즈 질문 (보안 문제) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newQuizQuestion}
+                          onChange={(e) => setNewQuizQuestion(e.target.value)}
+                          placeholder="예: 이번 2025 스마트랩 동아리 회장 이름은?"
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300">
+                          정답 (대소문자/띄어쓰기 무관 일치) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newQuizAnswer}
+                          onChange={(e) => setNewQuizAnswer(e.target.value)}
+                          placeholder="정답 입력 (예: 홍길동)"
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="submit"
                   disabled={isRoomSubmitting}
@@ -1218,6 +1702,18 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                             <span className="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-md">
                               {room.minutesPerPerson || 30}분/인
                             </span>
+                            {room.securityType === 'PASSWORD' && (
+                              <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <Lock className="w-2.5 h-2.5" />
+                                <span>비번 보안</span>
+                              </span>
+                            )}
+                            {room.securityType === 'QUIZ' && (
+                              <span className="text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <HelpCircle className="w-2.5 h-2.5" />
+                                <span>퀴즈 보안</span>
+                              </span>
+                            )}
                           </div>
                           {room.description && (
                             <p className="text-xs text-slate-400 mt-1">{room.description}</p>

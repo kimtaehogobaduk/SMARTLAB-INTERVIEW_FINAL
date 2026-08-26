@@ -21,17 +21,12 @@ import {
   Search,
   ChevronRight,
   Database,
-  DoorOpen,
   ArrowLeft,
   AlertTriangle,
-  Scale,
-  Lock,
   Sliders,
   Upload,
   Link2,
-  Paperclip,
   Eye,
-  CheckSquare,
   MessageSquare,
   X
 } from 'lucide-react';
