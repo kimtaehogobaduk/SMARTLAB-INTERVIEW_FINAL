@@ -1,33 +1,52 @@
 import React, { useState } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
-import { Shield, DoorOpen, ArrowRight, Lock, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, DoorOpen, ArrowRight, Lock, KeyRound, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface LandingEntryPageProps {
   onJoinAsAdmin: () => void;
   onEnterRooms: () => void;
   roomCount: number;
+  onBackToRoleSelect?: () => void;
 }
 
 export const LandingEntryPage: React.FC<LandingEntryPageProps> = ({
   onJoinAsAdmin,
   onEnterRooms,
-  roomCount
+  roomCount,
+  onBackToRoleSelect
 }) => {
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminId, setAdminId] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  const handleAdminAuthSubmit = (e: React.FormEvent) => {
+  const handleAdminAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((adminId.trim() === 'admin' || !adminId.trim()) && adminPassword.trim() === 'admin') {
-      setIsAdminAuthModalOpen(false);
-      setAdminId('');
-      setAdminPassword('');
-      setAuthError('');
-      onJoinAsAdmin();
-    } else {
-      setAuthError('관리자 인증에 실패했습니다. 아이디 및 비밀번호를 확인해주세요.');
+    setIsVerifying(true);
+    setAuthError('');
+
+    try {
+      const res = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword.trim() })
+      });
+
+      if (res.ok) {
+        setIsAdminAuthModalOpen(false);
+        setAdminId('');
+        setAdminPassword('');
+        setAuthError('');
+        onJoinAsAdmin();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setAuthError(data.error || '관리자 비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
+      }
+    } catch (err: any) {
+      setAuthError('인증 서버 연결 중 오류가 발생했습니다.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -40,6 +59,20 @@ export const LandingEntryPage: React.FC<LandingEntryPageProps> = ({
 
       {/* Main Container */}
       <div className="w-full max-w-xl bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-8 sm:p-10 backdrop-blur-xl relative z-10 space-y-8 animate-fade-in">
+        
+        {/* Optional Role Select Back Button */}
+        {onBackToRoleSelect && (
+          <div className="flex justify-start pb-2">
+            <button
+              type="button"
+              onClick={onBackToRoleSelect}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>역할 선택으로 돌아가기</span>
+            </button>
+          </div>
+        )}
         
         {/* Brand Header */}
         <div className="text-center space-y-3">
@@ -209,9 +242,10 @@ export const LandingEntryPage: React.FC<LandingEntryPageProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-600/20 cursor-pointer flex items-center gap-1.5"
+                  disabled={isVerifying}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-600/20 cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>관리자 로그인</span>
+                  <span>{isVerifying ? '인증 확인 중...' : '관리자 로그인'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

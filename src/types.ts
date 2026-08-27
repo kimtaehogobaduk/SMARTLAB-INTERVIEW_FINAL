@@ -150,6 +150,13 @@ export interface Candidate {
   reopenedBy?: string; // Who authorized the 5-minute re-edit
   isModifiedUnderAdmin?: boolean;
   lastModifiedAt?: string;
+  // Candidate Self-Service Portal additions
+  interviewDate?: string;
+  reminder10MinEnabled?: boolean;
+  candidateNotes?: string;
+  lastCandidateActiveAt?: string;
+  startedAt?: string;
+  interviewStartedTimestamp?: number;
 }
 
 export interface EvaluationScores {
@@ -219,14 +226,45 @@ export interface InterviewRoomInfo {
   // Room-specific Access Security (Password or Security Question)
   securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
   password?: string;
+  roomPassword?: string;
   securityQuestion?: string;
+  quizQuestion?: string;
   securityAnswer?: string;
+  quizAnswer?: string;
   hasSecurityLock?: boolean;
 }
 
 export type InterviewRoomItem = InterviewRoomInfo;
 
-export type AppView = 'LANDING_ENTRY' | 'ADMIN_PORTAL' | 'ROOM_LOBBY' | 'SELECT_INTERVIEWER' | 'CANDIDATE_LIST' | 'INTERVIEW_ROOM' | 'ROOM_SELECT' | 'LOGIN';
+export type AppView =
+  | 'ROLE_SELECT'
+  | 'CANDIDATE_ROOM_SELECT'
+  | 'CANDIDATE_LOGIN'
+  | 'CANDIDATE_PORTAL'
+  | 'LANDING_ENTRY'
+  | 'ADMIN_PORTAL'
+  | 'ROOM_LOBBY'
+  | 'SELECT_INTERVIEWER'
+  | 'CANDIDATE_LIST'
+  | 'INTERVIEW_ROOM'
+  | 'ROOM_SELECT'
+  | 'LOGIN';
+
+export interface CandidateChatMessage {
+  id: string;
+  roomId: string;
+  candidateId: string;
+  studentId: string;
+  candidateName: string;
+  senderType: 'candidate' | 'interviewer' | 'system';
+  senderName: string; // e.g. "김태호" (지원자) 또는 "김태호 면접관" (면접관이 작성)
+  senderInterviewerId?: string; // 면접관 ID
+  text: string;
+  timestamp: string; // KST string e.g. "14:25:30"
+  createdAt: number; // Unix timestamp
+  readByCandidate?: boolean;
+  readByInterviewers?: string[];
+}
 
 export interface PanelVisibility {
   showSTT: boolean;

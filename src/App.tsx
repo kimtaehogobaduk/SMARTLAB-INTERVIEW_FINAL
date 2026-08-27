@@ -15,6 +15,9 @@ import {
   AppView
 } from './types';
 import { LandingEntryPage } from './components/LandingEntryPage';
+import { RoleSelectLandingPage } from './components/RoleSelectLandingPage';
+import { CandidateEntryFlow } from './components/CandidateEntryFlow';
+import { CandidatePortalPage } from './components/CandidatePortalPage';
 import { AdminPortalPage } from './components/AdminPortalPage';
 import { RoomLobbyPage } from './components/RoomLobbyPage';
 import { SelectInterviewerPage } from './components/SelectInterviewerPage';
@@ -36,8 +39,60 @@ const DEFAULT_INTERVIEWERS: InterviewerUser[] = [
 ];
 
 export default function App() {
-  // Navigation View State: Starts at LANDING_ENTRY!
-  const [currentView, setCurrentView] = useState<AppView>('LANDING_ENTRY');
+  // Navigation View State: Starts at ROLE_SELECT!
+  const [currentView, setCurrentView] = useState<AppView>('ROLE_SELECT');
+
+  // Candidate Self-Service Portal State
+  const [portalCandidate, setPortalCandidate] = useState<Candidate | null>(null);
+  const [portalRoom, setPortalRoom] = useState<InterviewRoomItem | null>(null);
+  const [lastCandidateSession, setLastCandidateSession] = useState<{
+    roomId: string;
+    studentId: string;
+    name: string;
+  } | null>(null);
+
+  // Load last saved candidate session from localStorage and request notification permission
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+
+    try {
+      const saved = localStorage.getItem('smartlab_last_candidate_session');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.studentId && parsed.name) {
+          setLastCandidateSession(parsed);
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }, []);
+
+  const handleResumeCandidateSession = async (session: { roomId: string; studentId: string; name: string }) => {
+    try {
+      const res = await fetch('/api/candidate-portal/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: session.roomId || rooms[0]?.id || 'room-main',
+          studentId: session.studentId,
+          name: session.name
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.candidate) {
+        setPortalCandidate(data.candidate);
+        setPortalRoom(data.room || rooms.find(r => r.id === session.roomId) || currentRoom);
+        setCurrentView('CANDIDATE_PORTAL');
+      } else {
+        setCurrentView('CANDIDATE_LOGIN');
+      }
+    } catch (e) {
+      setCurrentView('CANDIDATE_LOGIN');
+    }
+  };
 
   // Rooms & Interviewer State
   const [rooms, setRooms] = useState<InterviewRoomItem[]>([]);
@@ -91,6 +146,49 @@ export default function App() {
   const [isSchemaOpen, setIsSchemaOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAdminPromptOpen, setIsAdminPromptOpen] = useState(false);
+  const [adminPromptPassword, setAdminPromptPassword] = useState('');
+  const [adminPromptError, setAdminPromptError] = useState('');
+  const [isAdminVerifying, setIsAdminVerifying] = useState(false);
+
+  const handleRequestGoToAdminPortal = () => {
+    if (currentUser.role === 'admin') {
+      setCurrentView('ADMIN_PORTAL');
+    } else {
+      setIsAdminPromptOpen(true);
+      setAdminPromptPassword('');
+      setAdminPromptError('');
+    }
+  };
+
+  const handleAdminPromptSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAdminVerifying(true);
+    setAdminPromptError('');
+
+    try {
+      const res = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPromptPassword.trim() })
+      });
+
+      if (res.ok) {
+        setIsAdminPromptOpen(false);
+        setAdminPromptPassword('');
+        setAdminPromptError('');
+        setCurrentUser(DEFAULT_INTERVIEWERS[3]); // Switch to Admin User
+        setCurrentView('ADMIN_PORTAL');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setAdminPromptError(data.error || '관리자 비밀번호가 일치하지 않습니다.');
+      }
+    } catch (err: any) {
+      setAdminPromptError('관리자 인증 서버 통신 중 오류가 발생했습니다.');
+    } finally {
+      setIsAdminVerifying(false);
+    }
+  };
 
   // Cross-Interviewer Real-time Live Notifications
   const [activeNotifications, setActiveNotifications] = useState<LiveNotification[]>([]);
@@ -281,7 +379,17 @@ export default function App() {
     }
   };
 
-  const handleCreateRoom = async (roomData: { name: string; description: string; minutesPerPerson: number; panelCount: number; interviewers?: string[] }): Promise<void> => {
+  const handleCreateRoom = async (roomData: {
+    name: string;
+    description: string;
+    minutesPerPerson: number;
+    panelCount: number;
+    interviewers?: string[];
+    securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
+    roomPassword?: string;
+    quizQuestion?: string;
+    quizAnswer?: string;
+  }): Promise<void> => {
     try {
       const res = await fetch('/api/rooms', {
         method: 'POST',
@@ -305,7 +413,15 @@ export default function App() {
     }
   };
 
-  const handleUpdateRoom = async (roomId: string, data: { interviewers?: string[]; name?: string; description?: string }): Promise<void> => {
+  const handleUpdateRoom = async (roomId: string, data: {
+    interviewers?: string[];
+    name?: string;
+    description?: string;
+    securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
+    roomPassword?: string;
+    quizQuestion?: string;
+    quizAnswer?: string;
+  }): Promise<void> => {
     try {
       const res = await fetch(`/api/rooms/${roomId}`, {
         method: 'PUT',
@@ -714,12 +830,56 @@ export default function App() {
 
   return (
     <>
-      {/* 1. Step 0: Main Landing Entry (admin으로 참가 / 방 들어가기) */}
+      {/* 0. Top Entry: Role Selection (지원자/학생 vs 면접관/관리자) */}
+      {currentView === 'ROLE_SELECT' && (
+        <RoleSelectLandingPage
+          roomsCount={rooms.length}
+          onSelectCandidateMode={() => setCurrentView('CANDIDATE_LOGIN')}
+          onSelectInterviewerMode={() => setCurrentView('LANDING_ENTRY')}
+          lastCandidateSession={lastCandidateSession}
+          onResumeCandidateSession={handleResumeCandidateSession}
+        />
+      )}
+
+      {/* 0-A. Candidate Entry Flow (방 선택 & 학번/성함 확인 및 이전 세션 자동 복원) */}
+      {currentView === 'CANDIDATE_LOGIN' && (
+        <CandidateEntryFlow
+          rooms={rooms}
+          onBackToRoleSelect={() => setCurrentView('ROLE_SELECT')}
+          onCandidateLoginSuccess={({ candidate, room }) => {
+            setPortalCandidate(candidate);
+            setPortalRoom(room);
+            setCurrentView('CANDIDATE_PORTAL');
+          }}
+        />
+      )}
+
+      {/* 0-B. Candidate Self-Service Portal (면접 일정 조율, 추가 서류 제출, 10분전 알림, 면접관 전체 메시지) */}
+      {currentView === 'CANDIDATE_PORTAL' && portalCandidate && portalRoom && (
+        <CandidatePortalPage
+          candidate={portalCandidate}
+          room={portalRoom}
+          onLogout={() => {
+            setPortalCandidate(null);
+            setCurrentView('ROLE_SELECT');
+          }}
+          onCandidateUpdated={(updatedCandidate) => {
+            setPortalCandidate(updatedCandidate);
+            // Also update in parent candidate state if exists
+            setCandidates((prev) =>
+              prev.map((c) => (c.id === updatedCandidate.id ? updatedCandidate : c))
+            );
+          }}
+        />
+      )}
+
+      {/* 1. Step 0: Main Landing Entry for Interviewer (admin으로 참가 / 방 들어가기) */}
       {currentView === 'LANDING_ENTRY' && (
         <LandingEntryPage
           roomCount={rooms.length}
           onJoinAsAdmin={() => setCurrentView('ADMIN_PORTAL')}
           onEnterRooms={() => setCurrentView('ROOM_LOBBY')}
+          onBackToRoleSelect={() => setCurrentView('ROLE_SELECT')}
         />
       )}
 
@@ -790,7 +950,7 @@ export default function App() {
           onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
           onOpenAdmin={() => setIsAdminOpen(true)}
           onOpenSchema={() => setIsSchemaOpen(true)}
-          onGoToAdminPortal={() => setCurrentView('ADMIN_PORTAL')}
+          onGoToAdminPortal={handleRequestGoToAdminPortal}
           onDeleteCandidate={handleDeleteCandidate}
           onClearAll={handleClearAll}
           onAddCandidate={handleAddCandidate}
@@ -900,6 +1060,82 @@ export default function App() {
         onNavigateToInterview={handleNavigateFromNotification}
         onDismiss={handleDismissNotification}
       />
+
+      {/* Admin Password Prompt Modal */}
+      {isAdminPromptOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl w-full max-w-sm p-6 space-y-5 animate-scale-in text-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span>관리자(Admin) 권한 확인</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminPromptOpen(false);
+                  setAdminPromptPassword('');
+                  setAdminPromptError('');
+                }}
+                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-1 text-xs text-slate-400">
+              <p>관리자 콘솔에 접근하려면 마스터 관리자 비밀번호를 입력해주세요.</p>
+            </div>
+
+            <form onSubmit={handleAdminPromptSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300 block">
+                  관리자 비밀번호
+                </label>
+                <input
+                  type="password"
+                  autoFocus
+                  required
+                  value={adminPromptPassword}
+                  onChange={(e) => {
+                    setAdminPromptPassword(e.target.value);
+                    if (adminPromptError) setAdminPromptError('');
+                  }}
+                  placeholder="관리자 비밀번호 입력"
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-amber-500 placeholder-slate-500 font-mono"
+                />
+              </div>
+
+              {adminPromptError && (
+                <div className="p-3 bg-red-950/60 border border-red-800 text-red-400 rounded-xl text-xs flex items-center gap-2">
+                  <span>{adminPromptError}</span>
+                </div>
+              )}
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdminPromptOpen(false);
+                    setAdminPromptPassword('');
+                    setAdminPromptError('');
+                  }}
+                  className="px-3.5 py-2 border border-slate-700 rounded-xl text-slate-400 hover:text-white text-xs cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAdminVerifying}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-600/20 cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>{isAdminVerifying ? '인증 확인 중...' : '관리자 권한 진입'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

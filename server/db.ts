@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
-import { Candidate, Evaluation, PlatformSettings, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage } from '../src/types';
+import { Candidate, Evaluation, PlatformSettings, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage } from '../src/types';
 
 // Load config safely in Node environment
 let firebaseConfig: any = null;
@@ -43,6 +43,7 @@ export interface DatabaseState {
   notifications: LiveNotification[];
   presences: InterviewerPresence[];
   chatMessages: InterviewerChatMessage[];
+  candidateMessages: CandidateChatMessage[];
   settings: PlatformSettings;
   adminUnlock: {
     candidateId: string | null;
@@ -417,6 +418,7 @@ export const db: DatabaseState = {
   notifications: [],
   presences: [],
   chatMessages: [],
+  candidateMessages: [],
   settings: {
     isCriteriaConfirmed: false, // Must be confirmed by Admin before interview evaluations have effect
     scoringFormula: 'TRIMMED_MEAN',
@@ -541,6 +543,7 @@ export async function loadCloudState(): Promise<void> {
         if (Array.isArray(data.evaluations)) db.evaluations = data.evaluations;
         if (Array.isArray(data.auditLogs)) db.auditLogs = data.auditLogs;
         if (Array.isArray(data.chatMessages)) db.chatMessages = data.chatMessages;
+        if (Array.isArray(data.candidateMessages)) db.candidateMessages = data.candidateMessages;
         if (data.settings) db.settings = { ...db.settings, ...data.settings };
         console.log(`[Firebase Cloud Store] State successfully loaded. Rooms: ${db.rooms.length}, Candidates: ${db.candidates.length}, Evaluations: ${db.evaluations.length}`);
       } else {
@@ -577,6 +580,7 @@ export async function saveCloudState(): Promise<void> {
           evaluations: db.evaluations,
           auditLogs: db.auditLogs.slice(0, 100),
           chatMessages: (db.chatMessages || []).slice(-100),
+          candidateMessages: (db.candidateMessages || []).slice(-300),
           settings: db.settings,
           lastUpdatedAt: new Date().toISOString()
         },

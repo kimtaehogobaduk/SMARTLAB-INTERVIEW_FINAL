@@ -526,7 +526,7 @@ export const UniversalParserModal: React.FC<UniversalParserModalProps> = ({
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-semibold block">지원 트랙</label>
+                          <label className="text-[10px] text-slate-500 font-semibold block">분야 / 메모</label>
                           <input
                             type="text"
                             value={c.track}

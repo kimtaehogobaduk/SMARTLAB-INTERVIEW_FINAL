@@ -1,24 +1,91 @@
 import React, { useState } from 'react';
 import { InterviewRoomItem } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
-import { DoorOpen, ArrowRight, ArrowLeft, Shield, Users, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { DoorOpen, ArrowRight, ArrowLeft, Lock, Unlock, HelpCircle, AlertCircle, KeyRound, CheckCircle2 } from 'lucide-react';
 
 interface RoomLobbyPageProps {
   rooms: InterviewRoomItem[];
   onSelectRoom: (room: InterviewRoomItem) => void;
   onBackToLanding: () => void;
-  onGoToAdmin: () => void;
+  onGoToAdmin?: () => void;
 }
 
 export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
   rooms,
   onSelectRoom,
-  onBackToLanding,
-  onGoToAdmin
+  onBackToLanding
 }) => {
   const [selectedRoomId, setSelectedRoomId] = useState<string>(rooms[0]?.id || '');
+  
+  // Security Challenge Modal State
+  const [challengingRoom, setChallengingRoom] = useState<InterviewRoomItem | null>(null);
+  const [challengeInput, setChallengeInput] = useState('');
+  const [challengeError, setChallengeError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const activeRoom = rooms.find(r => r.id === selectedRoomId) || rooms[0];
+
+  const handleRoomEntryAttempt = (room: InterviewRoomItem) => {
+    if (room.securityType === 'PASSWORD' || room.securityType === 'QUIZ') {
+      setChallengingRoom(room);
+      setChallengeInput('');
+      setChallengeError('');
+    } else {
+      onSelectRoom(room);
+    }
+  };
+
+  const handleChallengeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challengingRoom) return;
+
+    if (!challengeInput.trim()) {
+      setChallengeError(
+        challengingRoom.securityType === 'PASSWORD'
+          ? '방 비밀번호를 입력해주세요.'
+          : '퀴즈 정답을 입력해주세요.'
+      );
+      return;
+    }
+
+    setIsVerifying(true);
+    setChallengeError('');
+
+    try {
+      const payload: any = {};
+      if (challengingRoom.securityType === 'PASSWORD') {
+        payload.password = challengeInput.trim();
+      } else if (challengingRoom.securityType === 'QUIZ') {
+        payload.answer = challengeInput.trim();
+      }
+
+      const res = await fetch(`/api/rooms/${challengingRoom.id}/verify-access`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const targetRoom = challengingRoom;
+        setChallengingRoom(null);
+        setChallengeInput('');
+        setChallengeError('');
+        onSelectRoom(targetRoom);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setChallengeError(
+          data.error ||
+          (challengingRoom.securityType === 'PASSWORD'
+            ? '방 비밀번호가 일치하지 않습니다.'
+            : '보안 문제(퀴즈)의 정답이 일치하지 않습니다.')
+        );
+      }
+    } catch (err: any) {
+      setChallengeError('보안 검증 서버 통신 중 오류가 발생했습니다.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden text-slate-100 select-none font-sans">
@@ -29,7 +96,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
       {/* Main Container */}
       <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-7 sm:p-9 backdrop-blur-xl relative z-10 space-y-6 animate-fade-in">
         
-        {/* Navigation Bar */}
+        {/* Navigation Bar - Clean, Admin Console button removed per user request */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <button
             type="button"
@@ -39,14 +106,9 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>처음 화면으로</span>
           </button>
-          <button
-            type="button"
-            onClick={onGoToAdmin}
-            className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors cursor-pointer font-bold"
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>어드민(Admin) 콘솔</span>
-          </button>
+          <div className="text-[11px] text-slate-500 font-mono">
+            면접관 입장 로비
+          </div>
         </div>
 
         {/* Brand Header */}
@@ -81,11 +143,11 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
               <div className="pt-2">
                 <button
                   type="button"
-                  onClick={onGoToAdmin}
-                  className="px-4 py-2.5 bg-amber-600/20 hover:bg-amber-600 border border-amber-500/40 hover:border-amber-500 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-md"
+                  onClick={onBackToLanding}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-md"
                 >
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>관리자 권한으로 방 개설하러 가기</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>처음 화면으로 돌아가기</span>
                 </button>
               </div>
             </div>
@@ -95,10 +157,13 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
               {rooms.map((room) => {
                 const isSelected = (selectedRoomId === room.id) || (!selectedRoomId && room === rooms[0]);
                 const intvList = room.interviewers || [];
+                const secType = room.securityType || 'NONE';
+
                 return (
                   <div
                     key={room.id}
                     onClick={() => setSelectedRoomId(room.id)}
+                    onDoubleClick={() => handleRoomEntryAttempt(room)}
                     className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col gap-2 ${
                       isSelected
                         ? 'bg-blue-950/70 border-blue-500 ring-2 ring-blue-500/30 text-white shadow-lg'
@@ -110,10 +175,33 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                         <DoorOpen className={`w-4 h-4 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
                         <span>{room.name || room.title}</span>
                       </div>
-                      <div className={`w-4 h-4 shrink-0 rounded-full border flex items-center justify-center ${
-                        isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-600'
-                      }`}>
-                        {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                      
+                      <div className="flex items-center gap-2">
+                        {/* Security Type Badges */}
+                        {secType === 'PASSWORD' && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                            <Lock className="w-2.5 h-2.5" />
+                            <span>비번 잠금</span>
+                          </span>
+                        )}
+                        {secType === 'QUIZ' && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1">
+                            <HelpCircle className="w-2.5 h-2.5" />
+                            <span>퀴즈 보안</span>
+                          </span>
+                        )}
+                        {secType === 'NONE' && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                            <Unlock className="w-2.5 h-2.5" />
+                            <span>자유 입장</span>
+                          </span>
+                        )}
+
+                        <div className={`w-4 h-4 shrink-0 rounded-full border flex items-center justify-center ${
+                          isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                        </div>
                       </div>
                     </div>
 
@@ -151,10 +239,10 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
           <button
             type="button"
             disabled={!activeRoom}
-            onClick={() => activeRoom && onSelectRoom(activeRoom)}
+            onClick={() => activeRoom && handleRoomEntryAttempt(activeRoom)}
             className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:scale-98 disabled:opacity-40 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
-            <span>선택한 방으로 입장하기</span>
+            <span>{activeRoom?.securityType && activeRoom.securityType !== 'NONE' ? '보안 인증 후 방 입장하기' : '선택한 방으로 입장하기'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         )}
@@ -165,6 +253,126 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
         </div>
 
       </div>
+
+      {/* Security Challenge Modal for Password / Quiz Lock */}
+      {challengingRoom && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-7 space-y-5 animate-scale-in">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                {challengingRoom.securityType === 'PASSWORD' ? (
+                  <>
+                    <Lock className="w-4 h-4 text-amber-400" />
+                    <span>방 입장 비밀번호 확인</span>
+                  </>
+                ) : (
+                  <>
+                    <HelpCircle className="w-4 h-4 text-purple-400" />
+                    <span>보안 퀴즈(질문) 인증</span>
+                  </>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setChallengingRoom(null);
+                  setChallengeInput('');
+                  setChallengeError('');
+                }}
+                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-xs text-slate-300 font-bold">
+                [{challengingRoom.name || challengingRoom.title}]
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {challengingRoom.securityType === 'PASSWORD'
+                  ? '이 방은 관리자에 의해 비밀번호가 설정되어 있습니다. 입장 비밀번호를 입력해주세요.'
+                  : '외부 비인가자 접근 방지를 위한 보안 문제입니다. 질문에 대한 정답을 입력해주세요.'}
+              </p>
+            </div>
+
+            {/* Quiz Question Box */}
+            {challengingRoom.securityType === 'QUIZ' && (
+              <div className="p-4 bg-purple-950/40 border border-purple-800/60 rounded-2xl space-y-1.5">
+                <div className="text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span>보안 퀴즈 문제</span>
+                </div>
+                <p className="text-xs text-white font-semibold leading-relaxed">
+                  {challengingRoom.securityQuestion || challengingRoom.quizQuestion || '동아리 보안 퀴즈 문제'}
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleChallengeSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300 block">
+                  {challengingRoom.securityType === 'PASSWORD' ? '방 비밀번호 입력' : '퀴즈 정답 입력'}
+                </label>
+                <div className="relative">
+                  {challengingRoom.securityType === 'PASSWORD' ? (
+                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  ) : (
+                    <HelpCircle className="w-4 h-4 text-purple-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  )}
+                  <input
+                    type={challengingRoom.securityType === 'PASSWORD' ? 'password' : 'text'}
+                    autoFocus
+                    required
+                    value={challengeInput}
+                    onChange={(e) => {
+                      setChallengeInput(e.target.value);
+                      if (challengeError) setChallengeError('');
+                    }}
+                    placeholder={
+                      challengingRoom.securityType === 'PASSWORD'
+                        ? '방 비밀번호를 입력하세요'
+                        : '정답을 입력하세요 (띄어쓰기/대소문자 무관)'
+                    }
+                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {challengeError && (
+                <div className="p-3 bg-red-950/60 border border-red-800 text-red-400 rounded-xl text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{challengeError}</span>
+                </div>
+              )}
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setChallengingRoom(null);
+                    setChallengeInput('');
+                    setChallengeError('');
+                  }}
+                  className="px-3.5 py-2 border border-slate-700 rounded-xl text-slate-400 hover:text-white text-xs cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isVerifying}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>{isVerifying ? '인증 확인 중...' : '확인 및 방 입장'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

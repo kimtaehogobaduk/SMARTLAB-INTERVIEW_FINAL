@@ -647,9 +647,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       : '면접관 1, 면접관 2, 면접관 3';
     setEditInterviewersText(existingNames);
     setEditSecurityType(room.securityType || 'NONE');
-    setEditRoomPassword(room.roomPassword || '');
-    setEditQuizQuestion(room.quizQuestion || '');
-    setEditQuizAnswer(room.quizAnswer || '');
+    setEditRoomPassword(room.roomPassword || room.password || '');
+    setEditQuizQuestion(room.quizQuestion || room.securityQuestion || '');
+    setEditQuizAnswer(room.quizAnswer || room.securityAnswer || '');
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -1755,10 +1755,10 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                           <button
                             type="button"
                             onClick={() => openEditModal(room)}
-                            className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors cursor-pointer font-bold"
                           >
                             <Edit3 className="w-3 h-3" />
-                            <span>면접관 명단 수정</span>
+                            <span>방/면접관/보안 수정</span>
                           </button>
                         </div>
 
@@ -1778,6 +1778,23 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                             </span>
                           )}
                         </div>
+
+                        {/* Security Detail Display for Admin */}
+                        {room.securityType === 'QUIZ' && (
+                          <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-start gap-1.5 text-[11px] text-purple-300">
+                            <HelpCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-bold">퀴즈 질문: </span>
+                              <span>{room.securityQuestion || room.quizQuestion || '보안 퀴즈'}</span>
+                            </div>
+                          </div>
+                        )}
+                        {room.securityType === 'PASSWORD' && (
+                          <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-amber-300">
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
+                            <span className="font-bold">비밀번호 잠금 활성화됨</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-800/60">
@@ -1882,13 +1899,113 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   면접관 명단 (쉼표 또는 줄바꿈으로 일괄 입력)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   required
                   value={editInterviewersText}
                   onChange={(e) => setEditInterviewersText(e.target.value)}
                   placeholder="예: 김철수, 이영희, 박민수, 최지훈"
                   className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-amber-500 resize-none leading-relaxed"
                 />
+              </div>
+
+              {/* Room Security Settings */}
+              <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  <span>방 입장 보안 설정 (자유 입장 / 비밀번호 / 퀴즈 질문)</span>
+                </label>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditSecurityType('NONE')}
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      editSecurityType === 'NONE'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="text-xs">자유 입장</div>
+                    <div className="text-[10px] opacity-75">비번 없음</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditSecurityType('PASSWORD')}
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      editSecurityType === 'PASSWORD'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="text-xs flex items-center justify-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      <span>비밀번호</span>
+                    </div>
+                    <div className="text-[10px] opacity-75">코드 입력</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditSecurityType('QUIZ')}
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      editSecurityType === 'QUIZ'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="text-xs flex items-center justify-center gap-1">
+                      <HelpCircle className="w-3 h-3" />
+                      <span>퀴즈/질문</span>
+                    </div>
+                    <div className="text-[10px] opacity-75">정답 입력</div>
+                  </button>
+                </div>
+
+                {editSecurityType === 'PASSWORD' && (
+                  <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5 animate-fade-in">
+                    <label className="text-[11px] font-bold text-slate-300">
+                      방 입장 비밀번호 *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={editRoomPassword}
+                      onChange={(e) => setEditRoomPassword(e.target.value)}
+                      placeholder="입장 비밀번호 입력"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                )}
+
+                {editSecurityType === 'QUIZ' && (
+                  <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2.5 animate-fade-in">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">
+                        퀴즈 질문 (보안 문제) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editQuizQuestion}
+                        onChange={(e) => setEditQuizQuestion(e.target.value)}
+                        placeholder="예: 이번 2025 스마트랩 동아리 회장 이름은?"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">
+                        정답 (대소문자/띄어쓰기 무관 일치) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editQuizAnswer}
+                        onChange={(e) => setEditQuizAnswer(e.target.value)}
+                        placeholder="정답 입력"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -1904,7 +2021,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   disabled={isEditSubmitting}
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-600/20 cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>{isEditSubmitting ? '저장 중...' : '면접관 명단 저장'}</span>
+                  <span>{isEditSubmitting ? '저장 중...' : '방 설정 저장'}</span>
                 </button>
               </div>
             </form>

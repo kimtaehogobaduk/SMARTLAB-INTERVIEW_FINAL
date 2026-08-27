@@ -12,7 +12,7 @@ import {
   simulateInterviewQnAWithKnowledgeAI,
   extractYouTubeVideoId
 } from './server/ai.ts';
-import { Candidate, Evaluation, AuditLog, PlatformSettings, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, TailQuestion } from './src/types.ts';
+import { Candidate, Evaluation, AuditLog, PlatformSettings, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage, TailQuestion } from './src/types.ts';
 
 dotenv.config();
 
@@ -303,6 +303,10 @@ async function startServer() {
     const validatedSecType: 'NONE' | 'PASSWORD' | 'QUIZ' =
       securityType === 'PASSWORD' || securityType === 'QUIZ' ? securityType : 'NONE';
 
+    const effectiveRoomPassword = (roomPassword || req.body.password || '').trim();
+    const effectiveQuizQuestion = (securityQuestion || req.body.quizQuestion || '').trim();
+    const effectiveQuizAnswer = (securityAnswer || req.body.quizAnswer || '').trim();
+
     const newRoom: InterviewRoomInfo = {
       id: `room-${Date.now().toString(36)}`,
       name: roomName,
@@ -313,9 +317,9 @@ async function startServer() {
       minutesPerPerson: Number(minutesPerPerson) || 30,
       interviewers: formattedInterviewers,
       securityType: validatedSecType,
-      password: validatedSecType === 'PASSWORD' ? (roomPassword || '').trim() : undefined,
-      securityQuestion: validatedSecType === 'QUIZ' ? (securityQuestion || '').trim() : undefined,
-      securityAnswer: validatedSecType === 'QUIZ' ? (securityAnswer || '').trim() : undefined
+      password: validatedSecType === 'PASSWORD' ? effectiveRoomPassword : undefined,
+      securityQuestion: validatedSecType === 'QUIZ' ? effectiveQuizQuestion : undefined,
+      securityAnswer: validatedSecType === 'QUIZ' ? effectiveQuizAnswer : undefined
     };
 
     db.rooms.push(newRoom);
@@ -354,12 +358,15 @@ async function startServer() {
     if (securityType !== undefined) {
       room.securityType = securityType === 'PASSWORD' || securityType === 'QUIZ' ? securityType : 'NONE';
       if (room.securityType === 'PASSWORD') {
-        if (roomPassword !== undefined) room.password = (roomPassword || '').trim();
+        const p = roomPassword !== undefined ? roomPassword : req.body.password;
+        if (p !== undefined) room.password = (p || '').trim();
         room.securityQuestion = undefined;
         room.securityAnswer = undefined;
       } else if (room.securityType === 'QUIZ') {
-        if (securityQuestion !== undefined) room.securityQuestion = (securityQuestion || '').trim();
-        if (securityAnswer !== undefined) room.securityAnswer = (securityAnswer || '').trim();
+        const q = securityQuestion !== undefined ? securityQuestion : req.body.quizQuestion;
+        const a = securityAnswer !== undefined ? securityAnswer : req.body.quizAnswer;
+        if (q !== undefined) room.securityQuestion = (q || '').trim();
+        if (a !== undefined) room.securityAnswer = (a || '').trim();
         room.password = undefined;
       } else {
         room.password = undefined;
@@ -1180,6 +1187,10 @@ async function startServer() {
 
     if (action === 'start') {
       candidate.status = 'IN_PROGRESS';
+      if (!candidate.startedAt) {
+        candidate.startedAt = getKSTDateTimeStr();
+      }
+      candidate.interviewStartedTimestamp = Date.now();
 
       // Push real-time notification to all other interviewers
       const room = db.rooms.find(r => r.id === candidate.roomId);
@@ -2172,6 +2183,375 @@ async function startServer() {
     await saveCloudState();
 
     res.json({ success: true, evaluations: db.evaluations.filter(e => e.candidateId === candidateId) });
+  });
+
+  app.post('/api/admin/verify-password', (req, res) => {
+    const { password, adminPassword } = req.body || {};
+    const pwd = (password || adminPassword || '').trim();
+    if (pwd === getEffectiveAdminPassword()) {
+      return res.json({ success: true, authorized: true });
+    }
+    return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
+  });
+
+  // ----------------------------------------------------
+  // CANDIDATE SELF-SERVICE PORTAL & MESSAGING APIS
+  // ----------------------------------------------------
+  app.post('/api/candidate-portal/login', async (req, res) => {
+    try {
+      const { roomId, studentId, name, track, phone, email, interviewDate, startTime, endTime } = req.body || {};
+      const cleanRoomId = (roomId || '').trim();
+      const cleanStudentId = (studentId || '').trim();
+      const cleanName = (name || '').trim();
+
+      if (!cleanRoomId) {
+        return res.status(400).json({ error: '면접 평가 방을 선택해주세요.' });
+      }
+      if (!cleanStudentId || !cleanName) {
+        return res.status(400).json({ error: '학번과 성함을 모두 입력해주세요.' });
+      }
+
+      const room = db.rooms.find(r => r.id === cleanRoomId);
+      if (!room) {
+        return res.status(404).json({ error: '선택하신 면접 방이 존재하지 않습니다.' });
+      }
+
+      // Find existing candidate by studentId in the room, or globally by studentId + name
+      let candidate = db.candidates.find(
+        c => (c.roomId === cleanRoomId && (c.studentId.trim() === cleanStudentId || c.name.trim() === cleanName)) ||
+             (c.studentId.trim() === cleanStudentId && c.name.trim() === cleanName)
+      );
+
+      const effectiveDate = interviewDate ? interviewDate.trim() : (candidate?.interviewDate || new Date().toISOString().split('T')[0]);
+      const effectiveStart = startTime ? startTime.trim() : (candidate?.timeslot?.start || '14:00');
+      const effectiveEnd = endTime ? endTime.trim() : (candidate?.timeslot?.end || '14:30');
+
+      if (candidate) {
+        // If candidate belonged to this room or global match, associate with cleanRoomId if not set
+        if (!candidate.roomId) candidate.roomId = cleanRoomId;
+        candidate.lastCandidateActiveAt = getKSTDateTimeStr();
+        if (cleanName && candidate.name !== cleanName) candidate.name = cleanName;
+        if (phone) candidate.phone = phone;
+        if (email) candidate.email = email;
+        if (interviewDate) candidate.interviewDate = effectiveDate;
+        if (startTime || endTime) {
+          candidate.timeslot = {
+            start: effectiveStart,
+            end: effectiveEnd,
+            room: room.name || room.title || candidate.timeslot?.room || 'SmartLab 면접실'
+          };
+        }
+      } else {
+        // Create new candidate entry
+        const newCandidateId = `cand-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
+        const defaultInterviewerNames = (room.interviewers || []).map(i => i.name);
+
+        candidate = {
+          id: newCandidateId,
+          roomId: cleanRoomId,
+          name: cleanName,
+          track: track || '일반 지원',
+          studentId: cleanStudentId,
+          phone: phone || '',
+          email: email || '',
+          timeslot: {
+            start: effectiveStart,
+            end: effectiveEnd,
+            room: room.name || room.title || 'SmartLab 면접실'
+          },
+          status: 'PENDING',
+          interviewers: defaultInterviewerNames.length > 0 ? defaultInterviewerNames : ['면접관 1', '면접관 2', '면접관 3'],
+          documents: [
+            {
+              id: `gdoc-${newCandidateId}`,
+              title: '면접평가기준',
+              type: 'gdocs',
+              url: 'https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk',
+              fileSize: 'Google Docs (인앱 연동)',
+              contentSnippet: '구글 닥스 지원서류 원본 (인앱 미리보기 지원)',
+              rawText: 'SmartLab 지원자 공식 구글 닥스 서류 링크: https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk',
+              uploadedAt: getKSTTimeStr()
+            }
+          ],
+          sttTranscript: [],
+          aiInsights: {
+            realtimeSummaries: [],
+            tailQuestions: [],
+            contradictions: []
+          },
+          interviewDate: effectiveDate,
+          reminder10MinEnabled: true,
+          lastCandidateActiveAt: getKSTDateTimeStr()
+        };
+
+        db.candidates.push(candidate);
+        room.candidateCount = db.candidates.filter(c => c.roomId === cleanRoomId).length;
+
+        db.auditLogs.unshift({
+          id: `audit-cand-reg-${Date.now().toString(36)}`,
+          timestamp: getKSTDateTimeStr(),
+          modifiedBy: `지원자 본인 (${cleanName})`,
+          field: '지원자 셀프 등록',
+          beforeVal: null,
+          afterVal: { id: candidate.id, name: candidate.name, studentId: candidate.studentId, room: room.name, date: effectiveDate, timeslot: candidate.timeslot },
+          reason: '지원자 포털에서 직접 학번/이름/면접일정 입력으로 지원 등록'
+        });
+      }
+
+      await saveCloudState();
+
+      if (!Array.isArray(db.candidateMessages)) db.candidateMessages = [];
+      const messages = db.candidateMessages.filter(
+        m => m.candidateId === candidate!.id || (m.studentId === candidate!.studentId && m.roomId === cleanRoomId)
+      );
+
+      return res.json({
+        success: true,
+        candidate,
+        room,
+        messages
+      });
+    } catch (err: any) {
+      console.error('Candidate login error:', err);
+      return res.status(500).json({ error: '지원자 로그인 처리 중 서버 오류가 발생했습니다.' });
+    }
+  });
+
+  // Candidate Live Status Polling API (Safe: strictly removes evaluation scores, comments, AI prompts)
+  app.get('/api/candidate-portal/status', (req, res) => {
+    const { candidateId, roomId, studentId } = req.query;
+    if (!candidateId && (!roomId || !studentId)) {
+      return res.status(400).json({ error: 'candidateId or (roomId and studentId) required' });
+    }
+
+    const candidate = db.candidates.find(
+      c => (candidateId && c.id === candidateId) ||
+           (roomId && studentId && c.roomId === roomId && c.studentId === studentId)
+    );
+
+    if (!candidate) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+
+    const room = db.rooms.find(r => r.id === candidate.roomId);
+
+    // List of interviewers for this room / candidate (Safe view without evaluation scores)
+    const assignedInterviewers = (room?.interviewers || []).map(i => ({
+      id: i.id,
+      name: i.name,
+      role: i.role,
+      avatarColor: i.avatarColor
+    }));
+
+    // Return safe candidate object
+    const safeCandidate = {
+      id: candidate.id,
+      roomId: candidate.roomId,
+      name: candidate.name,
+      studentId: candidate.studentId,
+      phone: candidate.phone,
+      email: candidate.email,
+      track: candidate.track,
+      timeslot: candidate.timeslot,
+      interviewDate: candidate.interviewDate,
+      status: candidate.status,
+      startedAt: candidate.startedAt,
+      interviewStartedTimestamp: candidate.interviewStartedTimestamp,
+      completedAt: candidate.completedAt,
+      initialCompletedAt: candidate.initialCompletedAt,
+      interviewers: candidate.interviewers || assignedInterviewers.map(i => i.name),
+      documents: candidate.documents || [],
+      sttTranscript: candidate.sttTranscript || [],
+      reminder10MinEnabled: candidate.reminder10MinEnabled,
+      candidateNotes: candidate.candidateNotes
+    };
+
+    return res.json({
+      success: true,
+      candidate: safeCandidate,
+      room: room ? {
+        id: room.id,
+        name: room.name,
+        title: room.title,
+        description: room.description,
+        interviewers: assignedInterviewers,
+        minutesPerPerson: room.minutesPerPerson || 30
+      } : null,
+      assignedInterviewers
+    });
+  });
+
+  app.post('/api/candidate-portal/update-profile', async (req, res) => {
+    try {
+      const {
+        candidateId,
+        timeslot,
+        interviewDate,
+        documents,
+        phone,
+        email,
+        track,
+        candidateNotes,
+        reminder10MinEnabled
+      } = req.body || {};
+
+      if (!candidateId) {
+        return res.status(400).json({ error: '지원자 식별자가 필요합니다.' });
+      }
+
+      const candidate = db.candidates.find(c => c.id === candidateId);
+      if (!candidate) {
+        return res.status(404).json({ error: '해당 지원자를 찾을 수 없습니다.' });
+      }
+
+      if (timeslot) {
+        candidate.timeslot = {
+          ...candidate.timeslot,
+          ...timeslot
+        };
+      }
+      if (interviewDate !== undefined) candidate.interviewDate = interviewDate;
+      if (Array.isArray(documents)) candidate.documents = documents;
+      if (phone !== undefined) candidate.phone = phone;
+      if (email !== undefined) candidate.email = email;
+      if (track !== undefined) candidate.track = track;
+      if (candidateNotes !== undefined) candidate.candidateNotes = candidateNotes;
+      if (reminder10MinEnabled !== undefined) candidate.reminder10MinEnabled = Boolean(reminder10MinEnabled);
+      candidate.lastCandidateActiveAt = getKSTDateTimeStr();
+      candidate.lastModifiedAt = getKSTDateTimeStr();
+
+      if (!Array.isArray(db.notifications)) db.notifications = [];
+      db.notifications.unshift({
+        id: `notif-cand-up-${Date.now().toString(36)}`,
+        type: 'INTERVIEWER_ACTION',
+        title: `📄 '${candidate.name}' 지원자 정보/서류 업데이트`,
+        message: `${candidate.name} 지원자가 면접 일정(${candidate.interviewDate || ''} ${candidate.timeslot?.start || ''}) 및 추가 서류(${candidate.documents?.length || 0}건)를 제출/수정했습니다.`,
+        timestamp: getKSTTimeStr(),
+        createdAt: Date.now(),
+        roomId: candidate.roomId,
+        candidateId: candidate.id,
+        candidateName: candidate.name,
+        operatorName: candidate.name
+      });
+
+      await saveCloudState();
+      return res.json({ success: true, candidate });
+    } catch (err: any) {
+      console.error('Candidate profile update error:', err);
+      return res.status(500).json({ error: '지원자 정보 업데이트 중 오류가 발생했습니다.' });
+    }
+  });
+
+  app.get('/api/candidate-portal/messages', (req, res) => {
+    const { candidateId, roomId, studentId } = req.query;
+    if (!Array.isArray(db.candidateMessages)) db.candidateMessages = [];
+
+    const messages = db.candidateMessages.filter(m => {
+      if (candidateId && m.candidateId === candidateId) return true;
+      if (roomId && studentId && m.roomId === roomId && m.studentId === studentId) return true;
+      return false;
+    });
+
+    res.json({ success: true, messages });
+  });
+
+  app.post('/api/candidate-portal/send-message', async (req, res) => {
+    try {
+      const {
+        candidateId,
+        roomId,
+        studentId,
+        candidateName,
+        senderType,
+        senderName,
+        senderInterviewerId,
+        text
+      } = req.body || {};
+
+      if (!candidateId || !text || !text.trim()) {
+        return res.status(400).json({ error: '메시지 내용과 지원자 ID가 필요합니다.' });
+      }
+
+      if (!Array.isArray(db.candidateMessages)) db.candidateMessages = [];
+
+      const cleanText = text.trim();
+      const isFromCandidate = senderType === 'candidate';
+
+      const newMessage: CandidateChatMessage = {
+        id: `cmsg-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`,
+        roomId: roomId || '',
+        candidateId,
+        studentId: studentId || '',
+        candidateName: candidateName || '지원자',
+        senderType: isFromCandidate ? 'candidate' : 'interviewer',
+        senderName: isFromCandidate ? (candidateName || '지원자') : (senderName || 'SmartLab 면접관'),
+        senderInterviewerId: isFromCandidate ? undefined : senderInterviewerId,
+        text: cleanText,
+        timestamp: getKSTTimeStr(),
+        createdAt: Date.now(),
+        readByCandidate: isFromCandidate,
+        readByInterviewers: isFromCandidate ? [] : [senderInterviewerId || 'interviewer']
+      };
+
+      db.candidateMessages.push(newMessage);
+
+      // If sent by candidate, notify interviewers in realtime
+      if (isFromCandidate) {
+        if (!Array.isArray(db.notifications)) db.notifications = [];
+        db.notifications.unshift({
+          id: `notif-cand-msg-${Date.now().toString(36)}`,
+          type: 'INTERVIEWER_ACTION',
+          title: `💬 '${candidateName || '지원자'}'님의 메시지 도착`,
+          message: cleanText.length > 40 ? cleanText.substring(0, 40) + '...' : cleanText,
+          timestamp: getKSTTimeStr(),
+          createdAt: Date.now(),
+          roomId,
+          candidateId,
+          candidateName,
+          operatorName: candidateName
+        });
+      }
+
+      await saveCloudState();
+
+      const relevantMessages = db.candidateMessages.filter(m => m.candidateId === candidateId);
+      return res.json({ success: true, message: newMessage, messages: relevantMessages });
+    } catch (err: any) {
+      console.error('Send message error:', err);
+      return res.status(500).json({ error: '메시지 전송 중 오류가 발생했습니다.' });
+    }
+  });
+
+  app.post('/api/candidate-portal/toggle-reminder', async (req, res) => {
+    try {
+      const { candidateId, enabled } = req.body || {};
+      const candidate = db.candidates.find(c => c.id === candidateId);
+      if (!candidate) return res.status(404).json({ error: '지원자를 찾을 수 없습니다.' });
+
+      candidate.reminder10MinEnabled = Boolean(enabled);
+      candidate.lastCandidateActiveAt = getKSTDateTimeStr();
+
+      if (enabled) {
+        if (!Array.isArray(db.notifications)) db.notifications = [];
+        db.notifications.unshift({
+          id: `notif-remind-${Date.now().toString(36)}`,
+          type: 'TIME_ALERT',
+          title: `🔔 '${candidate.name}' 지원자 면접 10분 전 알림 요청 활성화`,
+          message: `${candidate.name} 지원자가 면접 시작 10분 전 실시간 알림 수신을 활성화했습니다. (예정 시간: ${candidate.interviewDate || ''} ${candidate.timeslot?.start || ''})`,
+          timestamp: getKSTTimeStr(),
+          createdAt: Date.now(),
+          roomId: candidate.roomId,
+          candidateId: candidate.id,
+          candidateName: candidate.name,
+          operatorName: candidate.name
+        });
+      }
+
+      await saveCloudState();
+      return res.json({ success: true, candidate });
+    } catch (err: any) {
+      return res.status(500).json({ error: '알림 설정 중 오류가 발생했습니다.' });
+    }
   });
 
   // ----------------------------------------------------

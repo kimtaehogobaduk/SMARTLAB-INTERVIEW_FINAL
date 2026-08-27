@@ -345,13 +345,13 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
 
             {/* Track Filter */}
             <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-slate-400 font-bold">트랙:</span>
+              <span className="text-slate-400 font-bold">분야:</span>
               <select
                 value={selectedTrackFilter}
                 onChange={e => setSelectedTrackFilter(e.target.value)}
                 className="bg-transparent text-white font-semibold focus:outline-hidden cursor-pointer"
               >
-                <option value="ALL" className="bg-slate-900">전체 지원 트랙</option>
+                <option value="ALL" className="bg-slate-900">전체 분야</option>
                 {allTracks.map(t => (
                   <option key={t} value={t} className="bg-slate-900">{t}</option>
                 ))}

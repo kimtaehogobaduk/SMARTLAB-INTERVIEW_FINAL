@@ -3,6 +3,7 @@ import { Candidate, InterviewerUser, InterviewRoomItem, PlatformSettings, Interv
 import { SmartLabLogo } from './SmartLabLogo';
 import { EntryModeModal } from './EntryModeModal';
 import { InterviewerChat } from './InterviewerChat';
+import { CandidateChatModal } from './CandidateChatModal';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 import {
   Users,
@@ -28,7 +29,10 @@ import {
   Link2,
   Eye,
   MessageSquare,
-  X
+  X,
+  BellRing,
+  Calendar,
+  MessageSquareText
 } from 'lucide-react';
 
 interface CandidateListPageProps {
@@ -71,6 +75,9 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
   const [selectedCandidateForEntry, setSelectedCandidateForEntry] = useState<Candidate | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  // Candidate Chat Modal State
+  const [candidateForChat, setCandidateForChat] = useState<Candidate | null>(null);
 
   // Mini Toast Notification for incoming chat messages (작게 알림 뜨게)
   const [chatToast, setChatToast] = useState<InterviewerChatMessage | null>(null);
@@ -508,7 +515,34 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                   </div>
 
                   {/* Documents & Details preview */}
-                  <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-1.5">
+                  <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-2">
+                    
+                    {/* Candidate Self-scheduled date & reminder status */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-slate-200/60 text-[11px]">
+                      <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                        <Calendar className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>면접일: <strong className="text-slate-900">{c.interviewDate || '당일 배정'}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {c.reminder10MinEnabled && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                            <BellRing className="w-3 h-3 text-amber-600" />
+                            <span>10분전 알림요청</span>
+                          </span>
+                        )}
+                        {c.lastCandidateActiveAt && (
+                          <span className="text-[10px] text-slate-400">포털 접속됨</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {c.candidateNotes && (
+                      <div className="text-[11px] text-blue-900 bg-blue-50/70 p-2 rounded-md border border-blue-200/60 leading-relaxed">
+                        <span className="font-bold text-blue-950">지원자 전달사항: </span>
+                        {c.candidateNotes}
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="font-semibold text-slate-700">제출 서류:</span>
                       <span className="text-slate-500 font-mono text-[10px]">
@@ -536,17 +570,30 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
                   {/* Action Buttons */}
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <button
-                      onClick={() => {
-                        if (confirm(`'${c.name}' 지원자를 삭제하시겠습니까?`)) {
-                          onDeleteCandidate(c.id);
-                        }
-                      }}
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="지원자 삭제"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          if (confirm(`'${c.name}' 지원자를 삭제하시겠습니까?`)) {
+                            onDeleteCandidate(c.id);
+                          }
+                        }}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="지원자 삭제"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      {/* Candidate 1:1 Chat Button */}
+                      <button
+                        type="button"
+                        onClick={() => setCandidateForChat(c)}
+                        className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="지원자 실시간 대화함 열기 (전체 면접관 공유)"
+                      >
+                        <MessageSquareText className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>지원자 대화</span>
+                      </button>
+                    </div>
 
                     <div className="flex items-center gap-2">
                       <button
@@ -573,6 +620,17 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
           </div>
         )}
       </main>
+
+      {/* Candidate 1:1 Chat Modal */}
+      {candidateForChat && (
+        <CandidateChatModal
+          isOpen={Boolean(candidateForChat)}
+          onClose={() => setCandidateForChat(null)}
+          candidate={candidateForChat}
+          room={currentRoom}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* Manual Candidate Creation Modal */}
       {isAddModalOpen && (
