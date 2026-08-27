@@ -12,7 +12,7 @@ import {
   simulateInterviewQnAWithKnowledgeAI,
   extractYouTubeVideoId
 } from './server/ai.ts';
-import { Candidate, Evaluation, AuditLog, PlatformSettings, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage, TailQuestion } from './src/types.ts';
+import { Candidate, Evaluation, AuditLog, PlatformSettings, ClubLeadership, LeadershipMember, LeadershipRole, InterviewRoomInfo, SecurityQuizItem, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage, TailQuestion } from './src/types.ts';
 
 dotenv.config();
 
@@ -186,24 +186,47 @@ async function startServer() {
 
     const roomsWithCount = db.rooms.map(room => {
       const hasLock = Boolean(room.securityType && room.securityType !== 'NONE');
+      
+      // Normalize security quizzes
+      let normalizedQuizzes = room.securityQuizzes || [];
+      if (normalizedQuizzes.length === 0 && room.securityQuestion) {
+        normalizedQuizzes = [
+          {
+            id: 'quiz-0',
+            question: room.securityQuestion,
+            answer: room.securityAnswer || ''
+          }
+        ];
+      }
+
+      // If not admin, mask answers in quizzes
+      const clientQuizzes = room.securityType === 'QUIZ'
+        ? normalizedQuizzes.map(q => ({
+            id: q.id,
+            question: q.question,
+            answer: isMasterAdmin ? q.answer : undefined
+          }))
+        : undefined;
+
       return {
         ...room,
         candidateCount: db.candidates.filter(c => !c.roomId || c.roomId === room.id).length,
         hasSecurityLock: hasLock,
         securityType: room.securityType || 'NONE',
-        securityQuestion: room.securityType === 'QUIZ' ? room.securityQuestion : undefined,
+        securityQuestion: room.securityType === 'QUIZ' ? (room.securityQuestion || (normalizedQuizzes[0]?.question)) : undefined,
+        securityQuizzes: clientQuizzes,
         // Only return sensitive plain password and answer if authenticated master admin query
         password: isMasterAdmin ? room.password : undefined,
-        securityAnswer: isMasterAdmin ? room.securityAnswer : undefined
+        securityAnswer: isMasterAdmin ? (room.securityAnswer || (normalizedQuizzes[0]?.answer)) : undefined
       };
     });
     res.json(roomsWithCount);
   });
 
-  // Verify access for room (Password or Quiz challenge, with Master Admin override)
+  // Verify access for room (Password or Multiple Quiz challenge, with Master Admin override)
   app.post('/api/rooms/:id/verify-access', (req, res) => {
     const { id } = req.params;
-    const { password, answer, adminPassword } = req.body;
+    const { password, answer, answers, adminPassword } = req.body;
     const room = db.rooms.find(r => r.id === id);
     if (!room) return res.status(404).json({ error: '존재하지 않는 면접방입니다.' });
 
@@ -227,12 +250,75 @@ async function startServer() {
     }
 
     if (secType === 'QUIZ') {
-      const cleanUserAns = (answer || '').trim().toLowerCase().replace(/\s+/g, '');
-      const cleanCorrectAns = (room.securityAnswer || '').trim().toLowerCase().replace(/\s+/g, '');
-      if (cleanUserAns && cleanUserAns === cleanCorrectAns) {
+      // Gather all required quizzes
+      let targetQuizzes = room.securityQuizzes || [];
+      if (targetQuizzes.length === 0 && room.securityQuestion) {
+        targetQuizzes = [
+          {
+            id: 'quiz-0',
+            question: room.securityQuestion,
+            answer: room.securityAnswer || ''
+          }
+        ];
+      }
+
+      if (targetQuizzes.length === 0) {
         return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ' });
       }
-      return res.status(401).json({ error: '보안 문제의 정답이 일치하지 않습니다.' });
+
+      // Check single answer fallback
+      if (targetQuizzes.length === 1 && typeof answer === 'string' && answer.trim()) {
+        const cleanUserAns = answer.trim().toLowerCase().replace(/\s+/g, '');
+        const cleanCorrectAns = (targetQuizzes[0].answer || room.securityAnswer || '').trim().toLowerCase().replace(/\s+/g, '');
+        if (cleanUserAns && cleanUserAns === cleanCorrectAns) {
+          return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ' });
+        }
+        return res.status(401).json({ error: '보안 문제의 정답이 일치하지 않습니다.' });
+      }
+
+      // Multi quiz validation
+      const answersMap: Record<string, string> = {};
+      if (answers && typeof answers === 'object') {
+        if (Array.isArray(answers)) {
+          answers.forEach((item: any, idx: number) => {
+            if (typeof item === 'string') {
+              answersMap[targetQuizzes[idx]?.id || `idx-${idx}`] = item;
+            } else if (item && item.id) {
+              answersMap[item.id] = item.answer || '';
+            }
+          });
+        } else {
+          Object.assign(answersMap, answers);
+        }
+      } else if (typeof answer === 'string') {
+        answersMap[targetQuizzes[0]?.id || 'quiz-0'] = answer;
+      }
+
+      // Validate all quizzes
+      for (let i = 0; i < targetQuizzes.length; i++) {
+        const quiz = targetQuizzes[i];
+        const userRawAns = answersMap[quiz.id] || answersMap[`idx-${i}`] || (i === 0 ? answer : '');
+        const cleanUserAns = (userRawAns || '').trim().toLowerCase().replace(/\s+/g, '');
+        const cleanCorrectAns = (quiz.answer || '').trim().toLowerCase().replace(/\s+/g, '');
+
+        if (!cleanUserAns) {
+          return res.status(400).json({
+            error: targetQuizzes.length > 1
+              ? `[문제 ${i + 1}] 정답을 입력해주세요.`
+              : '퀴즈 정답을 입력해주세요.'
+          });
+        }
+
+        if (cleanUserAns !== cleanCorrectAns) {
+          return res.status(401).json({
+            error: targetQuizzes.length > 1
+              ? `[문제 ${i + 1}] 정답이 일치하지 않습니다. 다시 확인해주세요.`
+              : '보안 문제의 정답이 일치하지 않습니다.'
+          });
+        }
+      }
+
+      return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ' });
     }
 
     res.json({ success: true, authorized: true, roomName: room.name });
@@ -307,6 +393,25 @@ async function startServer() {
     const effectiveQuizQuestion = (securityQuestion || req.body.quizQuestion || '').trim();
     const effectiveQuizAnswer = (securityAnswer || req.body.quizAnswer || '').trim();
 
+    let formattedQuizzes: SecurityQuizItem[] = [];
+    if (Array.isArray(req.body.securityQuizzes)) {
+      formattedQuizzes = req.body.securityQuizzes
+        .filter((q: any) => q && typeof q.question === 'string' && q.question.trim())
+        .map((q: any, idx: number) => ({
+          id: q.id || `quiz-${Date.now().toString(36)}-${idx}`,
+          question: q.question.trim(),
+          answer: (q.answer || '').trim()
+        }));
+    } else if (effectiveQuizQuestion) {
+      formattedQuizzes = [
+        {
+          id: `quiz-${Date.now().toString(36)}-0`,
+          question: effectiveQuizQuestion,
+          answer: effectiveQuizAnswer
+        }
+      ];
+    }
+
     const newRoom: InterviewRoomInfo = {
       id: `room-${Date.now().toString(36)}`,
       name: roomName,
@@ -318,8 +423,9 @@ async function startServer() {
       interviewers: formattedInterviewers,
       securityType: validatedSecType,
       password: validatedSecType === 'PASSWORD' ? effectiveRoomPassword : undefined,
-      securityQuestion: validatedSecType === 'QUIZ' ? effectiveQuizQuestion : undefined,
-      securityAnswer: validatedSecType === 'QUIZ' ? effectiveQuizAnswer : undefined
+      securityQuestion: validatedSecType === 'QUIZ' ? (formattedQuizzes[0]?.question || effectiveQuizQuestion) : undefined,
+      securityAnswer: validatedSecType === 'QUIZ' ? (formattedQuizzes[0]?.answer || effectiveQuizAnswer) : undefined,
+      securityQuizzes: validatedSecType === 'QUIZ' ? formattedQuizzes : undefined
     };
 
     db.rooms.push(newRoom);
@@ -340,7 +446,8 @@ async function startServer() {
       securityType,
       roomPassword,
       securityQuestion,
-      securityAnswer
+      securityAnswer,
+      securityQuizzes
     } = req.body;
     const pwd = adminPassword || password;
     if (pwd !== getEffectiveAdminPassword()) {
@@ -362,16 +469,39 @@ async function startServer() {
         if (p !== undefined) room.password = (p || '').trim();
         room.securityQuestion = undefined;
         room.securityAnswer = undefined;
+        room.securityQuizzes = undefined;
       } else if (room.securityType === 'QUIZ') {
-        const q = securityQuestion !== undefined ? securityQuestion : req.body.quizQuestion;
-        const a = securityAnswer !== undefined ? securityAnswer : req.body.quizAnswer;
-        if (q !== undefined) room.securityQuestion = (q || '').trim();
-        if (a !== undefined) room.securityAnswer = (a || '').trim();
+        let updatedQuizzes: SecurityQuizItem[] = [];
+        if (Array.isArray(securityQuizzes)) {
+          updatedQuizzes = securityQuizzes
+            .filter((q: any) => q && typeof q.question === 'string' && q.question.trim())
+            .map((q: any, idx: number) => ({
+              id: q.id || `quiz-${Date.now().toString(36)}-${idx}`,
+              question: q.question.trim(),
+              answer: (q.answer || '').trim()
+            }));
+        } else {
+          const q = securityQuestion !== undefined ? securityQuestion : req.body.quizQuestion;
+          const a = securityAnswer !== undefined ? securityAnswer : req.body.quizAnswer;
+          if (q) {
+            updatedQuizzes = [
+              {
+                id: `quiz-${Date.now().toString(36)}-0`,
+                question: (q || '').trim(),
+                answer: (a || '').trim()
+              }
+            ];
+          }
+        }
+        room.securityQuizzes = updatedQuizzes;
+        room.securityQuestion = updatedQuizzes[0]?.question || (securityQuestion || '').trim();
+        room.securityAnswer = updatedQuizzes[0]?.answer || (securityAnswer || '').trim();
         room.password = undefined;
       } else {
         room.password = undefined;
         room.securityQuestion = undefined;
         room.securityAnswer = undefined;
+        room.securityQuizzes = undefined;
       }
     }
 
@@ -567,6 +697,122 @@ async function startServer() {
     res.json(db.settings);
   });
 
+  // Helper function to resolve an interviewer's leadership role (CAPTAIN | VICE_CAPTAIN | NONE)
+  function getInterviewerLeadershipRole(name: string): LeadershipRole {
+    if (!name || !db.settings?.leadership) return 'NONE';
+    const clean = name.replace(/(\s*(면접관|심사위원|님|대표|위원))+$/g, '').trim().toLowerCase();
+    if (!clean) return 'NONE';
+
+    const cap = db.settings.leadership.captain;
+    if (cap && cap.name && cap.name.replace(/(\s*(면접관|심사위원|님|대표|위원))+$/g, '').trim().toLowerCase() === clean) {
+      return 'CAPTAIN';
+    }
+
+    const vcs = db.settings.leadership.viceCaptains || [];
+    for (const vc of vcs) {
+      if (vc && vc.name && vc.name.replace(/(\s*(면접관|심사위원|님|대표|위원))+$/g, '').trim().toLowerCase() === clean) {
+        return 'VICE_CAPTAIN';
+      }
+    }
+    return 'NONE';
+  }
+
+  // Club Leadership Management (기장 1명, 부기장 최대 2명)
+  app.get('/api/leadership', (req, res) => {
+    if (!db.settings.leadership) {
+      db.settings.leadership = { captain: null, viceCaptains: [] };
+    }
+    res.json(db.settings.leadership);
+  });
+
+  app.post('/api/leadership/update', async (req, res) => {
+    const { captain, viceCaptains, updatedBy } = req.body;
+
+    if (!db.settings.leadership) {
+      db.settings.leadership = { captain: null, viceCaptains: [] };
+    }
+
+    const prevCaptain = db.settings.leadership.captain;
+    const prevViceCaptains = db.settings.leadership.viceCaptains || [];
+
+    let validatedCaptain: LeadershipMember | null = null;
+    if (captain && captain.name && captain.name.trim()) {
+      validatedCaptain = {
+        id: captain.id || `lead-cap-${Date.now()}`,
+        name: captain.name.trim(),
+        role: 'CAPTAIN',
+        appointedAt: captain.appointedAt || getKSTDateTimeStr(),
+        appointedBy: updatedBy || '총괄 관리자 (Admin)',
+        memo: captain.memo || ''
+      };
+    }
+
+    let validatedViceCaptains: LeadershipMember[] = [];
+    if (Array.isArray(viceCaptains)) {
+      const filtered = viceCaptains
+        .filter(v => v && v.name && v.name.trim())
+        .slice(0, 2); // 최대 2명 엄격 준수
+
+      validatedViceCaptains = filtered.map((v, idx) => ({
+        id: v.id || `lead-vc-${Date.now()}-${idx}`,
+        name: v.name.trim(),
+        role: 'VICE_CAPTAIN',
+        appointedAt: v.appointedAt || getKSTDateTimeStr(),
+        appointedBy: updatedBy || '총괄 관리자 (Admin)',
+        memo: v.memo || ''
+      }));
+    }
+
+    // 중복 제거: 기장으로 임명된 사람은 부기장 명단에서 자동 제외
+    if (validatedCaptain) {
+      const capClean = validatedCaptain.name.trim().toLowerCase();
+      validatedViceCaptains = validatedViceCaptains.filter(
+        v => v.name.trim().toLowerCase() !== capClean
+      );
+    }
+
+    db.settings.leadership = {
+      captain: validatedCaptain,
+      viceCaptains: validatedViceCaptains
+    };
+
+    // 기록용 감사 로그(Audit Log)
+    db.auditLogs.unshift({
+      id: `audit-lead-${Date.now().toString(36)}`,
+      timestamp: getKSTDateTimeStr(),
+      modifiedBy: updatedBy || '총괄 관리자 (Admin)',
+      field: '동아리 임원진 (기장/부기장) 임명 업데이트',
+      beforeVal: {
+        captain: prevCaptain?.name || '미임명',
+        viceCaptains: prevViceCaptains.map(v => v.name).join(', ') || '없음'
+      },
+      afterVal: {
+        captain: validatedCaptain?.name || '미임명',
+        viceCaptains: validatedViceCaptains.map(v => v.name).join(', ') || '없음'
+      },
+      reason: `동아리 임원진 임명 업데이트 (기장: ${validatedCaptain?.name || '미임명'}, 부기장: ${validatedViceCaptains.map(v => v.name).join(', ') || '없음'})`
+    });
+
+    // 실시간 면접관 알림 브로드캐스트
+    const capName = validatedCaptain ? validatedCaptain.name : '미임명';
+    const vcNames = validatedViceCaptains.length > 0 ? validatedViceCaptains.map(v => v.name).join(', ') : '없음';
+
+    if (!Array.isArray(db.notifications)) db.notifications = [];
+    db.notifications.unshift({
+      id: `notif-lead-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      type: 'ADMIN_ALERT',
+      actionType: 'leadership_update',
+      title: '👑 SmartLab 임원진 (기장/부기장) 임명 안내',
+      message: `관리자에 의해 기장 [${capName}], 부기장 [${vcNames}] 임명이 완료되었습니다.`,
+      timestamp: getKSTTimeStr(),
+      createdAt: Date.now(),
+      operatorName: updatedBy || '총괄 관리자'
+    });
+
+    await saveCloudState();
+    res.json({ success: true, leadership: db.settings.leadership });
+  });
+
   // Real-time Live Notifications endpoints
   app.get('/api/notifications', (req, res) => {
     const { since } = req.query;
@@ -602,17 +848,20 @@ async function startServer() {
     const rawName = operatorName || '면접관';
     const cleanName = rawName.replace(/^(면접관\s*\d*\s*\(?|\(?총괄\s*관리자\s*\(?)/, '').replace(/[\)\(]/g, '').trim() || rawName;
 
+    const leadershipRole = getInterviewerLeadershipRole(cleanName);
+    const leaderPrefix = leadershipRole === 'CAPTAIN' ? '👑 [기장] ' : leadershipRole === 'VICE_CAPTAIN' ? '⭐ [부기장] ' : '';
+
     let notifType: any = 'INTERVIEWER_ACTION';
     let title = '';
     let message = '';
 
     if (actionType === 'question') {
       notifType = 'QUESTION_INTENT';
-      title = `${cleanName} 면접관이 먼저 질문합니다`;
+      title = `${leaderPrefix}${cleanName} 면접관이 먼저 질문합니다`;
       message = customMessage || `${cleanName} 면접관이 발언권을 얻어 먼저 질문을 진행합니다.`;
     } else if (actionType === 'suspicion') {
       notifType = 'SUSPICION_ALERT';
-      title = `${cleanName} 면접관이 의심/팩트체크 신호를 보냈습니다`;
+      title = `${leaderPrefix}${cleanName} 면접관이 의심/팩트체크 신호를 보냈습니다`;
       message = customMessage || `지원자의 답변 또는 서류 기재 내용에 대한 진위 확인 및 심층 검증이 권장됩니다.`;
 
       // Also record suspicion into candidate contradiction points if candidateId provided
@@ -631,18 +880,18 @@ async function startServer() {
       }
     } else if (actionType === 'tail_question') {
       notifType = 'TAIL_QUESTION_REQUEST';
-      title = `${cleanName} 면접관이 AI 꼬리질문 활용을 제안했습니다`;
+      title = `${leaderPrefix}${cleanName} 면접관이 AI 꼬리질문 활용을 제안했습니다`;
       message = customMessage || `AI 콘솔의 실시간 심층 검증 질문을 확인해보세요.`;
     } else if (actionType === 'yield') {
       notifType = 'YIELD_FLOOR';
-      title = `${cleanName} 면접관이 질문 순서를 양보했습니다`;
+      title = `${leaderPrefix}${cleanName} 면접관이 질문 순서를 양보했습니다`;
       message = customMessage || `다른 면접관님께서 질문을 이어가실 수 있습니다.`;
     } else if (actionType === 'time_check') {
       notifType = 'TIME_ALERT';
-      title = `${cleanName} 면접관이 면접 시간 준수를 상기시켰습니다`;
+      title = `${leaderPrefix}${cleanName} 면접관이 면접 시간 준수를 상기시켰습니다`;
       message = customMessage || `배정된 면접 시간을 확인하고 마무리를 준비해주세요.`;
     } else {
-      title = `${cleanName} 면접관의 행동 신호: ${actionType}`;
+      title = `${leaderPrefix}${cleanName} 면접관의 행동 신호: ${actionType}`;
       message = customMessage || `${cleanName} 면접관이 알림을 전송했습니다.`;
     }
 
@@ -652,14 +901,15 @@ async function startServer() {
       actionType,
       title,
       message,
-      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      timestamp: getKSTTimeStr(),
       createdAt: Date.now(),
       roomId,
       roomName,
       candidateId: candidateId || '',
       candidateName: candidateName || '',
       operatorId,
-      operatorName: cleanName
+      operatorName: cleanName,
+      operatorLeadershipRole: leadershipRole
     };
 
     if (!Array.isArray(db.notifications)) db.notifications = [];
@@ -684,9 +934,12 @@ async function startServer() {
       p => p.interviewerId === interviewerId && (p.candidateId === candidateId || p.roomId === roomId)
     );
 
+    const leadershipRole = getInterviewerLeadershipRole(interviewerName || '');
+
     const presenceItem: InterviewerPresence = {
       interviewerId,
       interviewerName: interviewerName || '면접관',
+      leadershipRole,
       roomId,
       candidateId,
       mode: mode === 'observing' ? 'observing' : 'evaluating',
@@ -746,6 +999,7 @@ async function startServer() {
       }
       return {
         ...p,
+        leadershipRole: p.leadershipRole || getInterviewerLeadershipRole(p.interviewerName),
         mode: effectiveMode,
         isOnline: isRecent && p.mode !== 'left'
       };
@@ -778,7 +1032,10 @@ async function startServer() {
     }
 
     // Return the latest 100 messages in chronological order
-    const latestMessages = filtered.slice(-100);
+    const latestMessages = filtered.slice(-100).map(m => ({
+      ...m,
+      senderLeadershipRole: m.senderLeadershipRole || getInterviewerLeadershipRole(m.senderName)
+    }));
     res.json(latestMessages);
   });
 
@@ -792,7 +1049,9 @@ async function startServer() {
       senderName,
       senderRole,
       message,
-      isImportant
+      isImportant,
+      isOfficialLeaderNotice,
+      sharedQuestion
     } = req.body;
 
     if (!message || typeof message !== 'string' || message.trim() === '') {
@@ -801,6 +1060,9 @@ async function startServer() {
 
     const rawName = senderName || '면접관';
     const cleanName = rawName.replace(/^(면접관\s*\d*\s*\(?|\(?총괄\s*관리자\s*\(?)/, '').replace(/[\)\(]/g, '').trim() || rawName;
+
+    const senderLeadershipRole = getInterviewerLeadershipRole(cleanName);
+    const isLeader = senderLeadershipRole === 'CAPTAIN' || senderLeadershipRole === 'VICE_CAPTAIN';
 
     const newMessage: InterviewerChatMessage = {
       id: `chat-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
@@ -811,10 +1073,13 @@ async function startServer() {
       senderId: senderId || 'user-unknown',
       senderName: cleanName,
       senderRole: senderRole || '면접관',
+      senderLeadershipRole,
+      isOfficialLeaderNotice: isLeader && Boolean(isOfficialLeaderNotice),
       message: message.trim(),
-      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      timestamp: getKSTTimeStr(),
       createdAt: Date.now(),
-      isImportant: !!isImportant
+      isImportant: !!isImportant || (isLeader && Boolean(isOfficialLeaderNotice)),
+      sharedQuestion
     };
 
     if (!Array.isArray(db.chatMessages)) {

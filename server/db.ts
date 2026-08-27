@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
-import { Candidate, Evaluation, PlatformSettings, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage } from '../src/types';
+import { Candidate, Evaluation, PlatformSettings, ClubLeadership, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage } from '../src/types';
 
 // Load config safely in Node environment
 let firebaseConfig: any = null;
@@ -435,7 +435,11 @@ export const db: DatabaseState = {
     aiProvider: 'groq',
     aiModel: 'llama-3.3-70b-versatile',
     adminMasterPassword: 'admin',
-    knowledgeBase: [...initialKnowledgeBase]
+    knowledgeBase: [...initialKnowledgeBase],
+    leadership: {
+      captain: null,
+      viceCaptains: []
+    }
   },
   adminUnlock: {
     candidateId: null,

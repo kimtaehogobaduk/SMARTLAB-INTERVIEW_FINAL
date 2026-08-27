@@ -8,12 +8,15 @@ import {
   AuditLog,
   Candidate,
   Evaluation,
-  QuestionPersonaStyle
+  QuestionPersonaStyle,
+  SecurityQuizItem
 } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import { AdminStatsDashboard } from './AdminStatsDashboard';
 import { AIKnowledgeManager } from './AIKnowledgeManager';
+import { LeadershipManager } from './LeadershipManager';
 import {
+  Crown,
   Shield,
   Plus,
   DoorOpen,
@@ -71,6 +74,7 @@ interface AdminPortalPageProps {
     roomPassword?: string;
     quizQuestion?: string;
     quizAnswer?: string;
+    securityQuizzes?: SecurityQuizItem[];
   }) => Promise<void>;
   onUpdateRoom: (roomId: string, data: {
     interviewers?: string[];
@@ -80,6 +84,7 @@ interface AdminPortalPageProps {
     roomPassword?: string;
     quizQuestion?: string;
     quizAnswer?: string;
+    securityQuizzes?: SecurityQuizItem[];
   }) => Promise<void>;
   onDeleteRoom: (roomId: string) => Promise<void>;
   onSelectRoomAsAdmin: (room: InterviewRoomItem) => void;
@@ -188,7 +193,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   onUnconfirmCriteria,
   onRefreshSettings
 }) => {
-  const [activeTab, setActiveTab] = useState<'CRITERIA' | 'STATS' | 'ROOMS' | 'AUDIT' | 'AI_KNOWLEDGE'>('STATS');
+  const [activeTab, setActiveTab] = useState<'CRITERIA' | 'STATS' | 'ROOMS' | 'LEADERSHIP' | 'AUDIT' | 'AI_KNOWLEDGE'>('STATS');
 
   // Room creation state
   const [newRoomName, setNewRoomName] = useState('');
@@ -197,8 +202,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   const [rawInterviewersText, setRawInterviewersText] = useState('면접관 1, 면접관 2, 면접관 3');
   const [newSecurityType, setNewSecurityType] = useState<'NONE' | 'PASSWORD' | 'QUIZ'>('NONE');
   const [newRoomPassword, setNewRoomPassword] = useState('');
-  const [newQuizQuestion, setNewQuizQuestion] = useState('');
-  const [newQuizAnswer, setNewQuizAnswer] = useState('');
+  const [newQuizzes, setNewQuizzes] = useState<Array<{ id: string; question: string; answer: string }>>([
+    { id: 'quiz-1', question: '', answer: '' }
+  ]);
   const [isRoomSubmitting, setIsRoomSubmitting] = useState(false);
   const [roomSuccessMsg, setRoomSuccessMsg] = useState('');
   const [roomErrorMsg, setRoomErrorMsg] = useState('');
@@ -208,8 +214,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   const [editInterviewersText, setEditInterviewersText] = useState('');
   const [editSecurityType, setEditSecurityType] = useState<'NONE' | 'PASSWORD' | 'QUIZ'>('NONE');
   const [editRoomPassword, setEditRoomPassword] = useState('');
-  const [editQuizQuestion, setEditQuizQuestion] = useState('');
-  const [editQuizAnswer, setEditQuizAnswer] = useState('');
+  const [editQuizzes, setEditQuizzes] = useState<Array<{ id: string; question: string; answer: string }>>([
+    { id: 'quiz-1', question: '', answer: '' }
+  ]);
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
 
   // Criteria Configuration State
@@ -603,14 +610,30 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       return;
     }
 
-    if (newSecurityType === 'QUIZ' && (!newQuizQuestion.trim() || !newQuizAnswer.trim())) {
-      setRoomErrorMsg('퀴즈 질문과 정답을 모두 입력해주세요.');
-      return;
+    if (newSecurityType === 'QUIZ') {
+      const validQuizzes = newQuizzes.filter(q => q.question.trim() && q.answer.trim());
+      if (validQuizzes.length === 0) {
+        setRoomErrorMsg('최소 1개 이상의 보안 퀴즈 질문과 정답을 입력해주세요.');
+        return;
+      }
+      const hasEmpty = newQuizzes.some(q => !q.question.trim() || !q.answer.trim());
+      if (hasEmpty) {
+        setRoomErrorMsg('모든 보안 퀴즈 문제의 질문과 정답을 빠짐없이 입력해주세요.');
+        return;
+      }
     }
 
     setIsRoomSubmitting(true);
     setRoomErrorMsg('');
     try {
+      const formattedSecurityQuizzes: SecurityQuizItem[] = newQuizzes
+        .filter(q => q.question.trim() && q.answer.trim())
+        .map((q, idx) => ({
+          id: q.id || `quiz-${Date.now()}-${idx + 1}`,
+          question: q.question.trim(),
+          answer: q.answer.trim()
+        }));
+
       await onCreateRoom({
         name: newRoomName.trim(),
         description: newRoomDesc.trim() || 'SmartLab 동아리 실시간 면접 평가실',
@@ -619,8 +642,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
         interviewers: parsedNewInterviewers,
         securityType: newSecurityType,
         roomPassword: newSecurityType === 'PASSWORD' ? newRoomPassword.trim() : undefined,
-        quizQuestion: newSecurityType === 'QUIZ' ? newQuizQuestion.trim() : undefined,
-        quizAnswer: newSecurityType === 'QUIZ' ? newQuizAnswer.trim() : undefined
+        quizQuestion: newSecurityType === 'QUIZ' ? (formattedSecurityQuizzes[0]?.question) : undefined,
+        quizAnswer: newSecurityType === 'QUIZ' ? (formattedSecurityQuizzes[0]?.answer) : undefined,
+        securityQuizzes: newSecurityType === 'QUIZ' ? formattedSecurityQuizzes : undefined
       });
 
       setRoomSuccessMsg(`"${newRoomName.trim()}" 방과 면접관 ${parsedNewInterviewers.length}명이 등록되었습니다.`);
@@ -630,8 +654,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       setNewMinutes(30);
       setNewSecurityType('NONE');
       setNewRoomPassword('');
-      setNewQuizQuestion('');
-      setNewQuizAnswer('');
+      setNewQuizzes([{ id: 'quiz-1', question: '', answer: '' }]);
       setTimeout(() => setRoomSuccessMsg(''), 4000);
     } catch (err: any) {
       setRoomErrorMsg(err.message || '방 생성 중 오류가 발생했습니다.');
@@ -648,8 +671,25 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
     setEditInterviewersText(existingNames);
     setEditSecurityType(room.securityType || 'NONE');
     setEditRoomPassword(room.roomPassword || room.password || '');
-    setEditQuizQuestion(room.quizQuestion || room.securityQuestion || '');
-    setEditQuizAnswer(room.quizAnswer || room.securityAnswer || '');
+    
+    // Load existing quizzes
+    if (room.securityQuizzes && room.securityQuizzes.length > 0) {
+      setEditQuizzes(room.securityQuizzes.map(q => ({
+        id: q.id,
+        question: q.question,
+        answer: q.answer || ''
+      })));
+    } else if (room.quizQuestion || room.securityQuestion) {
+      setEditQuizzes([
+        {
+          id: 'quiz-1',
+          question: room.quizQuestion || room.securityQuestion || '',
+          answer: room.quizAnswer || room.securityAnswer || ''
+        }
+      ]);
+    } else {
+      setEditQuizzes([{ id: 'quiz-1', question: '', answer: '' }]);
+    }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -671,19 +711,36 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       return;
     }
 
-    if (editSecurityType === 'QUIZ' && (!editQuizQuestion.trim() || !editQuizAnswer.trim())) {
-      alert('퀴즈 질문과 정답을 모두 입력해주세요.');
-      return;
+    if (editSecurityType === 'QUIZ') {
+      const validQuizzes = editQuizzes.filter(q => q.question.trim() && q.answer.trim());
+      if (validQuizzes.length === 0) {
+        alert('최소 1개 이상의 보안 퀴즈 질문과 정답을 입력해주세요.');
+        return;
+      }
+      const hasEmpty = editQuizzes.some(q => !q.question.trim() || !q.answer.trim());
+      if (hasEmpty) {
+        alert('모든 보안 퀴즈 문제의 질문과 정답을 빠짐없이 입력해주세요.');
+        return;
+      }
     }
 
     setIsEditSubmitting(true);
     try {
+      const formattedQuizzes: SecurityQuizItem[] = editQuizzes
+        .filter(q => q.question.trim() && q.answer.trim())
+        .map((q, idx) => ({
+          id: q.id || `quiz-${Date.now()}-${idx + 1}`,
+          question: q.question.trim(),
+          answer: q.answer.trim()
+        }));
+
       await onUpdateRoom(editingRoom.id, {
         interviewers: parsed,
         securityType: editSecurityType,
         roomPassword: editSecurityType === 'PASSWORD' ? editRoomPassword.trim() : undefined,
-        quizQuestion: editSecurityType === 'QUIZ' ? editQuizQuestion.trim() : undefined,
-        quizAnswer: editSecurityType === 'QUIZ' ? editQuizAnswer.trim() : undefined
+        quizQuestion: editSecurityType === 'QUIZ' ? (formattedQuizzes[0]?.question) : undefined,
+        quizAnswer: editSecurityType === 'QUIZ' ? (formattedQuizzes[0]?.answer) : undefined,
+        securityQuizzes: editSecurityType === 'QUIZ' ? formattedQuizzes : undefined
       });
       setEditingRoom(null);
     } catch (err: any) {
@@ -777,6 +834,22 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
             <span className="text-[10px] bg-slate-800 px-1.5 py-0.2 rounded-full text-slate-300">
               {rooms.length}
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('LEADERSHIP')}
+            className={`px-3.5 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'LEADERSHIP'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Crown className="w-3.5 h-3.5 text-amber-400" />
+            <span>기장 & 부기장 임명</span>
+            {(settings.leadership?.captain || (settings.leadership?.viceCaptains && settings.leadership.viceCaptains.length > 0)) && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 shadow-xs"></span>
+            )}
           </button>
 
           <button
@@ -1625,32 +1698,81 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   )}
 
                   {newSecurityType === 'QUIZ' && (
-                    <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2.5 animate-fade-in">
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-300">
-                          퀴즈 질문 (보안 문제) *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={newQuizQuestion}
-                          onChange={(e) => setNewQuizQuestion(e.target.value)}
-                          placeholder="예: 이번 2025 스마트랩 동아리 회장 이름은?"
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-                        />
+                    <div className="p-3.5 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
+                          <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+                          <span>보안 퀴즈 문제 설정 ({newQuizzes.length}개)</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewQuizzes(prev => [
+                              ...prev,
+                              { id: `quiz-${Date.now()}-${prev.length + 1}`, question: '', answer: '' }
+                            ]);
+                          }}
+                          className="px-2 py-1 bg-purple-900/50 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>퀴즈 문제 추가</span>
+                        </button>
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-300">
-                          정답 (대소문자/띄어쓰기 무관 일치) *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={newQuizAnswer}
-                          onChange={(e) => setNewQuizAnswer(e.target.value)}
-                          placeholder="정답 입력 (예: 홍길동)"
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-                        />
+
+                      <div className="space-y-3">
+                        {newQuizzes.map((quiz, idx) => (
+                          <div key={quiz.id || idx} className="p-3 bg-slate-900/90 border border-slate-800 rounded-xl space-y-2 relative">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                              <span className="text-amber-400">문제 {idx + 1}</span>
+                              {newQuizzes.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewQuizzes(prev => prev.filter((_, i) => i !== idx));
+                                  }}
+                                  className="text-slate-500 hover:text-red-400 text-[10px] flex items-center gap-0.5 cursor-pointer"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  <span>삭제</span>
+                                </button>
+                              )}
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-medium text-slate-400">
+                                퀴즈 질문 *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={quiz.question}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setNewQuizzes(prev => prev.map((q, i) => i === idx ? { ...q, question: val } : q));
+                                }}
+                                placeholder={`보안 질문 ${idx + 1} 입력`}
+                                className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-medium text-slate-400">
+                                정답 (대소문자/띄어쓰기 무관 일치) *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={quiz.answer}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setNewQuizzes(prev => prev.map((q, i) => i === idx ? { ...q, answer: val } : q));
+                                }}
+                                placeholder={`문제 ${idx + 1} 정답 입력`}
+                                className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -1781,11 +1903,23 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
 
                         {/* Security Detail Display for Admin */}
                         {room.securityType === 'QUIZ' && (
-                          <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-start gap-1.5 text-[11px] text-purple-300">
-                            <HelpCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                            <div>
-                              <span className="font-bold">퀴즈 질문: </span>
-                              <span>{room.securityQuestion || room.quizQuestion || '보안 퀴즈'}</span>
+                          <div className="mt-2 pt-2 border-t border-slate-800/60 space-y-1 text-[11px] text-purple-300">
+                            <div className="flex items-center gap-1.5 font-bold">
+                              <HelpCircle className="w-3.5 h-3.5 shrink-0 text-purple-400" />
+                              <span>보안 퀴즈 ({room.securityQuizzes && room.securityQuizzes.length > 0 ? room.securityQuizzes.length : 1}문제)</span>
+                            </div>
+                            <div className="space-y-1 pl-5">
+                              {room.securityQuizzes && room.securityQuizzes.length > 0 ? (
+                                room.securityQuizzes.map((q, idx) => (
+                                  <div key={q.id || idx} className="text-slate-300">
+                                    <span className="font-semibold text-purple-300">Q{idx + 1}.</span> {q.question}
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-slate-300">
+                                  <span className="font-semibold text-purple-300">Q.</span> {room.securityQuestion || room.quizQuestion || '보안 퀴즈'}
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
@@ -1860,6 +1994,19 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
               ))
             )}
           </div>
+        </div>
+      )}
+
+      {/* ========================================================================================= */}
+      {/* TAB: CLUB LEADERSHIP (기장 1명, 부기장 최대 2명 임명 관리) */}
+      {/* ========================================================================================= */}
+      {activeTab === 'LEADERSHIP' && (
+        <div className="max-w-6xl w-full mx-auto mt-8">
+          <LeadershipManager
+            settings={settings}
+            rooms={rooms}
+            onRefreshSettings={onRefreshSettings}
+          />
         </div>
       )}
 
@@ -1977,32 +2124,81 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                 )}
 
                 {editSecurityType === 'QUIZ' && (
-                  <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2.5 animate-fade-in">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-300">
-                        퀴즈 질문 (보안 문제) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editQuizQuestion}
-                        onChange={(e) => setEditQuizQuestion(e.target.value)}
-                        placeholder="예: 이번 2025 스마트랩 동아리 회장 이름은?"
-                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-                      />
+                  <div className="p-3.5 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3 animate-fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
+                        <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+                        <span>보안 퀴즈 문제 설정 ({editQuizzes.length}개)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditQuizzes(prev => [
+                            ...prev,
+                            { id: `quiz-${Date.now()}-${prev.length + 1}`, question: '', answer: '' }
+                          ]);
+                        }}
+                        className="px-2 py-1 bg-purple-900/50 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>퀴즈 문제 추가</span>
+                      </button>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-300">
-                        정답 (대소문자/띄어쓰기 무관 일치) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editQuizAnswer}
-                        onChange={(e) => setEditQuizAnswer(e.target.value)}
-                        placeholder="정답 입력"
-                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-                      />
+
+                    <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                      {editQuizzes.map((quiz, idx) => (
+                        <div key={quiz.id || idx} className="p-3 bg-slate-900/90 border border-slate-800 rounded-xl space-y-2 relative">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                            <span className="text-amber-400">문제 {idx + 1}</span>
+                            {editQuizzes.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditQuizzes(prev => prev.filter((_, i) => i !== idx));
+                                }}
+                                className="text-slate-500 hover:text-red-400 text-[10px] flex items-center gap-0.5 cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>삭제</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-slate-400">
+                              퀴즈 질문 *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={quiz.question}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setEditQuizzes(prev => prev.map((q, i) => i === idx ? { ...q, question: val } : q));
+                              }}
+                              placeholder={`보안 질문 ${idx + 1} 입력`}
+                              className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-slate-400">
+                              정답 (대소문자/띄어쓰기 무관 일치) *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={quiz.answer}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setEditQuizzes(prev => prev.map((q, i) => i === idx ? { ...q, answer: val } : q));
+                              }}
+                              placeholder={`문제 ${idx + 1} 정답 입력`}
+                              className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

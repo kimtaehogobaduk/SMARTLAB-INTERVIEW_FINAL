@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { InterviewerChatMessage, InterviewerPresence, TailQuestion } from '../types';
+import { InterviewerChatMessage, InterviewerPresence, TailQuestion, LeadershipRole } from '../types';
 import {
   MessageSquare,
   Send,
@@ -19,13 +19,16 @@ import {
   Check,
   Eye,
   Sliders,
-  Target
+  Target,
+  Crown,
+  ShieldCheck
 } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 import { QuestionDetailModal } from './QuestionDetailModal';
+import { getLeadershipBadgeConfig } from '../lib/leadership';
 
 interface InterviewerChatProps {
-  currentUser: { id: string; name: string; role: string };
+  currentUser: { id: string; name: string; role: string; leadershipRole?: LeadershipRole };
   roomId?: string;
   roomName?: string;
   candidateId?: string;
@@ -67,9 +70,12 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
   const [messages, setMessages] = useState<InterviewerChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isImportant, setIsImportant] = useState(false);
+  const [isOfficialNotice, setIsOfficialNotice] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const isCurrentUserLeader = currentUser.leadershipRole === 'CAPTAIN' || currentUser.leadershipRole === 'VICE_CAPTAIN';
 
   const [copiedQuestionId, setCopiedQuestionId] = useState<string | null>(null);
   const [selectedQuestionForDetail, setSelectedQuestionForDetail] = useState<TailQuestion | null>(null);

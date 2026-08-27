@@ -194,12 +194,35 @@ export interface Evaluation {
   comments: EvaluationComments;
 }
 
+export type LeadershipRole = 'CAPTAIN' | 'VICE_CAPTAIN' | 'NONE';
+
+export interface LeadershipMember {
+  id: string;
+  name: string;
+  role: 'CAPTAIN' | 'VICE_CAPTAIN';
+  appointedAt: string;
+  appointedBy?: string;
+  memo?: string;
+}
+
+export interface ClubLeadership {
+  captain: LeadershipMember | null; // 정원 1명 (기장)
+  viceCaptains: LeadershipMember[]; // 최대 2명 (부기장)
+}
+
 export interface InterviewerUser {
   id: string;
   name: string;
   role: 'interviewer' | 'admin';
+  leadershipRole?: LeadershipRole;
   trackExpertise?: string;
   avatarColor?: string;
+}
+
+export interface SecurityQuizItem {
+  id: string;
+  question: string;
+  answer: string;
 }
 
 export interface InterviewRoomInfo {
@@ -223,7 +246,7 @@ export interface InterviewRoomInfo {
   weights?: Record<string, number>;
   defaultQuestionPersona?: QuestionPersonaStyle;
   customFocusKeywords?: string[];
-  // Room-specific Access Security (Password or Security Question)
+  // Room-specific Access Security (Password or Security Questions)
   securityType?: 'NONE' | 'PASSWORD' | 'QUIZ';
   password?: string;
   roomPassword?: string;
@@ -231,6 +254,7 @@ export interface InterviewRoomInfo {
   quizQuestion?: string;
   securityAnswer?: string;
   quizAnswer?: string;
+  securityQuizzes?: SecurityQuizItem[];
   hasSecurityLock?: boolean;
 }
 
@@ -339,6 +363,7 @@ export interface LiveNotification {
   candidateName?: string;
   operatorId?: string;
   operatorName?: string;
+  operatorLeadershipRole?: LeadershipRole;
   questionId?: string;
 }
 
@@ -357,11 +382,13 @@ export interface PlatformSettings {
   cerebrasModel?: string;
   knowledgeBase?: AIKnowledgeItem[];
   adminMasterPassword?: string;
+  leadership?: ClubLeadership;
 }
 
 export interface InterviewerPresence {
   interviewerId: string;
   interviewerName: string;
+  leadershipRole?: LeadershipRole;
   roomId?: string;
   candidateId?: string;
   mode: 'evaluating' | 'observing' | 'left';
@@ -377,6 +404,8 @@ export interface InterviewerChatMessage {
   senderId: string;
   senderName: string;
   senderRole?: string;
+  senderLeadershipRole?: LeadershipRole;
+  isOfficialLeaderNotice?: boolean;
   message: string;
   timestamp: string;
   createdAt: number;

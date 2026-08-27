@@ -12,6 +12,7 @@ import {
   InterviewerUser,
   InterviewRoomItem,
   LiveNotification,
+  SecurityQuizItem,
   AppView
 } from './types';
 import { LandingEntryPage } from './components/LandingEntryPage';
@@ -389,6 +390,7 @@ export default function App() {
     roomPassword?: string;
     quizQuestion?: string;
     quizAnswer?: string;
+    securityQuizzes?: SecurityQuizItem[];
   }): Promise<void> => {
     try {
       const res = await fetch('/api/rooms', {
@@ -421,6 +423,7 @@ export default function App() {
     roomPassword?: string;
     quizQuestion?: string;
     quizAnswer?: string;
+    securityQuizzes?: SecurityQuizItem[];
   }): Promise<void> => {
     try {
       const res = await fetch(`/api/rooms/${roomId}`, {

@@ -20,6 +20,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
   // Security Challenge Modal State
   const [challengingRoom, setChallengingRoom] = useState<InterviewRoomItem | null>(null);
   const [challengeInput, setChallengeInput] = useState('');
+  const [quizAnswersMap, setQuizAnswersMap] = useState<Record<string, string>>({});
   const [challengeError, setChallengeError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -29,6 +30,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
     if (room.securityType === 'PASSWORD' || room.securityType === 'QUIZ') {
       setChallengingRoom(room);
       setChallengeInput('');
+      setQuizAnswersMap({});
       setChallengeError('');
     } else {
       onSelectRoom(room);
@@ -39,13 +41,28 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
     e.preventDefault();
     if (!challengingRoom) return;
 
-    if (!challengeInput.trim()) {
-      setChallengeError(
-        challengingRoom.securityType === 'PASSWORD'
-          ? '방 비밀번호를 입력해주세요.'
-          : '퀴즈 정답을 입력해주세요.'
-      );
-      return;
+    if (challengingRoom.securityType === 'PASSWORD') {
+      if (!challengeInput.trim()) {
+        setChallengeError('방 비밀번호를 입력해주세요.');
+        return;
+      }
+    } else if (challengingRoom.securityType === 'QUIZ') {
+      const activeQuizzes = (challengingRoom.securityQuizzes && challengingRoom.securityQuizzes.length > 0)
+        ? challengingRoom.securityQuizzes
+        : [{ id: 'q-0', question: challengingRoom.securityQuestion || challengingRoom.quizQuestion || '보안 퀴즈' }];
+
+      for (let i = 0; i < activeQuizzes.length; i++) {
+        const q = activeQuizzes[i];
+        const ans = (quizAnswersMap[q.id] || quizAnswersMap[`idx-${i}`] || '').trim();
+        if (!ans) {
+          setChallengeError(
+            activeQuizzes.length > 1
+              ? `[문제 ${i + 1}] 정답을 입력해주세요.`
+              : '퀴즈 정답을 입력해주세요.'
+          );
+          return;
+        }
+      }
     }
 
     setIsVerifying(true);
@@ -56,7 +73,8 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
       if (challengingRoom.securityType === 'PASSWORD') {
         payload.password = challengeInput.trim();
       } else if (challengingRoom.securityType === 'QUIZ') {
-        payload.answer = challengeInput.trim();
+        payload.answers = quizAnswersMap;
+        payload.answer = Object.values(quizAnswersMap)[0] || '';
       }
 
       const res = await fetch(`/api/rooms/${challengingRoom.id}/verify-access`, {
@@ -69,6 +87,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
         const targetRoom = challengingRoom;
         setChallengingRoom(null);
         setChallengeInput('');
+        setQuizAnswersMap({});
         setChallengeError('');
         onSelectRoom(targetRoom);
       } else {
@@ -297,48 +316,73 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
               </p>
             </div>
 
-            {/* Quiz Question Box */}
-            {challengingRoom.securityType === 'QUIZ' && (
-              <div className="p-4 bg-purple-950/40 border border-purple-800/60 rounded-2xl space-y-1.5">
-                <div className="text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
-                  <HelpCircle className="w-3.5 h-3.5" />
-                  <span>보안 퀴즈 문제</span>
-                </div>
-                <p className="text-xs text-white font-semibold leading-relaxed">
-                  {challengingRoom.securityQuestion || challengingRoom.quizQuestion || '동아리 보안 퀴즈 문제'}
-                </p>
-              </div>
-            )}
-
+            {/* Security Question/Password Form */}
             <form onSubmit={handleChallengeSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300 block">
-                  {challengingRoom.securityType === 'PASSWORD' ? '방 비밀번호 입력' : '퀴즈 정답 입력'}
-                </label>
-                <div className="relative">
-                  {challengingRoom.securityType === 'PASSWORD' ? (
+              {challengingRoom.securityType === 'PASSWORD' && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">
+                    방 비밀번호 입력
+                  </label>
+                  <div className="relative">
                     <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  ) : (
-                    <HelpCircle className="w-4 h-4 text-purple-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  )}
-                  <input
-                    type={challengingRoom.securityType === 'PASSWORD' ? 'password' : 'text'}
-                    autoFocus
-                    required
-                    value={challengeInput}
-                    onChange={(e) => {
-                      setChallengeInput(e.target.value);
-                      if (challengeError) setChallengeError('');
-                    }}
-                    placeholder={
-                      challengingRoom.securityType === 'PASSWORD'
-                        ? '방 비밀번호를 입력하세요'
-                        : '정답을 입력하세요 (띄어쓰기/대소문자 무관)'
-                    }
-                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
-                  />
+                    <input
+                      type="password"
+                      autoFocus
+                      required
+                      value={challengeInput}
+                      onChange={(e) => {
+                        setChallengeInput(e.target.value);
+                        if (challengeError) setChallengeError('');
+                      }}
+                      placeholder="방 비밀번호를 입력하세요"
+                      className="w-full pl-9 pr-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {challengingRoom.securityType === 'QUIZ' && (
+                <div className="space-y-3.5 max-h-72 overflow-y-auto pr-1">
+                  {((challengingRoom.securityQuizzes && challengingRoom.securityQuizzes.length > 0)
+                    ? challengingRoom.securityQuizzes
+                    : [{ id: 'q-0', question: challengingRoom.securityQuestion || challengingRoom.quizQuestion || '보안 퀴즈' }]
+                  ).map((quiz, idx, arr) => (
+                    <div
+                      key={quiz.id || idx}
+                      className="p-3.5 bg-purple-950/40 border border-purple-800/60 rounded-2xl space-y-2"
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-bold text-purple-300">
+                        <span className="flex items-center gap-1.5">
+                          <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+                          <span>{arr.length > 1 ? `보안 퀴즈 문제 ${idx + 1}` : '보안 퀴즈 문제'}</span>
+                        </span>
+                      </div>
+                      <p className="text-xs text-white font-semibold leading-relaxed">
+                        {quiz.question}
+                      </p>
+                      <div className="space-y-1 pt-1">
+                        <input
+                          type="text"
+                          required
+                          autoFocus={idx === 0}
+                          value={quizAnswersMap[quiz.id] || quizAnswersMap[`idx-${idx}`] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setQuizAnswersMap(prev => ({
+                              ...prev,
+                              [quiz.id]: val,
+                              [`idx-${idx}`]: val
+                            }));
+                            if (challengeError) setChallengeError('');
+                          }}
+                          placeholder="정답 입력 (띄어쓰기/대소문자 무관)"
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-purple-500 placeholder-slate-500"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {challengeError && (
                 <div className="p-3 bg-red-950/60 border border-red-800 text-red-400 rounded-xl text-xs flex items-center gap-2">
@@ -353,6 +397,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                   onClick={() => {
                     setChallengingRoom(null);
                     setChallengeInput('');
+                    setQuizAnswersMap({});
                     setChallengeError('');
                   }}
                   className="px-3.5 py-2 border border-slate-700 rounded-xl text-slate-400 hover:text-white text-xs cursor-pointer"
