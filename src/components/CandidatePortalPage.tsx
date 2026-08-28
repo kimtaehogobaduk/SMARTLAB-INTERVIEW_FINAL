@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Candidate, InterviewRoomItem, CandidateChatMessage, DocumentItem } from '../types';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Candidate, InterviewRoomItem, CandidateChatMessage, DocumentItem, CandidateFullResultData } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import { CandidateLiveInterviewPage } from './CandidateLiveInterviewPage';
+import { CandidateResultScorecard } from './CandidateResultScorecard';
 import {
   GraduationCap,
   Calendar,
@@ -27,7 +28,11 @@ import {
   Eye,
   Check,
   Shield,
-  Radio
+  Radio,
+  Award,
+  BarChart3,
+  TrendingUp,
+  FileCheck
 } from 'lucide-react';
 
 interface CandidatePortalPageProps {
@@ -45,6 +50,11 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
   onLogout,
   onCandidateUpdated
 }) => {
+  // Portal Main Tab State: 'PREPARATION' (면접 준비/소통) vs 'RESULTS' (면접 성적표/AI 피드백)
+  const [activePortalTab, setActivePortalTab] = useState<'PREPARATION' | 'RESULTS'>('PREPARATION');
+  const [candidateResult, setCandidateResult] = useState<CandidateFullResultData | null>(null);
+  const [isLoadingResult, setIsLoadingResult] = useState<boolean>(false);
+
   // Candidate Profile & Schedule State
   const [interviewDate, setInterviewDate] = useState<string>(
     candidate.interviewDate || new Date().toISOString().split('T')[0]
@@ -225,6 +235,34 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
     const pollTimer = setInterval(fetchMessages, 3500);
     return () => clearInterval(pollTimer);
   }, [candidate.id, room.id]);
+
+  // Fetch Candidate Scorecard & AI Diagnostic Results
+  const fetchCandidateResult = useCallback(async () => {
+    try {
+      setIsLoadingResult(true);
+      const res = await fetch(`/api/candidate-portal/result?candidateId=${candidate.id}&roomId=${room.id}&studentId=${candidate.studentId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result) {
+          setCandidateResult(data.result);
+          // If results are published, default or switch to results view
+          if (data.result.isPublished) {
+            setActivePortalTab(prev => (prev === 'RESULTS' ? prev : 'RESULTS'));
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Fetch candidate result error:', e);
+    } finally {
+      setIsLoadingResult(false);
+    }
+  }, [candidate.id, candidate.studentId, room.id]);
+
+  useEffect(() => {
+    fetchCandidateResult();
+    const resultInterval = setInterval(fetchCandidateResult, 5000);
+    return () => clearInterval(resultInterval);
+  }, [fetchCandidateResult]);
 
   // Auto-scroll chat to bottom on new messages
   useEffect(() => {
@@ -460,7 +498,7 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
       
       {/* Top Navigation Bar */}
       <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           
           <div className="flex items-center gap-3">
             <SmartLabLogo size="sm" />
@@ -479,22 +517,57 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
             </div>
           </div>
 
+          {/* Navigation Tab Switcher */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsLiveInterviewMode(true)}
-              className="px-3.5 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-red-600/30 animate-pulse"
-            >
-              <Radio className="w-3.5 h-3.5" />
-              <span>실시간 면접실 입장</span>
-            </button>
+            <div className="bg-slate-950 p-1 rounded-2xl border border-slate-800 flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setActivePortalTab('PREPARATION')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activePortalTab === 'PREPARATION'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>일정 & 서류 소통</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActivePortalTab('RESULTS')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activePortalTab === 'RESULTS'
+                    ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-amber-400" />
+                <span>면접 성적표 & AI 리포트</span>
+                {candidateResult?.isPublished && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                )}
+              </button>
+            </div>
+
+            {candidate.status === 'IN_PROGRESS' && (
+              <button
+                type="button"
+                onClick={() => setIsLiveInterviewMode(true)}
+                className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-red-600/30 animate-pulse"
+              >
+                <Radio className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">실시간 면접실</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onLogout}
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer border border-slate-700"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>로그아웃</span>
+              <span className="hidden sm:inline">로그아웃</span>
             </button>
           </div>
 
@@ -504,70 +577,132 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
       {/* Main Content Dashboard */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
         
-        {/* Banner: Candidate Status & 10-Minute Countdown Banner */}
-        <div className="p-5 sm:p-6 bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900/60 border border-blue-800/60 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
-          <div className="space-y-2 relative z-10">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>지원자 실시간 동기화 상태: 연결됨 (면접관 시스템 실시간 반영 중)</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white">
-              안녕하세요, {candidate.name}님! 면접 준비를 환영합니다.
-            </h1>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-              본 포털에서 <strong className="text-blue-300">면접 일정 조율</strong>, <strong className="text-blue-300">추가 서류 제출</strong>, <strong className="text-blue-300">10분 전 실시간 알림</strong> 및 <strong className="text-blue-300">면접관 전체와의 메시지 소통</strong>을 진행하실 수 있습니다.
-            </p>
-          </div>
-
-          {/* Countdown & Reminder Card */}
-          <div className="bg-slate-900/90 border border-blue-500/40 rounded-2xl p-4 sm:p-5 shrink-0 min-w-[280px] space-y-3 shadow-lg relative z-10">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-blue-400" />
-                <span>면접 시작까지</span>
-              </span>
-              <span className="text-[11px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
-                {interviewDate} {startTime}
-              </span>
-            </div>
-
-            <div className="text-2xl font-black text-white font-mono tracking-tight text-center py-1">
-              {timeUntilInterview}
-            </div>
-
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-xs text-slate-300">
-                <BellRing className={`w-3.5 h-3.5 ${reminderEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
-                <span>10분 전 알림</span>
+        {/* Render RESULTS Tab if selected */}
+        {activePortalTab === 'RESULTS' ? (
+          candidateResult?.isPublished ? (
+            <CandidateResultScorecard
+              candidate={{
+                id: candidate.id,
+                name: candidate.name,
+                studentId: candidate.studentId,
+                track: candidate.track,
+                phone: candidate.phone,
+                email: candidate.email,
+                interviewDate: candidate.interviewDate,
+                completedAt: candidate.completedAt
+              }}
+              resultData={candidateResult}
+              onRefresh={fetchCandidateResult}
+            />
+          ) : (
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-2xl max-w-2xl mx-auto">
+              <div className="w-16 h-16 rounded-3xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto border border-indigo-500/30 shadow-lg">
+                <FileCheck className="w-8 h-8 animate-pulse" />
               </div>
+
+              <div className="space-y-2">
+                <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+                  면접 심사 및 다면 평가 집계 중
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  면접 결과 및 AI 심층 성적표 발표 준비 중입니다
+                </h2>
+                <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                  모든 면접 일정이 완료된 후, 운영진의 최종 심사 마감과 함께 <strong>지원자 개별 점수</strong>, <strong>면접관별 채점표</strong>, <strong>집단 평균/표준편차/석차</strong> 및 <strong>AI 맞춤 성장 보고서</strong>가 공개됩니다.
+                </p>
+              </div>
+
+              <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700/80 max-w-md mx-auto text-left space-y-2 text-xs text-slate-300">
+                <div className="flex items-center gap-2 font-bold text-indigo-300">
+                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <span>발표 시 제공되는 항목</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-400">
+                  <li>내 종합 환산 점수 및 가중치별 세부 배점표</li>
+                  <li>기장/부기장 및 심사위원별 세부 채점표 & 정성 피드백</li>
+                  <li>전체 지원자 평균(μ), 표준편차(σ), 석차 및 백분위</li>
+                  <li>Gemini 2.5 Pro 기반 강점/보완점/역량 로드맵 AI 보고서</li>
+                  <li>공식 인증 PDF 성적표 다운로드 기능</li>
+                </ul>
+              </div>
+
               <button
                 type="button"
-                onClick={handleToggleReminder}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  reminderEnabled
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'bg-slate-800 text-slate-400 border border-slate-700'
-                }`}
+                onClick={fetchCandidateResult}
+                disabled={isLoadingResult}
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-600/30 inline-flex items-center gap-2 cursor-pointer"
               >
-                <span>{reminderEnabled ? '알림 켜짐' : '알림 꺼짐'}</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingResult ? 'animate-spin' : ''}`} />
+                <span>결과 발표 여부 지금 확인하기</span>
               </button>
             </div>
-          </div>
-        </div>
+          )
+        ) : (
+          <>
+            {/* Banner: Candidate Status & 10-Minute Countdown Banner */}
+            <div className="p-5 sm:p-6 bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900/60 border border-blue-800/60 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
+              <div className="space-y-2 relative z-10">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>지원자 실시간 동기화 상태: 연결됨 (면접관 시스템 실시간 반영 중)</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black text-white">
+                  안녕하세요, {candidate.name}님! 면접 준비를 환영합니다.
+                </h1>
+                <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                  본 포털에서 <strong className="text-blue-300">면접 일정 조율</strong>, <strong className="text-blue-300">추가 서류 제출</strong>, <strong className="text-blue-300">10분 전 실시간 알림</strong> 및 <strong className="text-blue-300">면접관 전체와의 메시지 소통</strong>을 진행하실 수 있습니다.
+                </p>
+              </div>
 
-        {/* Global Save Notifications */}
-        {saveSuccessMsg && (
-          <div className="p-3.5 bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 rounded-2xl text-xs flex items-center gap-2 shadow-lg animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-            <span className="font-bold">{saveSuccessMsg}</span>
-          </div>
-        )}
-        {saveErrorMsg && (
-          <div className="p-3.5 bg-red-950/60 border border-red-800/80 text-red-300 rounded-2xl text-xs flex items-center gap-2 shadow-lg animate-fade-in">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-            <span className="font-bold">{saveErrorMsg}</span>
-          </div>
-        )}
+              {/* Countdown & Reminder Card */}
+              <div className="bg-slate-900/90 border border-blue-500/40 rounded-2xl p-4 sm:p-5 shrink-0 min-w-[280px] space-y-3 shadow-lg relative z-10">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-blue-400" />
+                    <span>면접 시작까지</span>
+                  </span>
+                  <span className="text-[11px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                    {interviewDate} {startTime}
+                  </span>
+                </div>
+
+                <div className="text-2xl font-black text-white font-mono tracking-tight text-center py-1">
+                  {timeUntilInterview}
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                    <BellRing className={`w-3.5 h-3.5 ${reminderEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
+                    <span>10분 전 알림</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleReminder}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      reminderEnabled
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}
+                  >
+                    <span>{reminderEnabled ? '알림 켜짐' : '알림 꺼짐'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Global Save Notifications */}
+            {saveSuccessMsg && (
+              <div className="p-3.5 bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 rounded-2xl text-xs flex items-center gap-2 shadow-lg animate-fade-in">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span className="font-bold">{saveSuccessMsg}</span>
+              </div>
+            )}
+            {saveErrorMsg && (
+              <div className="p-3.5 bg-red-950/60 border border-red-800/80 text-red-300 rounded-2xl text-xs flex items-center gap-2 shadow-lg animate-fade-in">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                <span className="font-bold">{saveErrorMsg}</span>
+              </div>
+            )}
 
         {/* Grid Layout: 2 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -862,6 +997,8 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
           </div>
 
         </div>
+        </>
+        )}
 
       </main>
 

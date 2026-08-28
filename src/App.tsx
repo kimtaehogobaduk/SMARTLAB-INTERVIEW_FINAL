@@ -926,6 +926,7 @@ export default function App() {
       {currentView === 'SELECT_INTERVIEWER' && (
         <SelectInterviewerPage
           room={currentRoom}
+          leadership={settings.leadership}
           onBackToLobby={() => setCurrentView('ROOM_LOBBY')}
           availableInterviewers={currentRoom.interviewers && currentRoom.interviewers.length > 0 ? currentRoom.interviewers : DEFAULT_INTERVIEWERS}
           onSelectInterviewer={(user) => {

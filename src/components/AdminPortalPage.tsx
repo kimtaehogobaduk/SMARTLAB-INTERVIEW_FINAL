@@ -9,12 +9,14 @@ import {
   Candidate,
   Evaluation,
   QuestionPersonaStyle,
-  SecurityQuizItem
+  SecurityQuizItem,
+  InterviewerNameDisplayPolicy
 } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import { AdminStatsDashboard } from './AdminStatsDashboard';
 import { AIKnowledgeManager } from './AIKnowledgeManager';
 import { LeadershipManager } from './LeadershipManager';
+import { AdminAllInterviewsCompleteModal } from './AdminAllInterviewsCompleteModal';
 import {
   Crown,
   Shield,
@@ -220,6 +222,8 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
 
   // Criteria Configuration State
+  const [isCompleteAllModalOpen, setIsCompleteAllModalOpen] = useState(false);
+  const [completeAllSuccessToast, setCompleteAllSuccessToast] = useState('');
   const [selectedRoomScope, setSelectedRoomScope] = useState<'GLOBAL' | string>('GLOBAL');
   const [localCriteria, setLocalCriteria] = useState<EvaluationCriterion[]>(() => {
     return settings.criteria && settings.criteria.length > 0
@@ -758,6 +762,45 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
     }
   };
 
+  // Handler for All Interviews Completed & Candidate Results Publishing
+  const handleCompleteAllInterviews = async (config: {
+    operatorName: string;
+    isResultsPublished: boolean;
+    showPassFailToCandidates: boolean;
+    interviewerNameDisplayPolicy: InterviewerNameDisplayPolicy;
+    showStatsToCandidates: boolean;
+    showDetailedComments: boolean;
+  }) => {
+    try {
+      const res = await fetch('/api/admin/complete-all-interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || '모든 면접 완료 처리에 실패했습니다.');
+      }
+
+      const result = await res.json();
+      setCompleteAllSuccessToast(
+        `모든 면접이 공식 완료되었습니다! (${result.completedCandidates}명 지원자 완료 처리 및 AI 보고서 자동 생성 가동)`
+      );
+
+      if (onRefreshSettings) {
+        await onRefreshSettings();
+      }
+
+      setTimeout(() => {
+        setCompleteAllSuccessToast('');
+      }, 7000);
+    } catch (err: any) {
+      console.error('Complete all interviews error:', err);
+      throw err;
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col p-4 sm:p-8 relative overflow-x-hidden font-sans">
       {/* Background Ambience */}
@@ -765,7 +808,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Header Bar */}
-      <div className="max-w-6xl w-full mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+      <div className="max-w-6xl w-full mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between pb-6 border-b border-slate-800 gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -784,8 +827,29 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
           </div>
         </div>
 
+        {/* Action Button: All Interviews Completed */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setIsCompleteAllModalOpen(true)}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600 hover:from-blue-500 hover:via-indigo-500 hover:to-amber-500 text-white rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/30 cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+            <span>모든 면접 완료 & 결과 발표 설정</span>
+            {settings.isResultsPublished ? (
+              <span className="text-[10px] bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 px-2 py-0.5 rounded-full font-bold">
+                공개 중 (ON)
+              </span>
+            ) : (
+              <span className="text-[10px] bg-slate-900/60 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full font-bold">
+                비공개 (OFF)
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+        <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto max-w-full">
           <button
             type="button"
             onClick={() => setActiveTab('STATS')}
@@ -2224,6 +2288,25 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
           </div>
         </div>
       )}
+
+      {/* Success Toast for Complete All Interviews */}
+      {completeAllSuccessToast && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 bg-emerald-950/90 border border-emerald-500/60 rounded-2xl shadow-2xl text-emerald-200 text-xs flex items-center gap-3 animate-slide-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span className="font-bold">{completeAllSuccessToast}</span>
+        </div>
+      )}
+
+      {/* Modal: Complete All Interviews & Results Publication Policy */}
+      <AdminAllInterviewsCompleteModal
+        isOpen={isCompleteAllModalOpen}
+        onClose={() => setIsCompleteAllModalOpen(false)}
+        settings={settings}
+        operatorName="총괄 관리자"
+        totalCandidatesCount={candidates.length}
+        completedCandidatesCount={candidates.filter(c => c.status === 'COMPLETED').length}
+        onCompleteAll={handleCompleteAllInterviews}
+      />
     </div>
   );
 };

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InterviewRoomItem } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
-import { DoorOpen, ArrowRight, ArrowLeft, Lock, Unlock, HelpCircle, AlertCircle, KeyRound, CheckCircle2 } from 'lucide-react';
+import { DoorOpen, ArrowRight, ArrowLeft, Lock, Unlock, HelpCircle, AlertCircle, KeyRound, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { getDeviceId, isQuizVerifiedOnDevice, saveQuizVerifiedOnDevice } from '../lib/deviceSecurity';
 
 interface RoomLobbyPageProps {
   rooms: InterviewRoomItem[];
@@ -24,17 +25,73 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
   const [challengeError, setChallengeError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Device-verified quiz map for reactive UI badges
+  const [quizVerifiedMap, setQuizVerifiedMap] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const map: Record<string, boolean> = {};
+    rooms.forEach(r => {
+      if (r.securityType === 'QUIZ' && isQuizVerifiedOnDevice(r.id)) {
+        map[r.id] = true;
+      }
+    });
+    setQuizVerifiedMap(map);
+  }, [rooms]);
+
   const activeRoom = rooms.find(r => r.id === selectedRoomId) || rooms[0];
 
-  const handleRoomEntryAttempt = (room: InterviewRoomItem) => {
-    if (room.securityType === 'PASSWORD' || room.securityType === 'QUIZ') {
+  const handleRoomEntryAttempt = async (room: InterviewRoomItem) => {
+    if (room.securityType === 'PASSWORD') {
       setChallengingRoom(room);
       setChallengeInput('');
       setQuizAnswersMap({});
       setChallengeError('');
-    } else {
-      onSelectRoom(room);
+      return;
     }
+
+    if (room.securityType === 'QUIZ') {
+      // 1. Check local storage device record first for instant entry
+      if (isQuizVerifiedOnDevice(room.id) || quizVerifiedMap[room.id]) {
+        onSelectRoom(room);
+        return;
+      }
+
+      // 2. Fast check with server using deviceId in case it was authorized before
+      setIsVerifying(true);
+      try {
+        const devId = getDeviceId();
+        const res = await fetch(`/api/rooms/${room.id}/verify-access`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: devId })
+        });
+
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (data.authorized || data.deviceSkipped) {
+            saveQuizVerifiedOnDevice(room.id);
+            setQuizVerifiedMap(prev => ({ ...prev, [room.id]: true }));
+            setIsVerifying(false);
+            onSelectRoom(room);
+            return;
+          }
+        }
+      } catch {
+        // Fallback to challenge modal
+      } finally {
+        setIsVerifying(false);
+      }
+
+      // 3. Not verified on this device yet, prompt quiz modal
+      setChallengingRoom(room);
+      setChallengeInput('');
+      setQuizAnswersMap({});
+      setChallengeError('');
+      return;
+    }
+
+    // Free access room
+    onSelectRoom(room);
   };
 
   const handleChallengeSubmit = async (e: React.FormEvent) => {
@@ -69,7 +126,9 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
     setChallengeError('');
 
     try {
-      const payload: any = {};
+      const payload: any = {
+        deviceId: getDeviceId()
+      };
       if (challengingRoom.securityType === 'PASSWORD') {
         payload.password = challengeInput.trim();
       } else if (challengingRoom.securityType === 'QUIZ') {
@@ -85,6 +144,11 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
 
       if (res.ok) {
         const targetRoom = challengingRoom;
+        if (targetRoom.securityType === 'QUIZ') {
+          saveQuizVerifiedOnDevice(targetRoom.id);
+          setQuizVerifiedMap(prev => ({ ...prev, [targetRoom.id]: true }));
+        }
+
         setChallengingRoom(null);
         setChallengeInput('');
         setQuizAnswersMap({});
@@ -204,10 +268,17 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                           </span>
                         )}
                         {secType === 'QUIZ' && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1">
-                            <HelpCircle className="w-2.5 h-2.5" />
-                            <span>퀴즈 보안</span>
-                          </span>
+                          quizVerifiedMap[room.id] || isQuizVerifiedOnDevice(room.id) ? (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1" title="현재 기기에서 보안 인증이 완료되어 퀴즈가 자동으로 스킵됩니다.">
+                              <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
+                              <span>기기 인증됨 (스킵)</span>
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1">
+                              <HelpCircle className="w-2.5 h-2.5" />
+                              <span>퀴즈 보안</span>
+                            </span>
+                          )
                         )}
                         {secType === 'NONE' && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
@@ -381,6 +452,13 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {challengingRoom.securityType === 'QUIZ' && (
+                <div className="p-2.5 bg-purple-950/40 border border-purple-800/50 rounded-xl text-[11px] text-purple-200 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>현재 기기에서 최초 1회 인증하면 다음부터 퀴즈가 자동으로 스킵됩니다.</span>
                 </div>
               )}
 

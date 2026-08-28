@@ -22,7 +22,8 @@ import {
   Maximize2,
   Minimize2,
   X,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Sparkles
 } from 'lucide-react';
 
 interface FlexibleWorkspaceProps {
@@ -368,7 +369,7 @@ export const FlexibleWorkspace: React.FC<FlexibleWorkspaceProps> = ({
   const getPanelInfo = (id: PanelId) => {
     switch (id) {
       case 'STT':
-        return { title: '실시간 음성 STT & AI 인사이트', icon: Mic, color: 'text-indigo-600' };
+        return { title: 'AI 맞춤 질문 생성 센터 & STT', icon: Sparkles, color: 'text-indigo-600' };
       case 'DOCS':
         return { title: '지원자 제출 서류 열람기', icon: FileText, color: 'text-slate-700' };
       case 'EVAL':

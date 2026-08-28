@@ -163,12 +163,24 @@ export const LiveNotificationToast: React.FC<LiveNotificationToastProps> = ({
                       <span className="text-[10px] text-slate-400 font-mono">4초간 표시</span>
                     </div>
 
-                    <h4 className="text-sm font-bold text-white leading-snug">
-                      {isQuestion
-                        ? `${operatorName} 면접관이 먼저 질문합니다`
-                        : isSuspicion
-                        ? `${operatorName} 면접관이 의심/팩트체크 신호를 보냈습니다`
-                        : n.title}
+                    <h4 className="text-sm font-bold text-white leading-snug flex items-center gap-1.5 flex-wrap">
+                      {n.operatorLeadershipRole === 'CAPTAIN' && (
+                        <span className="px-1.5 py-0.2 rounded-md text-[10px] font-black bg-amber-500 text-slate-950 shadow-xs inline-flex items-center gap-0.5">
+                          👑 기장
+                        </span>
+                      )}
+                      {n.operatorLeadershipRole === 'VICE_CAPTAIN' && (
+                        <span className="px-1.5 py-0.2 rounded-md text-[10px] font-black bg-purple-600 text-white shadow-xs inline-flex items-center gap-0.5">
+                          ⭐ 부기장
+                        </span>
+                      )}
+                      <span>
+                        {isQuestion
+                          ? `${operatorName} 면접관이 먼저 질문합니다`
+                          : isSuspicion
+                          ? `${operatorName} 면접관이 의심/팩트체크 신호를 보냈습니다`
+                          : n.title}
+                      </span>
                     </h4>
 
                     <p className="text-xs text-slate-300 leading-relaxed">{n.message}</p>

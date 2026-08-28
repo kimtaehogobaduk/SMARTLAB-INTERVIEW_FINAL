@@ -8,11 +8,12 @@ import {
   parseUniversalDataAI,
   generateQualitativeSynthesisAI,
   generateMindMapAI,
+  generateCandidateDetailedReportAI,
   learnFromKnowledgeSourceAI,
   simulateInterviewQnAWithKnowledgeAI,
   extractYouTubeVideoId
 } from './server/ai.ts';
-import { Candidate, Evaluation, AuditLog, PlatformSettings, ClubLeadership, LeadershipMember, LeadershipRole, InterviewRoomInfo, SecurityQuizItem, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage, TailQuestion } from './src/types.ts';
+import { Candidate, Evaluation, AuditLog, PlatformSettings, ClubLeadership, LeadershipMember, LeadershipRole, InterviewRoomInfo, SecurityQuizItem, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage, TailQuestion, InterviewerNameDisplayPolicy, CandidateDetailedAIReport, CandidateFullResultData, CandidateResultStats, CandidateEvaluatorScoreDetail, EvaluationCriterion } from './src/types.ts';
 
 dotenv.config();
 
@@ -223,10 +224,10 @@ async function startServer() {
     res.json(roomsWithCount);
   });
 
-  // Verify access for room (Password or Multiple Quiz challenge, with Master Admin override)
-  app.post('/api/rooms/:id/verify-access', (req, res) => {
+  // Verify access for room (Password or Multiple Quiz challenge, with Master Admin override & same-device skip)
+  app.post('/api/rooms/:id/verify-access', async (req, res) => {
     const { id } = req.params;
-    const { password, answer, answers, adminPassword } = req.body;
+    const { password, answer, answers, adminPassword, deviceId } = req.body;
     const room = db.rooms.find(r => r.id === id);
     if (!room) return res.status(404).json({ error: '존재하지 않는 면접방입니다.' });
 
@@ -250,6 +251,28 @@ async function startServer() {
     }
 
     if (secType === 'QUIZ') {
+      if (!Array.isArray((room as any).authorizedQuizDevices)) {
+        (room as any).authorizedQuizDevices = [];
+      }
+
+      const cleanDeviceId = typeof deviceId === 'string' ? deviceId.trim() : '';
+
+      // Check if this device has already passed this room's quiz previously
+      if (cleanDeviceId) {
+        const isDeviceAlreadyAuthorized = (room as any).authorizedQuizDevices.some(
+          (d: any) => (typeof d === 'string' ? d === cleanDeviceId : d?.deviceId === cleanDeviceId)
+        );
+        if (isDeviceAlreadyAuthorized) {
+          return res.json({
+            success: true,
+            authorized: true,
+            roomName: room.name,
+            accessType: 'QUIZ',
+            deviceSkipped: true
+          });
+        }
+      }
+
       // Gather all required quizzes
       let targetQuizzes = room.securityQuizzes || [];
       if (targetQuizzes.length === 0 && room.securityQuestion) {
@@ -271,7 +294,19 @@ async function startServer() {
         const cleanUserAns = answer.trim().toLowerCase().replace(/\s+/g, '');
         const cleanCorrectAns = (targetQuizzes[0].answer || room.securityAnswer || '').trim().toLowerCase().replace(/\s+/g, '');
         if (cleanUserAns && cleanUserAns === cleanCorrectAns) {
-          return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ' });
+          if (cleanDeviceId) {
+            const alreadyIn = (room as any).authorizedQuizDevices.some(
+              (d: any) => (typeof d === 'string' ? d === cleanDeviceId : d?.deviceId === cleanDeviceId)
+            );
+            if (!alreadyIn) {
+              (room as any).authorizedQuizDevices.push({
+                deviceId: cleanDeviceId,
+                authorizedAt: new Date().toISOString()
+              });
+              await saveCloudState();
+            }
+          }
+          return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ', deviceRemembered: true });
         }
         return res.status(401).json({ error: '보안 문제의 정답이 일치하지 않습니다.' });
       }
@@ -318,7 +353,24 @@ async function startServer() {
         }
       }
 
-      return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ' });
+      // Store device recognition
+      if (cleanDeviceId) {
+        const alreadyIn = (room as any).authorizedQuizDevices.some(
+          (d: any) => (typeof d === 'string' ? d === cleanDeviceId : d?.deviceId === cleanDeviceId)
+        );
+        if (!alreadyIn) {
+          (room as any).authorizedQuizDevices.push({
+            deviceId: cleanDeviceId,
+            authorizedAt: new Date().toISOString()
+          });
+          if ((room as any).authorizedQuizDevices.length > 200) {
+            (room as any).authorizedQuizDevices = (room as any).authorizedQuizDevices.slice(-200);
+          }
+          await saveCloudState();
+        }
+      }
+
+      return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'QUIZ', deviceRemembered: true });
     }
 
     res.json({ success: true, authorized: true, roomName: room.name });
@@ -497,11 +549,13 @@ async function startServer() {
         room.securityQuestion = updatedQuizzes[0]?.question || (securityQuestion || '').trim();
         room.securityAnswer = updatedQuizzes[0]?.answer || (securityAnswer || '').trim();
         room.password = undefined;
+        (room as any).authorizedQuizDevices = [];
       } else {
         room.password = undefined;
         room.securityQuestion = undefined;
         room.securityAnswer = undefined;
         room.securityQuizzes = undefined;
+        (room as any).authorizedQuizDevices = [];
       }
     }
 
@@ -2818,6 +2872,483 @@ async function startServer() {
       return res.status(500).json({ error: '알림 설정 중 오류가 발생했습니다.' });
     }
   });
+
+  // ----------------------------------------------------
+  // ADMIN ALL INTERVIEWS COMPLETION & RESULTS PUBLISHING
+  // ----------------------------------------------------
+
+  // Calculate score for single evaluator
+  function computeEvaluatorTotal(
+    scores: Record<string, number> | undefined,
+    bonuses: Record<string, number> | undefined,
+    bonusTotal: number | undefined,
+    criteria: any[]
+  ): number {
+    if (!scores) return 0;
+    let baseSum = 0;
+    let bSum = bonusTotal !== undefined ? bonusTotal : 0;
+
+    criteria.forEach(crit => {
+      const raw = Number(scores[crit.id]) || 0;
+      const weight = Number(crit.weight) || 0;
+      baseSum += (raw * weight) / 100;
+      if (bonusTotal === undefined) {
+        bSum += Number(bonuses?.[crit.id]) || 0;
+      }
+    });
+    return Math.round((baseSum + bSum) * 10) / 10;
+  }
+
+  // Calculate candidate aggregate score
+  function computeCandidateScore(
+    candidate: Candidate,
+    evals: Evaluation[],
+    room: InterviewRoomInfo | undefined,
+    settings: PlatformSettings
+  ): number {
+    const activeCriteria = (room?.criteria && room.criteria.length > 0)
+      ? room.criteria
+      : ((settings.criteria && settings.criteria.length > 0) ? settings.criteria : [
+          { id: 'technical', name: '기술 역량', weight: 40 },
+          { id: 'problemSolving', name: '문제 해결력', weight: 30 },
+          { id: 'communication', name: '의사소통', weight: 20 },
+          { id: 'cultureFit', name: '동아리 적합도', weight: 10 }
+        ]);
+
+    const submitted = evals.filter(e => e.candidateId === candidate.id && e.status === 'SUBMITTED');
+    if (submitted.length === 0) return 0;
+
+    const scoresList = submitted.map(e =>
+      computeEvaluatorTotal(e.scores, e.presentationBonuses, e.presentationBonusTotal, activeCriteria)
+    );
+
+    const formula = room?.scoringFormula || settings.scoringFormula || 'TRIMMED_MEAN';
+    if (formula === 'TRIMMED_MEAN' && scoresList.length >= 3) {
+      const sorted = [...scoresList].sort((a, b) => a - b);
+      const trimmed = sorted.slice(1, -1);
+      const sum = trimmed.reduce((a, b) => a + b, 0);
+      return Math.round((sum / trimmed.length) * 10) / 10;
+    }
+    if (formula === 'MEDIAN') {
+      const sorted = [...scoresList].sort((a, b) => a - b);
+      const mid = Math.floor(scoresList.length / 2);
+      if (scoresList.length % 2 !== 0) {
+        return Math.round(sorted[mid] * 10) / 10;
+      }
+      return Math.round(((sorted[mid - 1] + sorted[mid]) / 2) * 10) / 10;
+    }
+
+    const sum = scoresList.reduce((a, b) => a + b, 0);
+    return Math.round((sum / scoresList.length) * 10) / 10;
+  }
+
+  // Admin endpoint: Finalize all interviews and publish results
+  app.post('/api/admin/complete-all-interviews', async (req, res) => {
+    try {
+      const {
+        operatorName,
+        isResultsPublished = true,
+        showPassFailToCandidates = true,
+        interviewerNameDisplayPolicy = 'LEADERS_ONLY',
+        showStatsToCandidates = true,
+        showDetailedComments = true
+      } = req.body || {};
+
+      db.settings.isAllInterviewsCompleted = true;
+      db.settings.allInterviewsCompletedAt = getKSTDateTimeStr();
+      db.settings.allInterviewsCompletedBy = operatorName || '관리자 (Admin)';
+      db.settings.isResultsPublished = Boolean(isResultsPublished);
+      db.settings.resultsPublishedAt = isResultsPublished ? getKSTDateTimeStr() : undefined;
+      db.settings.resultsPublishedBy = isResultsPublished ? (operatorName || '관리자 (Admin)') : undefined;
+      db.settings.showPassFailToCandidates = Boolean(showPassFailToCandidates);
+      db.settings.interviewerNameDisplayPolicy = interviewerNameDisplayPolicy as InterviewerNameDisplayPolicy;
+      db.settings.showStatsToCandidates = Boolean(showStatsToCandidates);
+      db.settings.showDetailedComments = Boolean(showDetailedComments);
+
+      // Auto-complete any candidates not marked as NO_SHOW
+      db.candidates.forEach(c => {
+        if (c.status !== 'NO_SHOW') {
+          if (!c.initialCompletedAt) {
+            c.initialCompletedAt = c.completedAt || getKSTDateTimeStr();
+          }
+          c.completedAt = c.initialCompletedAt;
+          c.status = 'COMPLETED';
+        }
+      });
+
+      // Trigger asynchronous background AI generation for all completed candidates
+      (async () => {
+        for (const cand of db.candidates) {
+          const candEvals = db.evaluations.filter(e => e.candidateId === cand.id);
+          const room = db.rooms.find(r => r.id === cand.roomId);
+          const critList = room?.criteria || db.settings.criteria || [];
+
+          if (!cand.qualitativeAiSummary) {
+            try {
+              cand.qualitativeAiSummary = await generateQualitativeSynthesisAI(cand, candEvals, { knowledgeBase: db.settings.knowledgeBase });
+            } catch (e) {
+              console.error(`AI qualitative summary failed for ${cand.name}:`, e);
+            }
+          }
+
+          if (!(cand as any).detailedAiReport) {
+            try {
+              (cand as any).detailedAiReport = await generateCandidateDetailedReportAI(cand, candEvals, critList, { knowledgeBase: db.settings.knowledgeBase });
+            } catch (e) {
+              console.error(`AI detailed report failed for ${cand.name}:`, e);
+            }
+          }
+        }
+        await saveCloudState();
+      })().catch(e => console.error('Background AI report batch error:', e));
+
+      db.auditLogs.unshift({
+        id: `audit-all-comp-${Date.now().toString(36)}`,
+        timestamp: getKSTDateTimeStr(),
+        modifiedBy: operatorName || '관리자 (Admin)',
+        field: '모든 면접 완료 및 결과 공개 상태 설정',
+        beforeVal: { isAllCompleted: false, isResultsPublished: false },
+        afterVal: {
+          isAllCompleted: true,
+          isResultsPublished: db.settings.isResultsPublished,
+          showPassFail: db.settings.showPassFailToCandidates,
+          interviewerPolicy: db.settings.interviewerNameDisplayPolicy
+        },
+        reason: '어드민이 모든 면접 평가를 공식 종료 처리하고 학생 성적표/결과 공개 정책을 활성화함'
+      });
+
+      if (!Array.isArray(db.notifications)) db.notifications = [];
+      db.notifications.unshift({
+        id: `notif-all-comp-${Date.now().toString(36)}`,
+        type: 'ADMIN_ALERT',
+        title: '🏁 모든 면접 평가 공식 완료 및 결과 발표',
+        message: `관리자가 전체 면접 평가를 공식 완료 처리했습니다. (결과 공개: ${db.settings.isResultsPublished ? '공개됨' : '비공개'}, 합불공개: ${db.settings.showPassFailToCandidates ? 'ON' : 'OFF'}, 면접관표시: ${db.settings.interviewerNameDisplayPolicy})`,
+        timestamp: getKSTTimeStr(),
+        createdAt: Date.now()
+      });
+
+      await saveCloudState();
+
+      return res.json({
+        success: true,
+        settings: db.settings,
+        completedCandidateCount: db.candidates.filter(c => c.status === 'COMPLETED').length
+      });
+    } catch (err: any) {
+      console.error('Complete all interviews error:', err);
+      return res.status(500).json({ error: '모든 면접 완료 처리 중 오류가 발생했습니다.' });
+    }
+  });
+
+  // Admin endpoint: Publish / Unpublish / Modify Result Policies
+  app.post('/api/admin/publish-results', async (req, res) => {
+    try {
+      const {
+        isResultsPublished,
+        showPassFailToCandidates,
+        interviewerNameDisplayPolicy,
+        showStatsToCandidates,
+        showDetailedComments,
+        operatorName
+      } = req.body || {};
+
+      if (isResultsPublished !== undefined) {
+        db.settings.isResultsPublished = Boolean(isResultsPublished);
+        if (db.settings.isResultsPublished) {
+          db.settings.resultsPublishedAt = getKSTDateTimeStr();
+          db.settings.resultsPublishedBy = operatorName || '관리자 (Admin)';
+        }
+      }
+      if (showPassFailToCandidates !== undefined) {
+        db.settings.showPassFailToCandidates = Boolean(showPassFailToCandidates);
+      }
+      if (interviewerNameDisplayPolicy !== undefined) {
+        db.settings.interviewerNameDisplayPolicy = interviewerNameDisplayPolicy as InterviewerNameDisplayPolicy;
+      }
+      if (showStatsToCandidates !== undefined) {
+        db.settings.showStatsToCandidates = Boolean(showStatsToCandidates);
+      }
+      if (showDetailedComments !== undefined) {
+        db.settings.showDetailedComments = Boolean(showDetailedComments);
+      }
+
+      db.auditLogs.unshift({
+        id: `audit-pub-res-${Date.now().toString(36)}`,
+        timestamp: getKSTDateTimeStr(),
+        modifiedBy: operatorName || '관리자 (Admin)',
+        field: '학생 결과 공개 설정 변경',
+        beforeVal: null,
+        afterVal: {
+          isResultsPublished: db.settings.isResultsPublished,
+          showPassFail: db.settings.showPassFailToCandidates,
+          interviewerPolicy: db.settings.interviewerNameDisplayPolicy,
+          showStats: db.settings.showStatsToCandidates,
+          showComments: db.settings.showDetailedComments
+        },
+        reason: '어드민이 학생 대상 성적표/결과 공개 설정 옵션을 정정함'
+      });
+
+      await saveCloudState();
+      return res.json({ success: true, settings: db.settings });
+    } catch (err: any) {
+      return res.status(500).json({ error: '결과 공개 설정 변경 중 오류가 발생했습니다.' });
+    }
+  });
+
+  // Candidate Results & AI Feedback Report Query Endpoint
+  app.get('/api/candidate-portal/result', async (req, res) => {
+    try {
+      const { candidateId, studentId, roomId } = req.query;
+      const isPublished = Boolean(db.settings.isResultsPublished);
+      const isAllCompleted = Boolean(db.settings.isAllInterviewsCompleted);
+
+      // Find candidate
+      const candidate = db.candidates.find(
+        c => (candidateId && c.id === candidateId) ||
+             (studentId && c.studentId === studentId && (!roomId || c.roomId === roomId))
+      );
+
+      if (!candidate) {
+        return res.status(404).json({ error: '해당 지원자 정보를 찾을 수 없습니다.' });
+      }
+
+      if (!isPublished) {
+        return res.json({
+          isPublished: false,
+          isAllCompleted,
+          message: '면접 평가 및 최종 심사가 진행 중입니다. 관리자의 공식 결과 발표 후 성적표와 AI 피드백을 확인하실 수 있습니다.',
+          candidateName: candidate.name,
+          studentId: candidate.studentId
+        });
+      }
+
+      const room = db.rooms.find(r => r.id === candidate.roomId);
+      const activeCriteria: EvaluationCriterion[] = (room?.criteria && room.criteria.length > 0)
+        ? room.criteria
+        : ((db.settings.criteria && db.settings.criteria.length > 0) ? db.settings.criteria : [
+            { id: 'technical', name: '1. 기술 직무 역량', description: '직무 이해도 및 기술적 깊이', weight: 40, maxScore: 100, color: 'blue' },
+            { id: 'problemSolving', name: '2. 논리적 문제 해결력', description: '문제 해결 및 돌발 상황 대처', weight: 30, maxScore: 100, color: 'purple' },
+            { id: 'communication', name: '3. 의사소통 및 전달력', description: '소통 및 답변 전달력', weight: 20, maxScore: 100, color: 'emerald' },
+            { id: 'cultureFit', name: '4. 동아리 적합도', description: '동아리 적합도 및 협업 자세', weight: 10, maxScore: 100, color: 'amber' }
+          ]);
+
+      const policy = db.settings.interviewerNameDisplayPolicy || 'LEADERS_ONLY';
+      const showPassFail = db.settings.showPassFailToCandidates ?? true;
+      const showStats = db.settings.showStatsToCandidates ?? true;
+      const showComments = db.settings.showDetailedComments ?? true;
+
+      // Candidate's evaluations
+      const myEvaluationsRaw = db.evaluations.filter(e => e.candidateId === candidate.id && e.status === 'SUBMITTED');
+
+      // Calculate candidate's total score
+      const myTotalScore = computeCandidateScore(candidate, db.evaluations, room, db.settings);
+
+      // Format evaluator scores according to name policy
+      const formattedEvaluations: CandidateEvaluatorScoreDetail[] = myEvaluationsRaw.map((e, idx) => {
+        const leadershipRole = getInterviewerLeadershipRole(e.interviewerName);
+        const isLeader = leadershipRole === 'CAPTAIN' || leadershipRole === 'VICE_CAPTAIN';
+        let displayName = e.interviewerName;
+        let roleLabel = '면접관';
+
+        if (policy === 'LEADERS_ONLY') {
+          if (isLeader) {
+            roleLabel = leadershipRole === 'CAPTAIN' ? '기장' : '부기장';
+            displayName = `[${roleLabel}] ${e.interviewerName}`;
+          } else {
+            displayName = `면접관 ${String.fromCharCode(65 + (idx % 26))} (익명)`;
+            roleLabel = '일반 면접관';
+          }
+        } else if (policy === 'ALL_PUBLIC') {
+          if (isLeader) {
+            roleLabel = leadershipRole === 'CAPTAIN' ? '기장' : '부기장';
+            displayName = `[${roleLabel}] ${e.interviewerName}`;
+          } else {
+            displayName = `${e.interviewerName} 면접관`;
+          }
+        } else if (policy === 'ALL_ANONYMOUS') {
+          displayName = `면접관 ${idx + 1} (익명)`;
+          roleLabel = '심사위원';
+        }
+
+        const calculatedTotal = computeEvaluatorTotal(e.scores, e.presentationBonuses, e.presentationBonusTotal, activeCriteria);
+
+        return {
+          interviewerDisplayName: displayName,
+          isLeader,
+          leadershipRole,
+          roleLabel,
+          scores: e.scores || {},
+          presentationBonus: e.presentationBonusTotal || 0,
+          calculatedTotal,
+          comments: showComments ? (e.comments || {}) : { overallComment: '정성 코멘트 비공개' },
+          submittedAt: e.submittedAt
+        };
+      });
+
+      // Calculate population stats across all candidates
+      const allCandidateScores = db.candidates
+        .filter(c => c.status !== 'NO_SHOW')
+        .map(c => {
+          const cRoom = db.rooms.find(r => r.id === c.roomId);
+          return {
+            id: c.id,
+            score: computeCandidateScore(c, db.evaluations, cRoom, db.settings)
+          };
+        })
+        .filter(c => c.score > 0);
+
+      const totalCount = allCandidateScores.length || 1;
+      const rawScores = allCandidateScores.map(c => c.score);
+      const scoreSum = rawScores.reduce((a, b) => a + b, 0);
+      const meanScore = Math.round((scoreSum / totalCount) * 10) / 10;
+
+      // Variance & StdDev
+      const variance = rawScores.reduce((acc, val) => acc + Math.pow(val - meanScore, 2), 0) / totalCount;
+      const stdDev = Math.round(Math.sqrt(variance) * 10) / 10;
+
+      const sortedScores = [...rawScores].sort((a, b) => b - a);
+      const maxScore = sortedScores.length > 0 ? sortedScores[0] : 0;
+      const minScore = sortedScores.length > 0 ? sortedScores[sortedScores.length - 1] : 0;
+      const medianScore = sortedScores.length > 0
+        ? (sortedScores.length % 2 !== 0
+            ? sortedScores[Math.floor(sortedScores.length / 2)]
+            : Math.round(((sortedScores[sortedScores.length / 2 - 1] + sortedScores[sortedScores.length / 2]) / 2) * 10) / 10)
+        : 0;
+
+      // Candidate rank & percentile
+      const higherCount = sortedScores.filter(s => s > myTotalScore).length;
+      const myRank = higherCount + 1;
+      const myPercentile = Math.round(((totalCount - higherCount) / totalCount) * 1000) / 10;
+
+      // Per-criterion statistical breakdown
+      const criteriaStats: CandidateResultStats['criteriaStats'] = {};
+      activeCriteria.forEach(crit => {
+        const critValues: number[] = [];
+        let myCritSum = 0;
+        let myCritCount = 0;
+
+        db.candidates.forEach(c => {
+          const cEvals = db.evaluations.filter(e => e.candidateId === c.id && e.status === 'SUBMITTED');
+          if (cEvals.length > 0) {
+            const avgForCand = cEvals.reduce((sum, ev) => sum + (Number(ev.scores?.[crit.id]) || 0), 0) / cEvals.length;
+            critValues.push(avgForCand);
+            if (c.id === candidate.id) {
+              myCritSum = avgForCand;
+              myCritCount = 1;
+            }
+          }
+        });
+
+        const cCount = critValues.length || 1;
+        const cSum = critValues.reduce((a, b) => a + b, 0);
+        const cMean = Math.round((cSum / cCount) * 10) / 10;
+        const cVar = critValues.reduce((acc, val) => acc + Math.pow(val - cMean, 2), 0) / cCount;
+        const cStd = Math.round(Math.sqrt(cVar) * 10) / 10;
+        const cSorted = [...critValues].sort((a, b) => b - a);
+
+        criteriaStats[crit.id] = {
+          criterionName: crit.name,
+          mean: cMean,
+          stdDev: cStd,
+          max: cSorted.length > 0 ? Math.round(cSorted[0] * 10) / 10 : 0,
+          min: cSorted.length > 0 ? Math.round(cSorted[cSorted.length - 1] * 10) / 10 : 0,
+          myAvgScore: myCritCount > 0 ? Math.round(myCritSum * 10) / 10 : 0
+        };
+      });
+
+      const passThreshold = room?.passThresholdScore ?? db.settings.passThresholdScore ?? 70;
+      const isPassed = candidate.status !== 'NO_SHOW' && myTotalScore >= passThreshold;
+
+      // AI Detailed Report (retrieve cached or generate on-the-fly)
+      let aiReport = (candidate as any).detailedAiReport;
+      if (!aiReport) {
+        try {
+          aiReport = await generateCandidateDetailedReportAI(candidate, myEvaluationsRaw, activeCriteria, { knowledgeBase: db.settings.knowledgeBase });
+          (candidate as any).detailedAiReport = aiReport;
+          await saveCloudState();
+        } catch (e) {
+          console.error('On-demand AI report generation error:', e);
+        }
+      }
+
+      const resultPayload: CandidateFullResultData = {
+        isPublished: true,
+        isAllCompleted: true,
+        showPassFail,
+        isPassed: showPassFail ? isPassed : undefined,
+        passThresholdScore: passThreshold,
+        myTotalScore,
+        myEvaluations: formattedEvaluations,
+        stats: showStats ? {
+          totalCandidates: totalCount,
+          meanScore,
+          stdDev,
+          maxScore,
+          minScore,
+          medianScore,
+          myRank,
+          myPercentile,
+          criteriaStats
+        } : {
+          totalCandidates: totalCount,
+          meanScore: 0,
+          stdDev: 0,
+          maxScore: 0,
+          minScore: 0,
+          medianScore: 0,
+          myRank: 0,
+          myPercentile: 0,
+          criteriaStats: {}
+        },
+        aiReport,
+        criteria: activeCriteria,
+        publishedAt: db.settings.resultsPublishedAt || getKSTDateTimeStr()
+      };
+
+      return res.json({
+        success: true,
+        candidate: {
+          id: candidate.id,
+          name: candidate.name,
+          studentId: candidate.studentId,
+          track: candidate.track,
+          phone: candidate.phone,
+          email: candidate.email,
+          timeslot: candidate.timeslot,
+          interviewDate: candidate.interviewDate,
+          status: candidate.status,
+          completedAt: candidate.completedAt || candidate.initialCompletedAt
+        },
+        result: resultPayload
+      });
+    } catch (err: any) {
+      console.error('Candidate result API error:', err);
+      return res.status(500).json({ error: '성적표 및 결과 조회 중 오류가 발생했습니다.' });
+    }
+  });
+
+  // Candidate AI Report re-generation endpoint
+  app.post('/api/candidate-portal/generate-ai-report', async (req, res) => {
+    try {
+      const { candidateId } = req.body || {};
+      const candidate = db.candidates.find(c => c.id === candidateId);
+      if (!candidate) return res.status(404).json({ error: '지원자를 찾을 수 없습니다.' });
+
+      const room = db.rooms.find(r => r.id === candidate.roomId);
+      const activeCriteria = room?.criteria || db.settings.criteria || [];
+      const evals = db.evaluations.filter(e => e.candidateId === candidate.id && e.status === 'SUBMITTED');
+
+      const aiReport = await generateCandidateDetailedReportAI(candidate, evals, activeCriteria, { knowledgeBase: db.settings.knowledgeBase });
+      (candidate as any).detailedAiReport = aiReport;
+      await saveCloudState();
+
+      return res.json({ success: true, aiReport });
+    } catch (err: any) {
+      console.error('Generate AI report error:', err);
+      return res.status(500).json({ error: 'AI 성장 보고서 생성 중 오류가 발생했습니다.' });
+    }
+  });
+
 
   // ----------------------------------------------------
   // VITE DEVELOPMENT OR PRODUCTION STATIC SERVING

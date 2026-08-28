@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { InterviewerUser, InterviewRoomItem } from '../types';
+import { InterviewerUser, InterviewRoomItem, ClubLeadership } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
-import { UserCheck, Shield, ArrowRight, ArrowLeft, DoorOpen, Users } from 'lucide-react';
+import { UserCheck, Shield, ArrowRight, ArrowLeft, DoorOpen, Users, Crown, Star } from 'lucide-react';
+import { getLeadershipRole } from '../lib/leadership';
 
 interface SelectInterviewerPageProps {
   room: InterviewRoomItem;
   availableInterviewers: InterviewerUser[];
+  leadership?: ClubLeadership;
   onSelectInterviewer: (user: InterviewerUser) => void;
   onBackToLobby: () => void;
 }
@@ -13,6 +15,7 @@ interface SelectInterviewerPageProps {
 export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
   room,
   availableInterviewers,
+  leadership,
   onSelectInterviewer,
   onBackToLobby
 }) => {
@@ -26,7 +29,11 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
   const handleEnter = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedUser) {
-      onSelectInterviewer(selectedUser);
+      const leaderRole = selectedUser.leadershipRole || getLeadershipRole(selectedUser.name, leadership);
+      onSelectInterviewer({
+        ...selectedUser,
+        leadershipRole: leaderRole
+      });
     }
   };
 
@@ -80,25 +87,51 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
               {roomInterviewers.map((user, idx) => {
                 const isSelected = selectedUser?.id === user.id || (!selectedUser && idx === 0);
+                const role = user.leadershipRole || getLeadershipRole(user.name, leadership);
+                const isCap = role === 'CAPTAIN';
+                const isVc = role === 'VICE_CAPTAIN';
+
                 return (
                   <div
                     key={user.id || idx}
-                    onClick={() => setSelectedUser(user)}
+                    onClick={() => setSelectedUser({ ...user, leadershipRole: role })}
                     className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-blue-950/70 border-blue-500 ring-2 ring-blue-500/30 text-white shadow-md'
+                        ? isCap
+                          ? 'bg-amber-950/60 border-amber-500 ring-2 ring-amber-500/30 text-white shadow-md'
+                          : isVc
+                          ? 'bg-purple-950/60 border-purple-500 ring-2 ring-purple-500/30 text-white shadow-md'
+                          : 'bg-blue-950/70 border-blue-500 ring-2 ring-blue-500/30 text-white shadow-md'
                         : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 text-slate-300'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
-                        isSelected ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'
+                        isCap
+                          ? 'bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black'
+                          : isVc
+                          ? 'bg-gradient-to-tr from-purple-600 to-indigo-400 text-white font-black'
+                          : isSelected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-700 text-slate-300'
                       }`}>
                         {user.name.charAt(0)}
                       </div>
                       <div>
-                        <div className="font-bold text-sm text-white flex items-center gap-2">
+                        <div className="font-bold text-sm text-white flex items-center gap-2 flex-wrap">
                           <span>{user.name}</span>
+                          {isCap && (
+                            <span className="text-[10px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black flex items-center gap-0.5 shadow-xs">
+                              <Crown className="w-2.5 h-2.5 fill-slate-950" />
+                              <span>기장</span>
+                            </span>
+                          )}
+                          {isVc && (
+                            <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.2 rounded font-black flex items-center gap-0.5 shadow-xs">
+                              <Star className="w-2.5 h-2.5 fill-white" />
+                              <span>부기장</span>
+                            </span>
+                          )}
                           {user.role === 'admin' && (
                             <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.2 rounded font-mono">
                               Admin
@@ -106,15 +139,21 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-slate-400">
-                          {user.trackExpertise || 'SmartLab 면접 심사위원'}
+                          {isCap
+                            ? (leadership?.captain?.memo || 'SmartLab 동아리 총괄 기장')
+                            : isVc
+                            ? (leadership?.viceCaptains?.find(v => v.name.trim().toLowerCase() === user.name.trim().toLowerCase())?.memo || 'SmartLab 동아리 부기장')
+                            : (user.trackExpertise || 'SmartLab 면접 심사위원')}
                         </div>
                       </div>
                     </div>
 
                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-600'
+                      isSelected
+                        ? isCap ? 'border-amber-500 bg-amber-500' : isVc ? 'border-purple-500 bg-purple-500' : 'border-blue-500 bg-blue-500'
+                        : 'border-slate-600'
                     }`}>
-                      {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                      {isSelected && <div className="w-1.5 h-1.5 bg-slate-950 rounded-full" />}
                     </div>
                   </div>
                 );

@@ -367,6 +367,67 @@ export interface LiveNotification {
   questionId?: string;
 }
 
+export type InterviewerNameDisplayPolicy = 'LEADERS_ONLY' | 'ALL_PUBLIC' | 'ALL_ANONYMOUS';
+
+export interface CandidateResultStats {
+  totalCandidates: number;
+  meanScore: number;
+  stdDev: number;
+  maxScore: number;
+  minScore: number;
+  medianScore: number;
+  myRank: number;
+  myPercentile: number;
+  criteriaStats: Record<string, {
+    criterionName: string;
+    mean: number;
+    stdDev: number;
+    max: number;
+    min: number;
+    myAvgScore: number;
+  }>;
+}
+
+export interface CandidateEvaluatorScoreDetail {
+  interviewerDisplayName: string;
+  isLeader: boolean;
+  leadershipRole: LeadershipRole;
+  roleLabel: string;
+  scores: Record<string, number>;
+  presentationBonus: number;
+  calculatedTotal: number;
+  comments: EvaluationComments;
+  submittedAt?: string;
+}
+
+export interface CandidateDetailedAIReport {
+  strengths: string[];
+  improvements: string[];
+  competencyAnalysis: {
+    category: string;
+    score: number;
+    evaluation: string;
+    actionTip: string;
+  }[];
+  actionPlan: string[];
+  oneLineVerdict: string;
+  overallReview: string;
+}
+
+export interface CandidateFullResultData {
+  isPublished: boolean;
+  isAllCompleted: boolean;
+  showPassFail: boolean;
+  isPassed?: boolean;
+  passThresholdScore: number;
+  myTotalScore: number;
+  myEvaluations: CandidateEvaluatorScoreDetail[];
+  stats: CandidateResultStats;
+  aiReport?: CandidateDetailedAIReport;
+  criteria: EvaluationCriterion[];
+  publishedAt?: string;
+}
+
 export interface PlatformSettings {
   isCriteriaConfirmed: boolean;
   criteriaConfirmedAt?: string;
@@ -383,6 +444,17 @@ export interface PlatformSettings {
   knowledgeBase?: AIKnowledgeItem[];
   adminMasterPassword?: string;
   leadership?: ClubLeadership;
+  // Results Publication and Candidate Access Policies
+  isAllInterviewsCompleted?: boolean;
+  allInterviewsCompletedAt?: string;
+  allInterviewsCompletedBy?: string;
+  isResultsPublished?: boolean;
+  resultsPublishedAt?: string;
+  resultsPublishedBy?: string;
+  showPassFailToCandidates?: boolean;
+  interviewerNameDisplayPolicy?: InterviewerNameDisplayPolicy;
+  showStatsToCandidates?: boolean;
+  showDetailedComments?: boolean;
 }
 
 export interface InterviewerPresence {

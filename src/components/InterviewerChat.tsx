@@ -280,14 +280,17 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
       senderId: currentUser.id,
       senderName: myName,
       senderRole: currentUser.role,
+      senderLeadershipRole: currentUser.leadershipRole || 'NONE',
+      isOfficialLeaderNotice: isCurrentUserLeader && isOfficialNotice,
       message: messageToSend,
       timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
       createdAt: Date.now(),
-      isImportant
+      isImportant: isImportant || (isCurrentUserLeader && isOfficialNotice)
     };
 
     setMessages((prev) => [...prev, optimisticMsg]);
     setIsImportant(false);
+    setIsOfficialNotice(false);
 
     try {
       const res = await fetch('/api/chat/messages', {
@@ -301,8 +304,10 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
           senderId: currentUser.id,
           senderName: myName,
           senderRole: currentUser.role,
+          senderLeadershipRole: currentUser.leadershipRole || 'NONE',
+          isOfficialLeaderNotice: isCurrentUserLeader && isOfficialNotice,
           message: messageToSend,
-          isImportant
+          isImportant: isImportant || (isCurrentUserLeader && isOfficialNotice)
         })
       });
 
@@ -458,16 +463,30 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
             activeInterviewers.map((p) => {
               const name = formatInterviewerDisplayName(p.interviewerName);
               const isMe = p.interviewerId === currentUser.id;
+              const leaderRole = p.leadershipRole || (isMe ? currentUser.leadershipRole : undefined);
+              const isCap = leaderRole === 'CAPTAIN';
+              const isVc = leaderRole === 'VICE_CAPTAIN';
+
               return (
                 <span
                   key={p.interviewerId}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isMe
+                    isCap
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+                      : isVc
+                      ? 'bg-purple-600 text-white font-black shadow-xs'
+                      : isMe
                       ? 'bg-indigo-600 text-white'
                       : 'bg-white text-slate-700 border border-slate-200'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  {isCap ? (
+                    <Crown className="w-2.5 h-2.5 fill-slate-950 text-slate-950" />
+                  ) : isVc ? (
+                    <Star className="w-2.5 h-2.5 fill-white text-white" />
+                  ) : (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  )}
                   <span>{name}{isMe ? ' (나)' : ''}</span>
                 </span>
               );
@@ -494,6 +513,9 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
           messages.map((m) => {
             const isMe = m.senderId === currentUser.id;
             const senderCleanName = formatInterviewerDisplayName(m.senderName);
+            const leaderRole = m.senderLeadershipRole;
+            const isCap = leaderRole === 'CAPTAIN';
+            const isVc = leaderRole === 'VICE_CAPTAIN';
 
             return (
               <div
@@ -503,11 +525,37 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
                 {/* Sender Name & Timestamp */}
                 <div className="flex items-center gap-1.5 px-1">
                   {!isMe && (
-                    <span className="text-[11px] font-bold text-slate-700">
-                      {senderCleanName}
+                    <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                      {isCap && (
+                        <span className="px-1.5 py-0.2 rounded-md text-[9px] font-black bg-amber-500 text-slate-950 flex items-center gap-0.5 shadow-xs">
+                          <Crown className="w-2.5 h-2.5 fill-slate-950" />
+                          <span>기장</span>
+                        </span>
+                      )}
+                      {isVc && (
+                        <span className="px-1.5 py-0.2 rounded-md text-[9px] font-black bg-purple-600 text-white flex items-center gap-0.5 shadow-xs">
+                          <Star className="w-2.5 h-2.5 fill-white" />
+                          <span>부기장</span>
+                        </span>
+                      )}
+                      <span>{senderCleanName}</span>
                     </span>
                   )}
-                  {m.isImportant && (
+                  {isMe && (isCap || isVc) && (
+                    <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-black flex items-center gap-0.5 shadow-xs ${
+                      isCap ? 'bg-amber-500 text-slate-950' : 'bg-purple-600 text-white'
+                    }`}>
+                      {isCap ? <Crown className="w-2.5 h-2.5 fill-slate-950" /> : <Star className="w-2.5 h-2.5 fill-white" />}
+                      <span>{isCap ? '기장' : '부기장'}</span>
+                    </span>
+                  )}
+                  {m.isOfficialLeaderNotice && (
+                    <span className="text-[9px] font-extrabold bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 px-1.5 py-0.2 rounded-full flex items-center gap-0.5 shadow-xs">
+                      <ShieldCheck className="w-2.5 h-2.5" />
+                      <span>임원진 공지</span>
+                    </span>
+                  )}
+                  {m.isImportant && !m.isOfficialLeaderNotice && (
                     <span className="text-[9px] font-extrabold bg-rose-500 text-white px-1.5 py-0.2 rounded-full flex items-center gap-0.5">
                       <Star className="w-2.5 h-2.5 fill-white" />
                       <span>중요</span>
@@ -577,7 +625,9 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
                 ) : (
                   <div
                     className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs break-words ${
-                      isMe
+                      m.isOfficialLeaderNotice
+                        ? 'bg-gradient-to-r from-amber-500/20 via-amber-600/10 to-amber-500/20 text-slate-900 border-2 border-amber-500 font-bold shadow-md rounded-2xl'
+                        : isMe
                         ? m.isImportant
                           ? 'bg-rose-600 text-white rounded-tr-xs font-medium'
                           : 'bg-indigo-600 text-white rounded-tr-xs'
@@ -619,18 +669,40 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
         onSubmit={handleSendMessage}
         className="p-3 bg-white border-t border-slate-200 shrink-0 space-y-2"
       >
-        <div className="flex items-center justify-between text-[11px]">
-          <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={isImportant}
-              onChange={(e) => setIsImportant(e.target.checked)}
-              className="rounded text-rose-600 focus:ring-rose-500 w-3.5 h-3.5"
-            />
-            <span className={isImportant ? 'font-bold text-rose-600' : 'text-slate-500'}>
-              🚨 중요 / 긴급 알림으로 전송
-            </span>
-          </label>
+        <div className="flex items-center justify-between text-[11px] gap-2 flex-wrap">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isImportant}
+                onChange={(e) => {
+                  setIsImportant(e.target.checked);
+                  if (e.target.checked) setIsOfficialNotice(false);
+                }}
+                className="rounded text-rose-600 focus:ring-rose-500 w-3.5 h-3.5"
+              />
+              <span className={isImportant ? 'font-bold text-rose-600' : 'text-slate-500'}>
+                🚨 중요 알림
+              </span>
+            </label>
+
+            {isCurrentUserLeader && (
+              <label className="flex items-center gap-1.5 text-amber-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isOfficialNotice}
+                  onChange={(e) => {
+                    setIsOfficialNotice(e.target.checked);
+                    if (e.target.checked) setIsImportant(false);
+                  }}
+                  className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
+                />
+                <span className={isOfficialNotice ? 'font-black text-amber-600' : 'text-amber-800/80 font-bold'}>
+                  👑 임원진 공식 공지
+                </span>
+              </label>
+            )}
+          </div>
 
           <span className="text-[10px] text-slate-400">Enter로 즉시 전송</span>
         </div>

@@ -5,12 +5,15 @@ import { EntryModeModal } from './EntryModeModal';
 import { InterviewerChat } from './InterviewerChat';
 import { CandidateChatModal } from './CandidateChatModal';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
+import { getLeadershipRole } from '../lib/leadership';
 import {
   Users,
   Plus,
   Sparkles,
   Trophy,
   Shield,
+  Crown,
+  Star,
   Trash2,
   Play,
   CheckCircle2,
@@ -292,21 +295,47 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
           </div>
 
           {/* Current Interviewer Badge */}
-          <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3">
-            <div className="text-right">
-              <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
-              <div className="text-[10px] text-blue-600 font-semibold">평가위원</div>
-            </div>
+          {(() => {
+            const role = currentUser.leadershipRole || getLeadershipRole(currentUser.name, settings.leadership);
+            const isCap = role === 'CAPTAIN';
+            const isVc = role === 'VICE_CAPTAIN';
 
-            <button
-              onClick={onSwitchInterviewer}
-              className="px-2.5 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
-              title="면접관 전환"
-            >
-              <LogOut className="w-3.5 h-3.5 text-slate-500" />
-              <span>전환</span>
-            </button>
-          </div>
+            return (
+              <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3">
+                <div className="text-right">
+                  <div className="text-xs font-bold text-slate-900 flex items-center justify-end gap-1.5">
+                    {isCap && (
+                      <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 text-[10px] font-black rounded flex items-center gap-0.5 shadow-xs">
+                        <Crown className="w-2.5 h-2.5 fill-slate-950" />
+                        <span>기장</span>
+                      </span>
+                    )}
+                    {isVc && (
+                      <span className="px-1.5 py-0.2 bg-purple-600 text-white text-[10px] font-black rounded flex items-center gap-0.5 shadow-xs">
+                        <Star className="w-2.5 h-2.5 fill-white" />
+                        <span>부기장</span>
+                      </span>
+                    )}
+                    <span>{currentUser.name}</span>
+                  </div>
+                  <div className={`text-[10px] font-bold ${
+                    isCap ? 'text-amber-600' : isVc ? 'text-purple-600' : 'text-blue-600'
+                  }`}>
+                    {isCap ? '총괄 기장' : isVc ? '부기장' : '평가위원'}
+                  </div>
+                </div>
+
+                <button
+                  onClick={onSwitchInterviewer}
+                  className="px-2.5 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  title="면접관 전환"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-slate-500" />
+                  <span>전환</span>
+                </button>
+              </div>
+            );
+          })()}
         </div>
       </header>
 
@@ -834,37 +863,76 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
       )}
 
       {/* Floating Interviewer Chat Window */}
-      <InterviewerChat
-        currentUser={{ id: currentUser.id, name: currentUser.name, role: currentUser.role }}
-        roomId={currentRoom.id}
-        roomName={currentRoom.name || currentRoom.title || 'SmartLab 면접실'}
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        isFloating={true}
-        onUnreadCountChange={setUnreadChatCount}
-        onNewMessageToast={handleNewMessageToast}
-      />
+      {(() => {
+        const myRole = currentUser.leadershipRole || getLeadershipRole(currentUser.name, settings.leadership);
+        return (
+          <InterviewerChat
+            currentUser={{
+              id: currentUser.id,
+              name: currentUser.name,
+              role: currentUser.role,
+              leadershipRole: myRole
+            }}
+            roomId={currentRoom.id}
+            roomName={currentRoom.name || currentRoom.title || 'SmartLab 면접실'}
+            isOpen={isChatOpen}
+            onClose={() => setIsChatOpen(false)}
+            isFloating={true}
+            onUnreadCountChange={setUnreadChatCount}
+            onNewMessageToast={handleNewMessageToast}
+          />
+        );
+      })()}
 
       {/* Mini Chat Toast Notification (작게 알림 뜨게) */}
       {chatToast && !isChatOpen && (
-        <div className="fixed bottom-20 right-5 z-50 max-w-sm w-88 bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border border-indigo-500/40 flex items-start gap-3 animate-fade-in">
+        <div className={`fixed bottom-20 right-5 z-50 max-w-sm w-88 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl flex items-start gap-3 animate-fade-in ${
+          chatToast.isOfficialLeaderNotice
+            ? 'bg-slate-900/95 border-2 border-amber-500/80 ring-2 ring-amber-500/30'
+            : chatToast.isImportant
+            ? 'bg-slate-900/95 border border-rose-500/80 ring-2 ring-rose-500/30'
+            : 'bg-slate-900/95 border border-indigo-500/40'
+        }`}>
           <div
             className={`p-2 rounded-xl shrink-0 ${
-              chatToast.isImportant
+              chatToast.isOfficialLeaderNotice
+                ? 'bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-md font-black'
+                : chatToast.isImportant
                 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                 : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
             }`}
           >
-            <MessageSquare className="w-4 h-4" />
+            {chatToast.isOfficialLeaderNotice ? (
+              <Crown className="w-4 h-4 fill-slate-950" />
+            ) : (
+              <MessageSquare className="w-4 h-4" />
+            )}
           </div>
 
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center justify-between gap-1">
-              <div className="flex items-center gap-1.5 min-w-0">
+              <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                {chatToast.senderLeadershipRole === 'CAPTAIN' && (
+                  <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 text-[9px] font-black rounded flex items-center gap-0.5">
+                    <Crown className="w-2.5 h-2.5 fill-slate-950" />
+                    <span>기장</span>
+                  </span>
+                )}
+                {chatToast.senderLeadershipRole === 'VICE_CAPTAIN' && (
+                  <span className="px-1.5 py-0.2 bg-purple-600 text-white text-[9px] font-black rounded flex items-center gap-0.5">
+                    <Star className="w-2.5 h-2.5 fill-white" />
+                    <span>부기장</span>
+                  </span>
+                )}
                 <span className="font-bold text-xs text-indigo-200 truncate">
                   {formatInterviewerDisplayName(chatToast.senderName)} 면접관
                 </span>
-                {chatToast.isImportant && (
+                {chatToast.isOfficialLeaderNotice && (
+                  <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 rounded text-[9px] font-black">
+                    임원 공식 공지
+                  </span>
+                )}
+                {chatToast.isImportant && !chatToast.isOfficialLeaderNotice && (
                   <span className="px-1.5 py-0.2 bg-rose-500 text-white rounded text-[9px] font-extrabold font-mono">
                     긴급
                   </span>

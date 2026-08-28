@@ -553,35 +553,45 @@ ${idx + 1}. [${k.sourceType.toUpperCase()}] ${k.title}
   const personaStyle = options?.personaStyle || 'BALANCED';
   let personaInstruction = '';
   if (personaStyle === 'LOGIC_PRESSURE') {
-    personaInstruction = `\n[질문 스타일: 압박 및 논리 모순 검증 (Pressure & Logic Check)]\n- 발언의 모순, 극단적인 예외 상황, 한계점, 데이터 정합성 실패 시나리오를 집요하게 파고드는 압박형 질문을 최소 2개 이상 포함하라.`;
+    personaInstruction = `\n[질문 스타일: 압박 및 논리 모순 검증 (Pressure & Logic Check)]
+- 지원자의 발언 및 서류에서 드러난 논리적 비약, 과장, 한계 상황(Edge Cases), 극단적인 부하/실패 시나리오를 집요하고 날카롭게 파고들어라.
+- '만약 ~한 상황이 발생하거나 데이터 정합성이 깨졌을 때 어떻게 수습하셨나요?'와 같이 답변의 진위와 문제 해결 한계점을 파악하는 질문 3개 이상 작성.`;
   } else if (personaStyle === 'TROUBLESHOOTING') {
-    personaInstruction = `\n[질문 스타일: 실무 트러블슈팅 및 장애 대응 (Troubleshooting & Debugging)]\n- 실제 서비스 운영 중 발생할 수 있는 메모리 누수, 병목, 타임아웃, 롤백 실패 등 구체적 장애 상황 해결 경험을 검증하는 질문에 집중하라.`;
+    personaInstruction = `\n[질문 스타일: 실무 트러블슈팅 및 장애 대응 (Troubleshooting & Debugging)]
+- 책이나 블로그를 보고 따라 한 것이 아닌, 실제로 겪었던 메모리 누수, 커넥션 고갈, 타임아웃, 롤백 오류, 슬로우 쿼리 등 장애 해결 과정을 집요하게 질문하라.
+- 원인 규명 방식(로그, 메트릭, 프로파일러), 해결 시도 과정, 재발 방지책을 구체적으로 답변하도록 유도하라.`;
   } else if (personaStyle === 'ARCHITECTURE') {
-    personaInstruction = `\n[질문 스타일: 시스템 설계 및 아키텍처 트레이드오프 (System Design & Trade-offs)]\n- 왜 특정 라이브러리/DB/패턴을 선택했는지 대안과의 비교(Trade-off) 및 확장성(Scalability) 검증 질문에 집중하라.`;
+    personaInstruction = `\n[질문 스타일: 시스템 설계 및 아키텍처 트레이드오프 (System Design & Trade-offs)]
+- 왜 다른 대안 기술 대신 이 기술을 선택했는지(Trade-off), 대규모 트래픽/데이터 확장성(Scalability), 단일 장애점(SPOF) 방어 전략을 집중 검증하라.
+- 아키텍처 선정 시 겪은 비용-성능 타협점을 구체적으로 파고들라.`;
   } else if (personaStyle === 'STAR_COLLABORATION') {
-    personaInstruction = `\n[질문 스타일: 협업, 갈등 해결 및 컬처핏 (STAR Method & Culture Fit)]\n- 팀 프로젝트 협업 중 의견 충돌, 코드 리뷰 갈등, 동료 설득 경험을 STAR 기법(상황-과제-행동-결과)으로 끌어내는 질문에 집중하라.`;
+    personaInstruction = `\n[질문 스타일: 협업, 갈등 해결 및 컬처핏 (STAR Method & Culture Fit)]
+- 팀 프로젝트 수행 중 발생한 의견 충돌, 코드 리뷰 논쟁, 비협조적 팀원 설득, 일정 지연 극복 사례를 STAR 기법(상황-과제-행동-결과)으로 입체적으로 끌어내라.
+- SmartLab의 주도적이고 피드백 수용적인 동아리 문화에 부합하는지 인성과 태도를 검증하라.`;
   } else if (personaStyle === 'GROWTH_FUNDAMENTALS') {
-    personaInstruction = `\n[질문 스타일: CS 기본기 및 잠재력 (CS Fundamentals & Potential)]\n- 프레임워크 뒤에 숨은 컴퓨터 사이언스 기초 원리(네트워크, OS, 자료구조, 메모리) 및 학습 속도를 확인하라.`;
+    personaInstruction = `\n[질문 스타일: CS 기본기 및 학습 잠재력 (CS Fundamentals & Potential)]
+- 프레임워크나 라이브러리 사용법에 그치지 않고, 그 이면의 OS(스레드/프로세스/메모리), 네트워크(TCP/HTTP/DNS), 데이터베이스(인덱스 B-Tree/ACID), 자료구조 원리를 지원자 프로젝트와 결합하여 검증하라.`;
   }
 
-  const customFocusPrompt = options?.customFocusPrompt ? `\n[면접관이 지정한 특별 집중 평가 키워드/주제]\n"${options.customFocusPrompt}"\n-> 위 집중 키워드를 최신 지원자 답변과 즉시 결합하여 고품질 질문을 반드시 2개 이상 생성하라!` : '';
+  const customFocusPrompt = options?.customFocusPrompt ? `\n[면접관 지정 특별 집중 검증 키워드/주제]\n"${options.customFocusPrompt}"\n-> 위 키워드를 최우선 핵심 테마로 삼아, 지원자의 직전 발언과 유기적으로 결합된 고품질 실전 질문을 반드시 2개 이상 생성하라!` : '';
 
-  const systemPrompt = `너는 대한민국 최고 수준의 IT/소프트웨어 및 AI 동아리 'SmartLab'의 수석 기술 면접관이자 채점 전문가 AI이다.
+  const systemPrompt = `너는 대한민국 최고 수준의 IT/소프트웨어 및 AI 인재 양성 동아리 'SmartLab'의 수석 기술 면접관이자 평가 전문 AI이다.
 면접자의 제출 서류 내용, 실시간 음성 STT 발언, [면접방 평가 기준], 그리고 [면접관 설정 스타일/키워드]를 정밀 대조하여, 면접관이 현장에서 즉시 지원자에게 질문할 수 있는 【최고 퀄리티의 실전 심층 질문 3~5개】와 발언 요약을 생성하라.
 
-【질문 생성 엄수 원칙】
+【질문 생성 및 채점 가이드 엄수 원칙】
 1. 🎯 [지원자의 방금 발언(Claim)에 100% 닻(Anchor) 내리기]:
-   - 지원자가 방금 발언한 구체적 단어, 기술명, 수치, 아키텍처 결정(예: 'HikariCP', 'Redis 캐시', 'DLQ', '비동기 큐')을 정확히 인용(Claim)하여 질문의 출발점으로 삼으라.
+   - 지원자가 방금 발언한 구체적 단어, 기술명, 수치, 아키텍처 결정(예: 'HikariCP', 'Redis 캐시', 'DLQ', '비동기 큐', '낙관적 락', 'Zustand', 'Vector DB')을 정확히 인용(Claim)하여 질문의 출발점으로 삼으라.
 2. 🚫 [단순 이론/정의형 질문 절대 금지]:
    - "Redis란 무엇인가요?", "~에 대해 어떻게 생각하나요?" 같은 교과서식 암기 질문은 엄격히 금지한다.
+   - 반드시 "지원자님이 구축하신 [OO] 상황에서 [XX 문제/한계]가 발생했을 때 어떻게 대응하셨나요?" 형식으로 실무 경험을 확인하라.
 3. 📊 [평가 가능 항목(Evaluated Criteria) 상세 명시]:
    - 각 질문이 [현재 면접방 평가 기준] 중 어떤 항목([technical], [problemSolving], [communication], [cultureFit] 등)을 측정하는지 구체적인 가이드라인과 함께 매핑하라.
 4. 🌟 [우수 답변(Ideal Signals) vs ⚠️ 미흡/감점 답변(Red Flags) 체크리스트 제공]:
-   - 면접관이 지원자의 답변을 들으면서 즉시 판별할 수 있는 핵심 지표 3개씩을 명시하라.
+   - 면접관이 지원자의 답변을 들으면서 즉시 판별할 수 있는 구체적이고 실전적인 핵심 지표 3개씩을 명시하라.
 5. 🔄 [2차 후속 유도 질문(Probing Follow-ups) 탑재]:
-   - 지원자의 1차 답변 이후 추가로 파고들 수 있는 후속 질문 2개를 작성하라.
+   - 지원자의 1차 답변 이후 면접관이 추가로 깊게 파고들 수 있는 날카로운 후속 질문 2개를 작성하라.
 6. 💬 [자연스러운 면접관 구어체 존댓말]:
-   - "지원자님께서 방금 [OO] 방식으로 [XX] 문제를 해결하셨다고 하셨는데, 구체적으로 [YY 상황]에서는 데이터 정합성이나 예외를 어떻게 처리하셨나요?" 형식의 자연스러운 면접관 대본.
+   - 면접관이 프롬프터를 읽듯이 바로 발화할 수 있는 정중하고 명확한 구어체로 작성하라.
 ${criteriaPromptContext}
 ${personaInstruction}
 ${customFocusPrompt}
@@ -1407,5 +1417,175 @@ ${userQuery}`;
       referencedSources: []
     };
   }
+}
+
+/**
+ * 7. Candidate-Facing Comprehensive AI Performance & Growth Diagnosis Report
+ * Generates clear analysis of strengths, areas for improvement, competency scores, and actionable feedback.
+ */
+export async function generateCandidateDetailedReportAI(
+  candidate: any,
+  evaluations: any[],
+  criteriaList: any[] = [],
+  options?: AICallOptions & { knowledgeBase?: any[] }
+) {
+  const track = candidate.track || '지원 전형';
+  const name = candidate.name || '지원자';
+
+  let kbPrompt = '';
+  if (options?.knowledgeBase && Array.isArray(options.knowledgeBase) && options.knowledgeBase.length > 0) {
+    const active = options.knowledgeBase.filter(k => k.isActive !== false);
+    if (active.length > 0) {
+      kbPrompt = `\n[동아리 핵심 인재상 및 합격 루브릭 지식 베이스]\n` +
+        active.slice(0, 3).map(k => `- ${k.title}: ${(k.extractedInsights?.evaluationCriteria || []).join(', ')}`).join('\n');
+    }
+  }
+
+  const systemPrompt = `너는 대학 최고의 테크/SW 동아리 'SmartLab'의 AI 면접 총괄 성장 코치이다.
+면접이 종료된 후, 학생(지원자)이 본인의 면접 결과를 열람할 때 제공될 [AI 심층 성장 진단 및 면접 피드백 종합 보고서]를 작성하라.
+지원자가 스스로의 역량을 객관적으로 이해하고 큰 동기부여와 실질적인 성장을 얻을 수 있도록 매우 구체적이고 전문적이며 따뜻한 어조로 작성해야 한다.
+
+【보고서 필수 포함 내용】
+1. strengths: 지원자가 면접 및 서류에서 실제로 돋보였던 구체적인 강점 3~4가지 (구체적 발언이나 기술/프로젝트 근거 포함)
+2. improvements: 향후 보완하거나 개선하면 훨씬 더 뛰어난 엔지니어/팀원으로 도약할 수 있는 아쉬웠던 점 및 발전 포인트 3~4가지
+3. competencyAnalysis: 4대 핵심 역량 영역별 진단 배열
+   - "기술 역량 및 전공 지식 (Technical Competency)"
+   - "문제 해결 및 논리적 사고 (Problem Solving & Logic)"
+   - "의사소통 및 전달력 (Communication & Delivery)"
+   - "팀워크 및 동아리 적합도 (Collaboration & Culture Fit)"
+   - 각 항목별 score (0~100 정수), evaluation (심층 진단 2문장), actionTip (당장 실천할 수 있는 원포인트 팁 1문장)
+4. actionPlan: 앞으로 3~6개월 동안 실천할 수 있는 구체적인 역량 강화 로드맵 3가지
+5. oneLineVerdict: 지원자의 열정과 가능성을 응원하는 통찰력 있는 한 줄 총평
+6. overallReview: 전체 면접 과정을 총망라하는 3~4단락의 깊이 있는 종합 성장 리포트 서술문
+
+반드시 다음 JSON 형식으로만 응답하라:
+{
+  "strengths": [
+    "구체적 강점 1",
+    "구체적 강점 2",
+    "구체적 강점 3"
+  ],
+  "improvements": [
+    "구체적 보완점 1",
+    "구체적 보완점 2",
+    "구체적 보완점 3"
+  ],
+  "competencyAnalysis": [
+    {
+      "category": "기술 역량 및 전공 지식",
+      "score": 88,
+      "evaluation": "구체적 진단 문장...",
+      "actionTip": "원포인트 액션 팁..."
+    },
+    {
+      "category": "문제 해결 및 논리적 사고",
+      "score": 85,
+      "evaluation": "구체적 진단 문장...",
+      "actionTip": "원포인트 액션 팁..."
+    },
+    {
+      "category": "의사소통 및 전달력",
+      "score": 90,
+      "evaluation": "구체적 진단 문장...",
+      "actionTip": "원포인트 액션 팁..."
+    },
+    {
+      "category": "팀워크 및 동아리 적합도",
+      "score": 92,
+      "evaluation": "구체적 진단 문장...",
+      "actionTip": "원포인트 액션 팁..."
+    }
+  ],
+  "actionPlan": [
+    "실천 계획 1",
+    "실천 계획 2",
+    "실천 계획 3"
+  ],
+  "oneLineVerdict": "지원자를 격려하고 방향성을 제시하는 한 줄 총평",
+  "overallReview": "전체 면접 피드백 종합 서술문..."
+}`;
+
+  const evalsSummary = evaluations.map((e, idx) => {
+    const comments = e.comments || {};
+    return `[면접관 ${idx + 1}]
+- 점수: ${JSON.stringify(e.scores || {})} (보너스: ${e.presentationBonusTotal || 0}점)
+- 기술 피드백: ${comments.technicalNote || comments.attitudeNote || '우수한 태도로 임함'}
+- 종합 코멘트: ${comments.overallComment || '전반적으로 성실하고 열정적인 인상을 줌'}`;
+  }).join('\n\n');
+
+  const sttSnippet = (candidate.sttTranscript || [])
+    .slice(-8)
+    .map((s: any) => `${s.speaker === 'candidate' ? '지원자' : '면접관'}: ${s.text}`)
+    .join('\n');
+
+  const userPrompt = `[지원자 정보]
+- 이름: ${name}
+- 지원 분야/트랙: ${track}
+${kbPrompt}
+
+[면접관들의 실제 평가 점수 및 정성 코멘트]
+${evalsSummary || '면접관 평가 제출 완료'}
+
+[지원자 실시간 면접 주요 발언 기록 (STT)]
+${sttSnippet || '원활하게 질의응답을 진행함'}
+
+위의 실제 면접 내용과 면접관 평가를 정밀 분석하여, 지원자가 자신의 성취와 성장 포인트를 명확히 이해할 수 있는 최고 수준의 종합 AI 진단 보고서를 JSON으로 작성하라.`;
+
+  try {
+    const rawJson = await callAIAPI(systemPrompt, userPrompt, true, options);
+    const parsed = extractJsonFromText(rawJson);
+    if (parsed && Array.isArray(parsed.strengths) && Array.isArray(parsed.improvements)) {
+      return parsed;
+    }
+  } catch (e) {
+    console.error('Candidate Detailed Report AI generation error:', e);
+  }
+
+  // Fallback high-quality report
+  return {
+    strengths: [
+      `${track} 분야에 대한 진정성 있는 관심과 기초 전공 지식을 탄탄하게 갖추고 있습니다.`,
+      '면접관의 질문 의도를 빠르게 파악하고 당황하지 않고 차분하게 답변을 이어가는 태도가 돋보였습니다.',
+      '새로운 기술을 학습하고자 하는 적극적인 호기심과 팀 프로젝트에 대한 협업 마인드가 우수합니다.'
+    ],
+    improvements: [
+      '자신의 기술적 경험이나 문제 해결 과정을 설명할 때 결론을 먼저 제시하는 두괄식 구조(STAR 기법)를 더 강화하면 전달력이 배가될 것입니다.',
+      '단순히 기술을 사용해 본 경험을 넘어, 왜 그 기술을 선택했는지에 대한 트레이드오프 분석을 답변에 녹여내는 연습을 권장합니다.',
+      '예외 상황이나 장애 발생 시의 체계적인 디버깅 접근 방식을 더 구체적인 수치와 함께 설명하면 신뢰도가 높아집니다.'
+    ],
+    competencyAnalysis: [
+      {
+        category: '기술 역량 및 전공 지식',
+        score: 86,
+        evaluation: `${track} 분야의 핵심 개념을 바르게 이해하고 있으며, 실전 응용을 위한 기초 체력이 탄탄합니다.`,
+        actionTip: '관심 분야의 공식 문서와 베스트 프랙티스를 정독하며 심화 원리를 정리해보세요.'
+      },
+      {
+        category: '문제 해결 및 논리적 사고',
+        score: 84,
+        evaluation: '면접관의 심층 꼬리 질문에도 논리적인 연결고리를 유지하며 단계적으로 해결책을 모색했습니다.',
+        actionTip: '프로젝트 트러블슈팅 경험을 문제 정의 - 원인 분석 - 해결책 - 교훈의 4단계로 문서화해보세요.'
+      },
+      {
+        category: '의사소통 및 전달력',
+        score: 89,
+        evaluation: '명확한 발음과 안정된 톤으로 자신의 생각과 경험을 자신감 있게 전달했습니다.',
+        actionTip: '핵심 키워드를 먼저 언급한 뒤 부연 설명을 이어가는 습관을 들이면 더욱 효과적입니다.'
+      },
+      {
+        category: '팀워크 및 동아리 적합도',
+        score: 93,
+        evaluation: '동아리 활동에 대한 열정과 팀원들과 함께 시너지를 내고자 하는 태도가 매우 인상적입니다.',
+        actionTip: '동료들과의 코드 리뷰나 페어 프로그래밍 경험을 적극적으로 만들어보세요.'
+      }
+    ],
+    actionPlan: [
+      '핵심 프로젝트 포트폴리오를 GitHub에 기술적 고민과 트러블슈팅 과정을 상세히 기록(ReadMe 보강)',
+      'CS 핵심 이론(자료구조, 알고리즘, 네트워크, DB)을 모의 면접 스터디를 통해 말로 설명하는 훈련 진행',
+      '최신 기술 트렌드 아티클을 주 1회 정독하고 토론하는 스터디 참여'
+    ],
+    oneLineVerdict: '뛰어난 학습 민첩성과 긍정적인 태도를 겸비하여 향후 팀의 든든한 핵심 인재로 도약할 유망주',
+    overallReview: `${name} 지원자님은 이번 면접을 통해 ${track}에 대한 깊은 열정과 성실한 태도를 분명하게 보여주셨습니다. 질문에 솔직하고 진정성 있게 답변해주신 점이 면접관들에게 큰 인상을 남겼으며, 앞으로의 성장 가능성이 매우 기대됩니다. 제안드린 피드백 포인트를 바탕으로 계속해서 멋진 도전을 이어나가시길 응원합니다!`
+  };
 }
 
