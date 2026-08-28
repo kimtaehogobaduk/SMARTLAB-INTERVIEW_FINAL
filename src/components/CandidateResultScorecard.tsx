@@ -417,8 +417,8 @@ export const CandidateResultScorecard: React.FC<CandidateResultScorecardProps> =
                 <div>
                   <h2 className="text-base font-bold text-white flex items-center gap-2">
                     <span>AI 심층 역량 진단 및 성장 피드백 보고서</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                      Gemini 2.5 Pro 분석
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30 font-semibold">
+                      Groq Llama 3.3 70B 분석
                     </span>
                   </h2>
                   <p className="text-[11px] text-slate-400">

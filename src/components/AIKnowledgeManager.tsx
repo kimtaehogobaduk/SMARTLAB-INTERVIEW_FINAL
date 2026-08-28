@@ -298,7 +298,7 @@ export const AIKnowledgeManager: React.FC<AIKnowledgeManagerProps> = ({
                 신규 자료 AI 학습 및 주입
               </div>
               <span className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium">
-                Gemini & Groq RAG
+                Groq Llama 3.3 70B RAG
               </span>
             </div>
 

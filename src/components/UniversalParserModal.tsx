@@ -352,7 +352,7 @@ export const UniversalParserModal: React.FC<UniversalParserModalProps> = ({
                 <span>시간표 캡처 또는 지원자 명단 이미지 업로드 (선택)</span>
               </label>
               {selectedImageBase64 && (
-                <span className="text-[11px] text-purple-400 font-semibold">Gemini Vision AI 활성화됨</span>
+                <span className="text-[11px] text-purple-400 font-semibold">Groq Vision AI 활성화됨</span>
               )}
             </div>
 

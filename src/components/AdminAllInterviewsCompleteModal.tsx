@@ -135,7 +135,7 @@ export const AdminAllInterviewsCompleteModal: React.FC<AdminAllInterviewsComplet
               <span>자동 AI 심층 진단 & 백엔드 통계 집계 안내</span>
             </div>
             <p className="text-slate-300 leading-relaxed">
-              버튼을 클릭하면 진행 중인 지원자 전원이 완료 처리되며, <strong>Gemini AI가 지원자별 맞춤형 강점/보완점/역량 진단서</strong>를 자동 생성합니다. 학생들은 포털에 로그인하여 아래 설정에 따라 본인의 점수와 성적표를 즉시 열람 및 PDF로 다운로드할 수 있습니다.
+              버튼을 클릭하면 진행 중인 지원자 전원이 완료 처리되며, <strong>Groq 초고속 AI(Llama 3.3 70B)가 지원자별 맞춤형 강점/보완점/역량 진단서</strong>를 즉시 자동 생성합니다. 학생들은 포털에 로그인하여 아래 설정에 따라 본인의 점수와 성적표를 실시간 열람 및 PDF로 다운로드할 수 있습니다.
             </p>
           </div>
 

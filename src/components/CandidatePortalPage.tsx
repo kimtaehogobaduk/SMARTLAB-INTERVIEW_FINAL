@@ -621,7 +621,7 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
                   <li>내 종합 환산 점수 및 가중치별 세부 배점표</li>
                   <li>기장/부기장 및 심사위원별 세부 채점표 & 정성 피드백</li>
                   <li>전체 지원자 평균(μ), 표준편차(σ), 석차 및 백분위</li>
-                  <li>Gemini 2.5 Pro 기반 강점/보완점/역량 로드맵 AI 보고서</li>
+                  <li>Groq Llama 3.3 70B 기반 강점/보완점/역량 로드맵 AI 보고서</li>
                   <li>공식 인증 PDF 성적표 다운로드 기능</li>
                 </ul>
               </div>

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Initialize Gemini as secondary fallback or multimodal vision handler
+// Initialize Gemini as optional fallback if Groq keys are exhausted
 let geminiClient: GoogleGenAI | null = null;
 function getGeminiClient() {
   if (!geminiClient && process.env.GEMINI_API_KEY) {
@@ -274,7 +274,7 @@ export function getGroqApiKeys(): string[] {
 let activeKeyIndex = 0;
 
 /**
- * Direct call to Groq Cloud API with multi-key rotation and graceful Gemini fallback.
+ * Direct call to Groq Cloud API with multi-key rotation and graceful fallback.
  * Automatically tries all available Groq API keys sequentially if one hits a rate limit (429) or error.
  */
 export async function callAIAPI(
@@ -286,15 +286,19 @@ export async function callAIAPI(
   const customKey = options?.customApiKey;
   const model = options?.model || 'llama-3.3-70b-versatile';
 
-  // If an image is provided, route to Multimodal Gemini Vision
-  if (options?.imageBase64) {
-    return callGeminiVision(systemPrompt, userPrompt, options.imageBase64, options.imageMimeType || 'image/png', jsonFormat);
-  }
-
   // 1. Build list of Groq keys to try
   const keyPool = customKey && customKey.trim() !== '' && customKey !== 'MY_GROQ_API_KEY'
     ? [customKey.trim(), ...getGroqApiKeys().filter(k => k !== customKey.trim())]
     : getGroqApiKeys();
+
+  // If an image is provided, try Groq Vision first (llama-3.2-11b-vision-preview), then fallback to Gemini Vision
+  if (options?.imageBase64) {
+    if (keyPool.length > 0) {
+      const groqVisionRes = await callGroqVision(systemPrompt, userPrompt, options.imageBase64, options.imageMimeType || 'image/png', jsonFormat, keyPool);
+      if (groqVisionRes) return groqVisionRes;
+    }
+    return callGeminiVision(systemPrompt, userPrompt, options.imageBase64, options.imageMimeType || 'image/png', jsonFormat);
+  }
 
   // Try each Groq key in rotation/failover order
   if (keyPool.length > 0) {
@@ -345,7 +349,7 @@ export async function callAIAPI(
     console.warn('[Groq Key Pool] All configured Groq API keys were exhausted or failed. Falling back to Gemini.');
   }
 
-  // 2. Fallback to Gemini 3.7 Flash
+  // 2. Fallback to Gemini 3.7 Flash if Groq unavailable
   const ai = getGeminiClient();
   if (ai) {
     try {
@@ -371,7 +375,64 @@ export async function callAIAPI(
 export const callCerebrasAPI = callAIAPI;
 
 /**
- * Multimodal Vision OCR and Parser using Gemini
+ * Multimodal Vision OCR and Parser using Groq Vision (llama-3.2-11b-vision-preview)
+ */
+async function callGroqVision(
+  systemPrompt: string,
+  userPrompt: string,
+  base64Data: string,
+  mimeType: string,
+  jsonFormat: boolean = true,
+  keyPool: string[] = []
+): Promise<string> {
+  const cleanBase64 = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+  const dataUri = `data:${mimeType || 'image/png'};base64,${cleanBase64}`;
+  const fullTextPrompt = `${systemPrompt}\n\n${userPrompt}\n\n업로드된 이미지(시간표, 지원자 명단, 서류 캡처)의 모든 텍스트를 정확하게 판독하여, 명단에 기재된 모든 인원에 대해 중복 없는 시간표와 지원자 프로필 JSON을 작성하라.`;
+
+  for (const apiKey of keyPool) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.2-11b-vision-preview',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: fullTextPrompt },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: dataUri
+                  }
+                }
+              ]
+            }
+          ],
+          response_format: jsonFormat ? { type: 'json_object' } : undefined,
+          temperature: 0.1,
+          max_completion_tokens: 3000
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return content;
+      }
+    } catch (err) {
+      console.warn('[Groq Vision Error]', err);
+    }
+  }
+  return '';
+}
+
+/**
+ * Multimodal Vision OCR and Parser using Gemini Fallback
  */
 async function callGeminiVision(
   systemPrompt: string,
@@ -382,7 +443,7 @@ async function callGeminiVision(
 ): Promise<string> {
   const ai = getGeminiClient();
   if (!ai) {
-    throw new Error('Gemini API client is not configured for image analysis.');
+    return '';
   }
 
   const cleanBase64 = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
