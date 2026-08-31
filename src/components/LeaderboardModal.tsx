@@ -32,7 +32,6 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
     ? settings.criteria
     : DEFAULT_CRITERIA;
 
-  const passThreshold = settings?.passThresholdScore ?? 70;
   const isCriteriaConfirmed = settings?.isCriteriaConfirmed ?? false;
 
   // Filter out NO_SHOW candidates from ranking

@@ -30,6 +30,8 @@ import { AdminAuditModal } from './components/AdminAuditModal';
 import { DBSchemaModal } from './components/DBSchemaModal';
 import { AIQualitativeModal } from './components/AIQualitativeModal';
 import { LiveNotificationToast } from './components/LiveNotificationToast';
+import { ThemeSelectorModal } from './components/ThemeSelectorModal';
+import { ThemeQuickToggle } from './components/ThemeQuickToggle';
 import confetti from 'canvas-confetti';
 
 const DEFAULT_INTERVIEWERS: InterviewerUser[] = [
@@ -1142,6 +1144,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Global Theme Selector Modal */}
+      <ThemeSelectorModal />
     </>
   );
 }

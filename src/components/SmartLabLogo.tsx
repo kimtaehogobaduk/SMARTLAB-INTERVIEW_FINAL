@@ -28,7 +28,7 @@ export const SmartLabLogo: React.FC<SmartLabLogoProps> = ({
   return (
     <div id="smartlab-logo-container" className={`flex items-center gap-2.5 ${className}`}>
       {/* SVG Icon matching the SmartLab Crown & Interconnected M/W Geometric Logo */}
-      <div className={`relative flex items-center justify-center ${iconSizes[size]} bg-zinc-950 text-white rounded-lg p-1.5 shadow-sm transition-transform hover:scale-105`}>
+      <div className={`relative flex items-center justify-center ${iconSizes[size]} bg-zinc-900 dark:bg-slate-800 text-white rounded-lg p-1.5 shadow-sm border border-zinc-700/60 dark:border-slate-700 transition-transform hover:scale-105 shrink-0`}>
         <svg
           viewBox="0 0 100 100"
           fill="none"
@@ -61,14 +61,9 @@ export const SmartLabLogo: React.FC<SmartLabLogoProps> = ({
       </div>
 
       {showText && (
-        <div className="flex flex-col leading-none">
-          <span className={`font-black text-zinc-900 tracking-wider font-mono ${textSizes[size]}`}>
-            SMART LAB
-          </span>
-          <span className="text-[10px] font-semibold text-zinc-700 tracking-widest uppercase">
-            AI Interview Platform
-          </span>
-        </div>
+        <span className={`font-black text-slate-900 dark:text-white tracking-wider font-mono select-none ${textSizes[size]}`}>
+          SMART LAB
+        </span>
       )}
     </div>
   );

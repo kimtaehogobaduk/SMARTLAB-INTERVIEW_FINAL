@@ -16,6 +16,7 @@ import {
 import { SmartLabLogo } from './SmartLabLogo';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 import { InterviewerChat } from './InterviewerChat';
+import { CandidateChatModal } from './CandidateChatModal';
 import { FlexibleWorkspace } from './FlexibleWorkspace';
 import { getLeadershipRole } from '../lib/leadership';
 import {
@@ -51,6 +52,7 @@ import {
   Radio,
   Sparkles,
   MessageSquare,
+  MessageSquareText,
   X,
   GripVertical,
   Move,
@@ -210,6 +212,30 @@ export const InterviewRoom: React.FC<InterviewRoomProps> = ({
   const [isChatFloating, setIsChatFloating] = useState(true);
   const [isFloatingBubbleEnabled, setIsFloatingBubbleEnabled] = useState(true);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  // Candidate 1:1 Chat state
+  const [isCandidateChatOpen, setIsCandidateChatOpen] = useState(false);
+  const [candidateMessageCount, setCandidateMessageCount] = useState(0);
+
+  // Poll candidate messages for current candidate
+  useEffect(() => {
+    const fetchCandidateChat = async () => {
+      try {
+        const res = await fetch(`/api/candidate-portal/messages?candidateId=${candidate.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.messages)) {
+            setCandidateMessageCount(data.messages.length);
+          }
+        }
+      } catch (e) {
+        // Ignore
+      }
+    };
+    fetchCandidateChat();
+    const interval = setInterval(fetchCandidateChat, 4000);
+    return () => clearInterval(interval);
+  }, [candidate.id]);
 
   // Floating Chat Button Position & Long-Press Dragging State
   const [chatBtnPos, setChatBtnPos] = useState<{ x: number; y: number } | null>(() => {
@@ -1221,16 +1247,38 @@ export const InterviewRoom: React.FC<InterviewRoomProps> = ({
             }}
             className={`px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all cursor-pointer select-none active:scale-95 border ${
               panels.showChat || isChatOpen
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md ring-2 ring-indigo-300'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:text-indigo-600'
+                ? 'btn-theme-primary text-white border-transparent shadow-md'
+                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:text-[var(--color-primary)]'
             }`}
             title="동료 면접관들과 실시간 채팅"
           >
-            <MessageSquare className={`w-3.5 h-3.5 ${panels.showChat || isChatOpen ? 'text-white' : 'text-indigo-600'}`} />
+            <MessageSquare className={`w-3.5 h-3.5 ${panels.showChat || isChatOpen ? 'text-white' : 'text-slate-600'}`} />
             <span className="hidden sm:inline">동료 대화</span>
             {unreadChatCount > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-extrabold font-mono animate-pulse">
                 {unreadChatCount}
+              </span>
+            )}
+          </button>
+
+          {/* Candidate 1:1 Inquiries & Chat Button */}
+          <button
+            type="button"
+            onClick={() => setIsCandidateChatOpen(true)}
+            className={`px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all cursor-pointer select-none active:scale-95 border ${
+              isCandidateChatOpen
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-md ring-2 ring-emerald-300'
+                : candidateMessageCount > 0
+                ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
+                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:text-emerald-600'
+            }`}
+            title="현재 지원자와 1:1 대화 (모든 면접관 공유)"
+          >
+            <MessageSquareText className={`w-3.5 h-3.5 ${isCandidateChatOpen ? 'text-white' : 'text-emerald-600'}`} />
+            <span className="hidden sm:inline">지원자 대화</span>
+            {candidateMessageCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black font-mono shadow-2xs">
+                {candidateMessageCount}
               </span>
             )}
           </button>
@@ -1802,6 +1850,15 @@ export const InterviewRoom: React.FC<InterviewRoomProps> = ({
             )}
           </button>
         </div>
+      )}
+      {/* Candidate 1:1 Chat Modal */}
+      {isCandidateChatOpen && (
+        <CandidateChatModal
+          isOpen={isCandidateChatOpen}
+          onClose={() => setIsCandidateChatOpen(false)}
+          candidate={candidate}
+          currentUser={currentUser}
+        />
       )}
     </div>
   );

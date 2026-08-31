@@ -691,7 +691,7 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                             {item.statusShift === 'SAVED_BY_CALIBRATION' ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
                                 <Sparkles className="w-3 h-3" />
-                                깐깐한 심사 보정 구제 (합격선 진입)
+                                깐깐한 심사 편향 보정 (점수 상향)
                               </span>
                             ) : item.statusShift === 'DROPPED_BY_CALIBRATION' ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
@@ -700,11 +700,11 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                               </span>
                             ) : item.isBorderline ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                합격선 경계 (±3.5점)
+                                점수 경계 구간 (±3.5점)
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-400 bg-slate-800">
-                                정상 안정권
+                                보정 안정권
                               </span>
                             )}
                           </td>

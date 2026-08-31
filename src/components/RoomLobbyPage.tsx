@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InterviewRoomItem } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
+import { ThemeQuickToggle } from './ThemeQuickToggle';
 import { DoorOpen, ArrowRight, ArrowLeft, Lock, Unlock, HelpCircle, AlertCircle, KeyRound, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { getDeviceId, isQuizVerifiedOnDevice, saveQuizVerifiedOnDevice } from '../lib/deviceSecurity';
 
@@ -179,7 +180,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
       {/* Main Container */}
       <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-7 sm:p-9 backdrop-blur-xl relative z-10 space-y-6 animate-fade-in">
         
-        {/* Navigation Bar - Clean, Admin Console button removed per user request */}
+        {/* Navigation Bar */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <button
             type="button"
@@ -189,8 +190,8 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>처음 화면으로</span>
           </button>
-          <div className="text-[11px] text-slate-500 font-mono">
-            면접관 입장 로비
+          <div className="flex items-center gap-2">
+            <ThemeQuickToggle variant="header" />
           </div>
         </div>
 

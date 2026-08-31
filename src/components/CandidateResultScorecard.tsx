@@ -333,11 +333,6 @@ export const CandidateResultScorecard: React.FC<CandidateResultScorecardProps> =
                   {myTotalScore}
                   <span className="text-base font-normal text-slate-400 ml-1">/ 100점</span>
                 </div>
-                {showPassFail && passThresholdScore !== undefined && (
-                  <div className="text-[10px] text-slate-400 mt-0.5">
-                    (합격 기준 커트라인: {passThresholdScore}점)
-                  </div>
-                )}
               </div>
 
             </div>

@@ -3,6 +3,7 @@ import { Candidate, InterviewRoomItem, CandidateChatMessage, DocumentItem, Candi
 import { SmartLabLogo } from './SmartLabLogo';
 import { CandidateLiveInterviewPage } from './CandidateLiveInterviewPage';
 import { CandidateResultScorecard } from './CandidateResultScorecard';
+import { ThemeQuickToggle } from './ThemeQuickToggle';
 import {
   GraduationCap,
   Calendar,
@@ -567,6 +568,8 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
                 <span className="hidden sm:inline">실시간 면접실</span>
               </button>
             )}
+
+            <ThemeQuickToggle variant="header" />
 
             <button
               type="button"

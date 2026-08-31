@@ -17,6 +17,7 @@ import { AdminStatsDashboard } from './AdminStatsDashboard';
 import { AIKnowledgeManager } from './AIKnowledgeManager';
 import { LeadershipManager } from './LeadershipManager';
 import { AdminAllInterviewsCompleteModal } from './AdminAllInterviewsCompleteModal';
+import { AdminThemeSettings } from './AdminThemeSettings';
 import {
   Crown,
   Shield,
@@ -58,8 +59,15 @@ import {
   Target,
   Brain,
   MessageSquareQuote,
-  KeyRound
+  KeyRound,
+  Palette,
+  Sun,
+  Moon,
+  Laptop
 } from 'lucide-react';
+import { ThemeQuickToggle } from './ThemeQuickToggle';
+import { useTheme, PALETTE_LIST } from '../contexts/ThemeContext';
+import { ThemePalette, ThemeMode } from '../types';
 
 interface AdminPortalPageProps {
   rooms: InterviewRoomItem[];
@@ -196,7 +204,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   onUnconfirmCriteria,
   onRefreshSettings
 }) => {
-  const [activeTab, setActiveTab] = useState<'CRITERIA' | 'STATS' | 'ROOMS' | 'LEADERSHIP' | 'AUDIT' | 'AI_KNOWLEDGE'>('STATS');
+  const [activeTab, setActiveTab] = useState<'CRITERIA' | 'STATS' | 'ROOMS' | 'LEADERSHIP' | 'AUDIT' | 'AI_KNOWLEDGE' | 'THEME'>('STATS');
 
   // Room creation state
   const [newRoomName, setNewRoomName] = useState('');
@@ -882,8 +890,10 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
           </div>
         </div>
 
-        {/* Action Button: All Interviews Completed */}
+        {/* Action Button: All Interviews Completed & Theme Quick Switch */}
         <div className="flex items-center gap-2.5">
+          <ThemeQuickToggle variant="header" />
+
           <button
             type="button"
             onClick={() => setIsCompleteAllModalOpen(true)}
@@ -985,6 +995,19 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
             <span className="text-[10px] bg-indigo-950/80 text-indigo-200 border border-indigo-500/30 px-1.5 py-0.2 rounded-full">
               {settings.knowledgeBase?.length || 0}
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('THEME')}
+            className={`px-3.5 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'THEME'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span>디자인 & 테마 설정</span>
           </button>
 
           <button
@@ -2260,6 +2283,15 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
             settings={settings}
             onRefreshSettings={onRefreshSettings}
           />
+        </div>
+      )}
+
+      {/* ========================================================================================= */}
+      {/* TAB 5: SITE DESIGN & COLOR PALETTE CONFIGURATION */}
+      {/* ========================================================================================= */}
+      {activeTab === 'THEME' && (
+        <div className="max-w-6xl w-full mx-auto mt-8">
+          <AdminThemeSettings />
         </div>
       )}
 

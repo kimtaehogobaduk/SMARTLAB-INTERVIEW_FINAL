@@ -2979,6 +2979,7 @@ async function startServer() {
     const messages = db.candidateMessages.filter(m => {
       if (candidateId && m.candidateId === candidateId) return true;
       if (roomId && studentId && m.roomId === roomId && m.studentId === studentId) return true;
+      if (roomId && !candidateId && !studentId && m.roomId === roomId) return true;
       return false;
     });
 
