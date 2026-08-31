@@ -215,13 +215,13 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 flex flex-col select-none text-slate-900">
+    <div className="min-h-screen w-full bg-slate-950 flex flex-col select-none text-slate-100 font-sans">
       {/* Header Bar */}
-      <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-xs">
-        <div className="flex items-center gap-4">
+      <header className="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-lg z-20">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={onBackToRooms}
-            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200"
+            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-700 cursor-pointer"
             title="방 목록으로 이동"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -231,44 +231,44 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
           <SmartLabLogo size="md" />
 
           {/* Room Title */}
-          <div className="hidden md:flex items-center gap-2 pl-3 border-l border-slate-200 text-xs">
+          <div className="hidden md:flex items-center gap-2 pl-3 border-l border-slate-800 text-xs">
             <span className="text-slate-400 font-semibold">현재 방:</span>
-            <span className="font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-md">
+            <span className="font-bold text-white bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
               {currentRoom.name || currentRoom.title || 'SmartLab 면접실'}
             </span>
           </div>
         </div>
 
         {/* Center/Right Navigation Tools */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
             <button
               onClick={onOpenLeaderboard}
-              className="px-3 py-1.5 bg-white text-slate-800 rounded-md font-bold shadow-2xs hover:text-blue-600 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-slate-700/60"
             >
-              <Trophy className="w-3.5 h-3.5 text-amber-500" />
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
               <span>종합 순위표</span>
             </button>
 
             <button
               onClick={onOpenParser}
-              className="px-3 py-1.5 text-slate-700 hover:text-purple-700 hover:bg-white rounded-md font-bold transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/60 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span>⚡ 만능 AI 일정 생성기 (이미지/텍스트)</span>
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">⚡ AI 일정 생성기</span>
             </button>
 
             <button
               onClick={onOpenAdmin}
-              className="px-3 py-1.5 text-slate-700 hover:text-red-700 hover:bg-white rounded-md font-bold transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-rose-950/50 hover:bg-rose-900/70 text-rose-300 border border-rose-800/60 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Shield className="w-3.5 h-3.5 text-red-600" />
-              <span>감사 로그</span>
+              <Shield className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">감사 로그</span>
             </button>
 
             <button
               onClick={onOpenSchema}
-              className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-white rounded-md font-semibold transition-all"
+              className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg font-semibold transition-all cursor-pointer"
               title="PostgreSQL 스키마 & API 명세"
             >
               <Database className="w-3.5 h-3.5" />
@@ -277,10 +277,10 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
             <button
               type="button"
               onClick={() => setIsChatOpen(!isChatOpen)}
-              className={`px-3 py-1.5 rounded-md font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                 isChatOpen
-                  ? 'bg-indigo-600 text-white shadow-2xs'
-                  : 'text-indigo-700 hover:bg-white'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-indigo-950/50 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-800/60'
               }`}
               title="면접관 실시간 대화방"
             >
@@ -296,14 +296,14 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
           {/* Current Interviewer Badge */}
           {(() => {
-            const role = currentUser.leadershipRole || getLeadershipRole(currentUser.name, settings.leadership);
+            const role = currentUser.leadershipRole || getLeadershipRole(currentUser.name, settings?.leadership);
             const isCap = role === 'CAPTAIN';
             const isVc = role === 'VICE_CAPTAIN';
 
             return (
-              <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3">
+              <div className="flex items-center gap-2.5 border-l border-slate-800 pl-3">
                 <div className="text-right">
-                  <div className="text-xs font-bold text-slate-900 flex items-center justify-end gap-1.5">
+                  <div className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
                     {isCap && (
                       <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 text-[10px] font-black rounded flex items-center gap-0.5 shadow-xs">
                         <Crown className="w-2.5 h-2.5 fill-slate-950" />
@@ -319,7 +319,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                     <span>{currentUser.name}</span>
                   </div>
                   <div className={`text-[10px] font-bold ${
-                    isCap ? 'text-amber-600' : isVc ? 'text-purple-600' : 'text-blue-600'
+                    isCap ? 'text-amber-400' : isVc ? 'text-purple-400' : 'text-blue-400'
                   }`}>
                     {isCap ? '총괄 기장' : isVc ? '부기장' : '평가위원'}
                   </div>
@@ -327,10 +327,10 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
                 <button
                   onClick={onSwitchInterviewer}
-                  className="px-2.5 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors border border-slate-700 cursor-pointer"
                   title="면접관 전환"
                 >
-                  <LogOut className="w-3.5 h-3.5 text-slate-500" />
+                  <LogOut className="w-3.5 h-3.5 text-slate-400" />
                   <span>전환</span>
                 </button>
               </div>
@@ -340,24 +340,24 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-6 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
         {/* Evaluation Criteria Confirmation Status Notice */}
         {settings && !settings.isCriteriaConfirmed ? (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-fade-in">
+          <div className="p-4 bg-rose-950/40 border border-rose-800/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg animate-fade-in">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-rose-100 text-rose-600 rounded-xl shrink-0 mt-0.5">
+              <div className="p-2 bg-rose-900/60 text-rose-300 rounded-xl shrink-0 mt-0.5 border border-rose-700/60">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-black text-rose-900">
+                  <h4 className="text-xs sm:text-sm font-black text-rose-200">
                     ⚠️ 어드민 평가 기준 미확정 (평가 점수 입력 및 제출 차단됨)
                   </h4>
-                  <span className="px-2 py-0.2 bg-rose-200 text-rose-800 text-[10px] font-bold rounded-md">
+                  <span className="px-2 py-0.2 bg-rose-900 text-rose-200 border border-rose-700 text-[10px] font-bold rounded-md">
                     잠금 상태
                   </span>
                 </div>
-                <p className="text-[11px] text-rose-700 leading-snug">
+                <p className="text-xs text-rose-300/80 leading-relaxed">
                   어드민이 가중 합산 기준과 평가 항목을 확정하기 전까지는, 면접실에 들어가도 평가 점수를 저장하거나 제출할 수 없도록 안전하게 차단되어 있습니다.
                 </p>
               </div>
@@ -367,7 +367,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
               <button
                 type="button"
                 onClick={onGoToAdminPortal}
-                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Sliders className="w-3.5 h-3.5" />
                 <span>어드민 기준 설정으로 이동</span>
@@ -375,33 +375,33 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
             )}
           </div>
         ) : settings && settings.isCriteriaConfirmed && (
-          <div className="px-4 py-2.5 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs text-emerald-900 shadow-2xs">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span className="font-bold">
+          <div className="px-4 py-3 bg-emerald-950/40 border border-emerald-800/80 rounded-2xl flex items-center justify-between text-xs text-emerald-200 shadow-md">
+            <div className="flex items-center gap-2 flex-wrap">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="font-bold text-white">
                 어드민 평가 기준 확정됨:
               </span>
-              <span className="text-emerald-700 text-[11px]">
+              <span className="text-emerald-300">
                 {settings.criteria?.map(c => `${c.name.split('.')[1] || c.name} (${c.weight}%)`).join(' • ')} (합격선: {settings.passThresholdScore || 70}점)
               </span>
             </div>
-            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-700 px-2.5 py-1 rounded-md shrink-0">
               평가 활성화됨
             </span>
           </div>
         )}
 
         {/* Top Control Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-xl">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="지원자 이름 또는 학번 검색..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden"
             />
           </div>
 
@@ -409,7 +409,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>신규 지원자 추가</span>
@@ -417,7 +417,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
             <button
               onClick={onOpenParser}
-              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               <span>이미지/명단 일괄 등록</span>
@@ -430,7 +430,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                     onClearAll();
                   }
                 }}
-                className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-semibold transition-colors"
+                className="px-3.5 py-2.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 title="전체 비우기"
               >
                 전체 비우기
@@ -441,29 +441,29 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
         {/* Candidate List Cards */}
         {filteredCandidates.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-              <Users className="w-6 h-6" />
+          <div className="bg-slate-900/60 rounded-3xl border border-dashed border-slate-800 p-12 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center mx-auto">
+              <Users className="w-7 h-7" />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-slate-800">
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold text-white">
                 현재 등록된 지원자가 없습니다
               </h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
+              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
                 <strong>[+ 신규 지원자 추가]</strong> 버튼을 누르거나, <strong>[⚡ 이미지/명단 일괄 등록]</strong>을 통해 엑셀 표나 일정표 사진을 올려보세요.
               </p>
             </div>
             <div className="flex justify-center gap-2 pt-2">
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 신규 지원자 추가
               </button>
               <button
                 onClick={onOpenParser}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 이미지 / 텍스트로 일정 생성
@@ -480,31 +480,31 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
               return (
                 <div
                   key={c.id}
-                  className={`bg-white rounded-xl border p-5 shadow-2xs transition-all hover:shadow-md flex flex-col justify-between space-y-4 ${
+                  className={`bg-slate-900/90 rounded-2xl border p-5 shadow-xl transition-all hover:border-slate-700 flex flex-col justify-between space-y-4 ${
                     isInProgress
-                      ? 'border-blue-400 ring-2 ring-blue-500/20'
+                      ? 'border-blue-500 ring-2 ring-blue-500/30'
                       : isCompleted
-                      ? 'border-emerald-300 bg-emerald-50/20'
-                      : 'border-slate-200'
+                      ? 'border-emerald-500/50 bg-slate-900/95'
+                      : 'border-slate-800'
                   }`}
                 >
                   {/* Card Top Info */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-base font-black text-slate-900">{c.name}</h4>
-                        <span className="text-xs font-medium text-slate-400 font-mono">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-base font-black text-white">{c.name}</h4>
+                        <span className="text-xs font-semibold text-slate-400 font-mono">
                           {c.studentId}
                         </span>
                         {c.track && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                             {c.track}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                        <span className="flex items-center gap-1 text-slate-300">
+                          <Clock className="w-3.5 h-3.5 text-blue-400" />
                           {c.timeslot.start} ~ {c.timeslot.end}
                         </span>
                         <span>•</span>
@@ -513,29 +513,29 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                     </div>
 
                     {/* Status Badge */}
-                    <div>
+                    <div className="shrink-0">
                       {isInProgress ? (
-                        <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 animate-pulse">
-                          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                        <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 animate-pulse">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                           면접 진행 중
                         </span>
                       ) : isCompleted ? (
-                        <span className="bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="bg-blue-500/20 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
                           평가 완료
                         </span>
                       ) : isNoShow ? (
-                        <span className="bg-red-100 text-red-800 border border-red-300 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
-                          <UserX className="w-3.5 h-3.5 text-red-600" />
-                          결시 확정 (2/3 동의)
+                        <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
+                          <UserX className="w-3.5 h-3.5 text-rose-400" />
+                          결시 확정
                         </span>
                       ) : (c.noShowVotes && c.noShowVotes.length > 0) ? (
-                        <span className="bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
-                          <UserX className="w-3.5 h-3.5 text-amber-600" />
-                          결시 동의 중 ({c.noShowVotes.length}/{Math.ceil(((c.interviewers?.length || 3) * 2) / 3)}명)
+                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
+                          <UserX className="w-3.5 h-3.5 text-amber-400" />
+                          결시 동의 중 ({c.noShowVotes.length}/{Math.ceil(((c.interviewers?.length || 5) * 2) / 3)}명)
                         </span>
                       ) : (
-                        <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1">
+                        <span className="bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
                           대기 중
                         </span>
@@ -544,69 +544,83 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                   </div>
 
                   {/* Documents & Details preview */}
-                  <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-2">
+                  <div className="text-xs text-slate-300 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
                     
+                    {/* Panel Assignment & Quorum Status */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-300">
+                        <Users className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                        <span className="text-slate-400">심사 패널:</span>
+                        <span className="font-semibold text-white">
+                          {c.interviewers && c.interviewers.length > 0 ? c.interviewers.join(', ') : '5인 로테이션 풀 배정'}
+                        </span>
+                      </div>
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
+                        {c.interviewers?.length || 5}인 풀
+                      </span>
+                    </div>
+
                     {/* Candidate Self-scheduled date & reminder status */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-slate-200/60 text-[11px]">
-                      <div className="flex items-center gap-1.5 font-medium text-slate-700">
-                        <Calendar className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                        <span>면접일: <strong className="text-slate-900">{c.interviewDate || '당일 배정'}</strong></span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800 text-xs">
+                      <div className="flex items-center gap-1.5 font-medium text-slate-300">
+                        <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span>면접일: <strong className="text-white">{c.interviewDate || '당일 배정'}</strong></span>
                       </div>
                       <div className="flex items-center gap-2">
                         {c.reminder10MinEnabled && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
-                            <BellRing className="w-3 h-3 text-amber-600" />
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                            <BellRing className="w-3 h-3 text-amber-400" />
                             <span>10분전 알림요청</span>
                           </span>
                         )}
                         {c.lastCandidateActiveAt && (
-                          <span className="text-[10px] text-slate-400">포털 접속됨</span>
+                          <span className="text-[11px] text-emerald-400 font-semibold">포털 접속됨</span>
                         )}
                       </div>
                     </div>
 
                     {c.candidateNotes && (
-                      <div className="text-[11px] text-blue-900 bg-blue-50/70 p-2 rounded-md border border-blue-200/60 leading-relaxed">
-                        <span className="font-bold text-blue-950">지원자 전달사항: </span>
+                      <div className="text-xs text-blue-200 bg-blue-950/40 p-2.5 rounded-lg border border-blue-800/50 leading-relaxed">
+                        <span className="font-bold text-blue-300">지원자 전달사항: </span>
                         {c.candidateNotes}
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-semibold text-slate-700">제출 서류:</span>
-                      <span className="text-slate-500 font-mono text-[10px]">
+                    <div className="flex items-center justify-between text-xs pt-0.5">
+                      <span className="font-semibold text-slate-400">제출 서류:</span>
+                      <span className="text-slate-400 font-mono text-xs">
                         {c.documents.length > 0 ? `${c.documents.length}개 서류` : '서류 없음'}
                       </span>
                     </div>
                     {c.documents.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1.5">
                         {c.documents.map((doc, idx) => (
                           <span
                             key={doc.id || idx}
-                            className="inline-flex items-center gap-1 text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-700 font-medium"
+                            className="inline-flex items-center gap-1.5 text-xs bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-200 font-medium"
                           >
-                            <span className="uppercase text-[9px] font-bold text-blue-600 bg-blue-50 px-1 rounded">
+                            <span className="uppercase text-[10px] font-bold text-blue-400 bg-blue-950 px-1 rounded border border-blue-800">
                               {doc.type || 'DOC'}
                             </span>
-                            <span className="truncate max-w-[130px]">{doc.title}</span>
+                            <span className="truncate max-w-[150px]">{doc.title}</span>
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-slate-400">등록된 사전 서류 없음</p>
+                      <p className="text-xs text-slate-500">등록된 사전 서류 없음</p>
                     )}
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => {
                           if (confirm(`'${c.name}' 지원자를 삭제하시겠습니까?`)) {
                             onDeleteCandidate(c.id);
                           }
                         }}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-rose-800/40"
                         title="지원자 삭제"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -616,10 +630,10 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                       <button
                         type="button"
                         onClick={() => setCandidateForChat(c)}
-                        className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3 py-2 bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-800/60 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                         title="지원자 실시간 대화함 열기 (전체 면접관 공유)"
                       >
-                        <MessageSquareText className="w-3.5 h-3.5 text-emerald-600" />
+                        <MessageSquareText className="w-3.5 h-3.5 text-emerald-400" />
                         <span>지원자 대화</span>
                       </button>
                     </div>
@@ -627,16 +641,16 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onSelectCandidate(c.id, true)}
-                        className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3.5 py-2 bg-indigo-950/50 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-800/60 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                         title="평가하지 않고 면접 진행 흐름만 관전"
                       >
-                        <Eye className="w-3.5 h-3.5 text-indigo-600" />
+                        <Eye className="w-3.5 h-3.5 text-indigo-400" />
                         <span>관전만</span>
                       </button>
 
                       <button
                         onClick={() => setSelectedCandidateForEntry(c)}
-                        className="px-4 py-2 bg-slate-900 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/20 cursor-pointer"
                       >
                         <span>면접실 입장</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -663,16 +677,16 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
       {/* Manual Candidate Creation Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden">
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 w-full max-w-lg overflow-hidden text-white">
+            <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
               <h3 className="text-base font-bold flex items-center gap-2">
                 <Plus className="w-4 h-4 text-blue-400" />
                 신규 면접 지원자 직접 등록
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white cursor-pointer"
               >
                 ✕
               </button>
@@ -681,95 +695,95 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
             <form onSubmit={handleCreateSubmit} className="p-6 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">지원자 성명 *</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">지원자 성명 *</label>
                   <input
                     type="text"
                     required
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="홍길동"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-medium"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden font-medium text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">분야 / 메모 (선택)</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">분야 / 메모 (선택)</label>
                   <input
                     type="text"
                     value={newFieldNote}
                     onChange={(e) => setNewFieldNote(e.target.value)}
                     placeholder="예: AI, 프론트, 기획 등"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">학번 / 식별번호</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">학번 / 식별번호</label>
                   <input
                     type="text"
                     value={newStudentId}
                     onChange={(e) => setNewStudentId(e.target.value)}
                     placeholder="202610291"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden font-mono text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">연락처</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">연락처</label>
                   <input
                     type="text"
                     value={newPhone}
                     onChange={(e) => setNewPhone(e.target.value)}
                     placeholder="010-0000-0000"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden font-mono text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">시작 시간</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">시작 시간</label>
                   <input
                     type="text"
                     value={newStartTime}
                     onChange={(e) => setNewStartTime(e.target.value)}
                     placeholder="14:00"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-mono font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden font-mono font-bold text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">종료 시간</label>
+                  <label className="block font-bold text-slate-300 mb-1.5">종료 시간</label>
                   <input
                     type="text"
                     value={newEndTime}
                     onChange={(e) => setNewEndTime(e.target.value)}
                     placeholder="14:30"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-mono font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden font-mono font-bold text-white"
                   />
                 </div>
               </div>
 
               {/* Multi-Format Document Attachment Section */}
-              <div className="space-y-2 pt-2 border-t border-slate-200">
+              <div className="space-y-2.5 pt-3 border-t border-slate-800">
                 <div className="flex items-center justify-between">
-                  <label className="block font-bold text-slate-700">
+                  <label className="block font-bold text-slate-300">
                     지원 서류 첨부 (PDF / PPTX / HWP / 이미지 / Word / 링크 등)
                   </label>
-                  <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded">
+                  <span className="text-[10px] text-blue-400 font-bold bg-blue-500/20 border border-blue-500/30 px-2 py-0.5 rounded-md">
                     다양한 서식 지원
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">서류 형식 선택</label>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">서류 형식 선택</label>
                     <select
                       value={newDocType}
                       onChange={(e) => setNewDocType(e.target.value)}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-800 rounded-xl text-xs bg-slate-950 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden cursor-pointer"
                     >
                       <option value="docx">📝 DOCX / Word 워드 문서</option>
                       <option value="gdocs">📑 Google Docs / Drive (인앱 로딩)</option>
@@ -784,9 +798,9 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">서류 파일 직접 업로드</label>
-                    <label className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 cursor-pointer transition-colors truncate">
-                      <Upload className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <label className="block text-xs font-medium text-slate-400 mb-1">서류 파일 직접 업로드</label>
+                    <label className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold text-slate-300 cursor-pointer transition-colors truncate">
+                      <Upload className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                       <span className="truncate">{newDocTitle || '파일 선택 (DOCX, PDF 등)'}</span>
                       <input
                         type="file"
@@ -800,7 +814,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
                 {(newDocType === 'url' || newDocType === 'gdocs') && (
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                    <label className="block text-xs font-medium text-slate-400 mb-1">
                       {newDocType === 'gdocs' ? 'Google Docs / Sheets / Drive 공유 URL (인앱 뷰어로 변환)' : '외부 서류 / 웹사이트 URL (인앱 로딩)'}
                     </label>
                     <input
@@ -808,13 +822,13 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                       value={newDocUrl}
                       onChange={(e) => setNewDocUrl(e.target.value)}
                       placeholder={newDocType === 'gdocs' ? 'https://docs.google.com/document/d/...' : 'https://notion.so/... 또는 https://github.com/...'}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                      className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                  <label className="block text-xs font-medium text-slate-400 mb-1">
                     지원 서류 본문 / 핵심 역량 요약 (AI 질문 생성에 활용)
                   </label>
                   <textarea
@@ -822,22 +836,22 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                     value={newDocText}
                     onChange={(e) => setNewDocText(e.target.value)}
                     placeholder="지원 동기, 프로젝트 경험, 포트폴리오 텍스트를 입력하면 실시간 AI 꼬리 질문 생성에 활용됩니다..."
-                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden resize-none text-xs"
+                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden resize-none text-xs text-white"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
+              <div className="pt-4 border-t border-slate-800 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-semibold hover:bg-slate-50"
+                  className="px-4 py-2 border border-slate-800 rounded-xl text-slate-300 font-semibold hover:bg-slate-800 cursor-pointer"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-xs"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-md shadow-blue-600/20 cursor-pointer"
                 >
                   지원자 등록 완료
                 </button>

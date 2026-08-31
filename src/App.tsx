@@ -36,6 +36,8 @@ const DEFAULT_INTERVIEWERS: InterviewerUser[] = [
   { id: 'interviewer-1', name: '면접관 1 (김태호)', role: 'interviewer', trackExpertise: 'AI & 심층 기술 심사' },
   { id: 'interviewer-2', name: '면접관 2 (이지수)', role: 'interviewer', trackExpertise: 'UI/UX & 문제해결력 심사' },
   { id: 'interviewer-3', name: '면접관 3 (박민우)', role: 'interviewer', trackExpertise: '인프라 & 협업 태도 심사' },
+  { id: 'interviewer-4', name: '면접관 4 (최수민)', role: 'interviewer', trackExpertise: '풀스택 & 아키텍처 심사' },
+  { id: 'interviewer-5', name: '면접관 5 (강민지)', role: 'interviewer', trackExpertise: '성장 잠재력 & 컬처핏 심사' },
   { id: 'admin-user', name: '동아리 총괄 관리자 (Admin)', role: 'admin', trackExpertise: '시스템 관리 & 감사 승인' }
 ];
 

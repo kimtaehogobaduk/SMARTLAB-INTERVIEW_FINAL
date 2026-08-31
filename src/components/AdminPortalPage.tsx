@@ -57,7 +57,8 @@ import {
   Tag,
   Target,
   Brain,
-  MessageSquareQuote
+  MessageSquareQuote,
+  KeyRound
 } from 'lucide-react';
 
 interface AdminPortalPageProps {
@@ -239,6 +240,60 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
   const [criteriaSubmitting, setCriteriaSubmitting] = useState(false);
   const [criteriaSuccessMsg, setCriteriaSuccessMsg] = useState('');
   const [criteriaErrorMsg, setCriteriaErrorMsg] = useState('');
+
+  // Interviewer 4-digit PIN management state
+  const [pinsStatus, setPinsStatus] = useState<Record<string, { isPinSet: boolean; pinSetAt?: string }>>({});
+  const [pinResetLoading, setPinResetLoading] = useState<Record<string, boolean>>({});
+  const [pinFeedbackMsg, setPinFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const fetchAllPinsStatus = async () => {
+    try {
+      const res = await fetch('/api/interviewers/all-pins-status');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.pinsStatus) {
+          setPinsStatus(data.pinsStatus);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch PINs status:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllPinsStatus();
+  }, [activeTab]);
+
+  const handleResetPin = async (interviewer: { id?: string; name: string }) => {
+    if (!confirm(`정말로 "${interviewer.name}" 면접관의 4자리 비밀번호를 초기화하시겠습니까?\n초기화 후 해당 면접관은 다음 로그인 시 4자리 비밀번호를 새로 설정하게 됩니다.`)) {
+      return;
+    }
+    const key = interviewer.id || interviewer.name;
+    setPinResetLoading(prev => ({ ...prev, [key]: true }));
+    setPinFeedbackMsg(null);
+    try {
+      const res = await fetch('/api/interviewers/reset-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interviewerId: interviewer.id,
+          name: interviewer.name
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPinFeedbackMsg({ type: 'success', text: `"${interviewer.name}" 면접관의 4자리 비밀번호가 안전하게 초기화되었습니다.` });
+        await fetchAllPinsStatus();
+      } else {
+        setPinFeedbackMsg({ type: 'error', text: data.error || '비밀번호 초기화 실패' });
+      }
+    } catch (err: any) {
+      setPinFeedbackMsg({ type: 'error', text: err.message || '초기화 통신 중 오류가 발생했습니다.' });
+    } finally {
+      setPinResetLoading(prev => ({ ...prev, [key]: false }));
+      setTimeout(() => setPinFeedbackMsg(null), 5000);
+    }
+  };
 
   // Selected room object
   const activeSelectedRoom = selectedRoomScope === 'GLOBAL' 
@@ -2007,6 +2062,128 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                 })}
               </div>
             )}
+
+            {/* Dedicated Interviewer 4-digit PIN Management Section */}
+            <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>면접관 4자리 PIN 비밀번호 보안 관리</span>
+                      <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.2 rounded font-mono">
+                        보안 격리
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      면접관은 최초 로그인 시 4자리 PIN을 설정하며, 분실 시 어드민이 초기화할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchAllPinsStatus}
+                  className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                  title="PIN 상태 새로고침"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>새로고침</span>
+                </button>
+              </div>
+
+              {pinFeedbackMsg && (
+                <div className={`p-3 rounded-xl text-xs flex items-center gap-2 animate-fade-in ${
+                  pinFeedbackMsg.type === 'success'
+                    ? 'bg-emerald-950/60 border border-emerald-800 text-emerald-300'
+                    : 'bg-red-950/60 border border-red-800 text-red-300'
+                }`}>
+                  {pinFeedbackMsg.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{pinFeedbackMsg.text}</span>
+                </div>
+              )}
+
+              {(() => {
+                const uniqueInterviewers: InterviewerUser[] = Array.from(
+                  new Map<string, InterviewerUser>(
+                    rooms.flatMap(r => r.interviewers || []).map(i => [i.name.trim().toLowerCase(), i])
+                  ).values()
+                );
+
+                if (uniqueInterviewers.length === 0) {
+                  return (
+                    <div className="p-4 text-center text-xs text-slate-500">
+                      등록된 면접관이 없습니다. 방 개설 시 면접관을 배정해주세요.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {uniqueInterviewers.map(intv => {
+                      const key = intv.id || intv.name;
+                      const status = pinsStatus[intv.id] || pinsStatus[intv.name] || pinsStatus[intv.name.trim().toLowerCase()];
+                      const isPinSet = !!status?.isPinSet;
+                      const isLoading = !!pinResetLoading[key];
+
+                      return (
+                        <div
+                          key={key}
+                          className="p-3 bg-slate-950/70 border border-slate-800/80 rounded-xl flex items-center justify-between gap-3 text-xs"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                              isPinSet ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                            }`}>
+                              {intv.name.charAt(0)}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-bold text-white truncate flex items-center gap-1.5">
+                                <span>{intv.name}</span>
+                                {intv.role === 'admin' && (
+                                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded font-mono">
+                                    Admin
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] flex items-center gap-1.5 mt-0.5">
+                                {isPinSet ? (
+                                  <span className="text-emerald-400 font-semibold flex items-center gap-0.5">
+                                    <Check className="w-2.5 h-2.5" />
+                                    <span>PIN 설정 완료</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-400 flex items-center gap-0.5">
+                                    <Clock className="w-2.5 h-2.5" />
+                                    <span>최초 설정 대기</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={!isPinSet || isLoading}
+                            onClick={() => handleResetPin(intv)}
+                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-red-950/50 hover:text-red-300 hover:border-red-800/50 border border-slate-700 text-slate-300 disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-300 disabled:hover:border-slate-700 rounded-lg text-[11px] font-semibold transition-all shrink-0 cursor-pointer flex items-center gap-1"
+                            title={isPinSet ? '4자리 비밀번호 초기화' : '설정된 비밀번호가 없습니다'}
+                          >
+                            <RotateCcw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+                            <span>{isLoading ? '초기화 중...' : '비번 초기화'}</span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       )}

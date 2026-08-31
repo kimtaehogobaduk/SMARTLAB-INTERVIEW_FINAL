@@ -217,6 +217,9 @@ export interface InterviewerUser {
   leadershipRole?: LeadershipRole;
   trackExpertise?: string;
   avatarColor?: string;
+  pinCode?: string; // 4-digit PIN password
+  isPinSet?: boolean;
+  pinSetAt?: string;
 }
 
 export interface SecurityQuizItem {
@@ -455,6 +458,8 @@ export interface PlatformSettings {
   interviewerNameDisplayPolicy?: InterviewerNameDisplayPolicy;
   showStatsToCandidates?: boolean;
   showDetailedComments?: boolean;
+  interviewerPins?: Record<string, string>; // Normalized interviewer key -> 4-digit PIN
+  interviewerPinSetAt?: Record<string, string>; // Normalized interviewer key -> KST timestamp
 }
 
 export interface InterviewerPresence {
@@ -465,6 +470,14 @@ export interface InterviewerPresence {
   candidateId?: string;
   mode: 'evaluating' | 'observing' | 'left';
   lastActiveAt: number;
+}
+
+export type ThemeMode = 'dark' | 'light' | 'system';
+export type ThemePalette = 'blue' | 'orange' | 'yellow' | 'emerald' | 'purple' | 'rose' | 'zinc' | 'cyan';
+
+export interface ThemeConfig {
+  mode: ThemeMode;
+  palette: ThemePalette;
 }
 
 export interface InterviewerChatMessage {

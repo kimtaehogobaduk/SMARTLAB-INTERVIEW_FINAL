@@ -30,7 +30,8 @@ import {
   FileCheck
 } from 'lucide-react';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
+import html2canvasPro from 'html2canvas-pro';
 
 interface CandidateResultScorecardProps {
   candidate: {
@@ -69,7 +70,7 @@ export const CandidateResultScorecard: React.FC<CandidateResultScorecardProps> =
     publishedAt
   } = resultData;
 
-  // Generate clean, high-resolution PDF
+  // Generate clean, high-resolution PDF with oklch / Tailwind v4 support
   const handleDownloadPdf = async () => {
     if (!printableRef.current) return;
     setIsExportingPdf(true);
@@ -80,46 +81,68 @@ export const CandidateResultScorecard: React.FC<CandidateResultScorecardProps> =
       setExpandedInterviewerIndex(-1); // special flag to show all in print mode
 
       // Wait for DOM layout to settle
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 350));
 
       const element = printableRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#090d16',
-        windowWidth: 1200
+      let imgData: string = '';
+
+      try {
+        imgData = await toPng(element, {
+          quality: 0.98,
+          pixelRatio: 2,
+          backgroundColor: '#090d16',
+          cacheBust: true
+        });
+      } catch (toPngErr) {
+        console.warn('html-to-image fallback to html2canvasPro:', toPngErr);
+        const canvas = await html2canvasPro(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#090d16'
+        });
+        imgData = canvas.toDataURL('image/png');
+      }
+
+      if (!imgData) {
+        throw new Error('PDF 이미지 렌더링 결과가 비어 있습니다.');
+      }
+
+      const img = new window.Image();
+      img.src = imgData;
+      await new Promise((resolve, reject) => {
+        img.onload = () => resolve(true);
+        img.onerror = (e) => reject(e);
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = 297; // A4 height in mm
+      const imgAspectHeight = (img.naturalHeight * pdfWidth) / img.naturalWidth;
+      let heightLeft = imgAspectHeight;
       let position = 0;
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgAspectHeight, undefined, 'FAST');
+      heightLeft -= pdfHeight;
 
       while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
+        position = heightLeft - imgAspectHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgAspectHeight, undefined, 'FAST');
+        heightLeft -= pdfHeight;
       }
 
-      const cleanName = candidate.name.replace(/\s+/g, '_');
+      const cleanName = (candidate.name || '지원자').replace(/\s+/g, '_');
       pdf.save(`SmartLab_면접성적표_${cleanName}_${candidate.studentId || ''}.pdf`);
       setExpandedInterviewerIndex(originalExpanded);
     } catch (error) {
       console.error('PDF export failed:', error);
-      alert('PDF 생성 중 오류가 발생했습니다. 브라우저 인쇄(Ctrl+P) 기능을 이용하실 수도 있습니다.');
+      alert('PDF 생성 중 오류가 발생했습니다. 브라우저 인쇄(Ctrl+P) 기능을 이용하시거나 다시 시도해주세요.');
     } finally {
       setIsExportingPdf(false);
     }

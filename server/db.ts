@@ -89,32 +89,36 @@ export const defaultCriteria = [
 export const initialRooms: InterviewRoomInfo[] = [
   {
     id: 'room-1',
-    name: 'SmartLab Studio 1 (AI 엔지니어링)',
-    title: 'SmartLab Studio 1 (AI 엔지니어링)',
-    description: 'LLM, Multi-Agent, Computer Vision 직무 심층 면접실',
+    name: 'SmartLab Studio 1 (AI 엔지니어링 & 연구)',
+    title: 'SmartLab Studio 1 (AI 엔지니어링 & 연구)',
+    description: 'LLM, Multi-Agent, Computer Vision 직무 5인 심층 면접실',
     createdBy: 'SmartLab 운영진',
     createdAt: new Date().toISOString(),
-    panelCount: 3,
+    panelCount: 5,
     minutesPerPerson: 30,
     interviewers: [
       { id: 'intv-1-1', name: '김태호 면접관', role: 'interviewer', trackExpertise: 'AI / LLM 연구' },
       { id: 'intv-1-2', name: '이지은 면접관', role: 'interviewer', trackExpertise: 'MLOps 및 시스템 설계' },
-      { id: 'intv-1-3', name: '박준혁 면접관', role: 'interviewer', trackExpertise: '알고리즘 및 문제해결' }
+      { id: 'intv-1-3', name: '박준혁 면접관', role: 'interviewer', trackExpertise: '알고리즘 및 문제해결' },
+      { id: 'intv-1-4', name: '최수민 면접관', role: 'interviewer', trackExpertise: 'AI 응용 서비스 아키텍처' },
+      { id: 'intv-1-5', name: '강민지 면접관', role: 'interviewer', trackExpertise: '동아리 적합도 & 협업 역량' }
     ]
   },
   {
     id: 'room-2',
-    name: 'SmartLab Studio 2 (풀스택 & 클라우드)',
-    title: 'SmartLab Studio 2 (풀스택 & 클라우드)',
-    description: 'React, TypeScript, 고성능 분산 백엔드 직무 심층 면접실',
+    name: 'SmartLab Studio 2 (풀스택 & 클라우드 인프라)',
+    title: 'SmartLab Studio 2 (풀스택 & 클라우드 인프라)',
+    description: 'React, TypeScript, 고성능 분산 백엔드 5인 심층 면접실',
     createdBy: 'SmartLab 운영진',
     createdAt: new Date().toISOString(),
-    panelCount: 3,
+    panelCount: 5,
     minutesPerPerson: 30,
     interviewers: [
       { id: 'intv-2-1', name: '최수민 면접관', role: 'interviewer', trackExpertise: '프론트엔드 아키텍처' },
       { id: 'intv-2-2', name: '정동훈 면접관', role: 'interviewer', trackExpertise: '분산 백엔드 & DB' },
-      { id: 'intv-2-3', name: '강민지 면접관', role: 'interviewer', trackExpertise: '인프라 및 동아리 리더' }
+      { id: 'intv-2-3', name: '강민지 면접관', role: 'interviewer', trackExpertise: '클라우드 인프라 & DevOps' },
+      { id: 'intv-2-4', name: '김태호 면접관', role: 'interviewer', trackExpertise: '시스템 성능 최적화' },
+      { id: 'intv-2-5', name: '이지은 면접관', role: 'interviewer', trackExpertise: '코드 품질 & 협업 태도' }
     ]
   }
 ];
@@ -439,7 +443,9 @@ export const db: DatabaseState = {
     leadership: {
       captain: null,
       viceCaptains: []
-    }
+    },
+    interviewerPins: {},
+    interviewerPinSetAt: {}
   },
   adminUnlock: {
     candidateId: null,

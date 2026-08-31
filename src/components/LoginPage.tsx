@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { InterviewerUser, InterviewRoomInfo } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import { UserCheck, Shield, Sparkles, ArrowRight, Lock, KeyRound, ArrowLeft, DoorOpen } from 'lucide-react';
+import { InterviewerPinModal } from './InterviewerPinModal';
 
 interface LoginPageProps {
   currentRoom: InterviewRoomInfo | null;
@@ -19,6 +20,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [selectedUser, setSelectedUser] = useState<InterviewerUser>(availableInterviewers[0]);
   const [customName, setCustomName] = useState<string>('');
   const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
+  const [pinModalOpen, setPinModalOpen] = useState<boolean>(false);
+  const [interviewerToAuth, setInterviewerToAuth] = useState<InterviewerUser | null>(null);
 
   const handleEnter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +30,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         alert('면접관 이름을 입력해주세요.');
         return;
       }
-      onLogin({
+      const newUser: InterviewerUser = {
         id: `interviewer-${Date.now().toString(36)}`,
-        name: `${customName} 면접관`,
+        name: `${customName.trim()} 면접관`,
         role: 'interviewer'
-      });
+      };
+      setInterviewerToAuth(newUser);
+      setPinModalOpen(true);
     } else {
-      onLogin(selectedUser);
+      setInterviewerToAuth(selectedUser);
+      setPinModalOpen(true);
     }
+  };
+
+  const handleAuthSuccess = (authenticatedUser: InterviewerUser) => {
+    setPinModalOpen(false);
+    onLogin(authenticatedUser);
   };
 
   return (
@@ -70,7 +81,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </div>
           <h3 className="text-sm font-bold text-white">면접관 프로필 선택</h3>
           <p className="text-xs text-slate-400">
-            평가를 진행할 면접관 계정을 선택하고 세션에 입장하세요.
+            평가를 진행할 면접관 계정을 선택하고 4자리 비밀번호로 인증하세요.
           </p>
         </div>
 
@@ -149,7 +160,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             type="submit"
             className="w-full py-3 bg-blue-600 hover:bg-blue-500 active:scale-98 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
-            <span>면접 평가 세션 입장</span>
+            <Lock className="w-4 h-4" />
+            <span>비밀번호 입력 및 세션 입장</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
@@ -158,11 +170,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
           <span className="flex items-center gap-1">
             <Lock className="w-3 h-3 text-slate-400" />
-            실시간 3인 블라인드 평가 격리
+            4자리 PIN 비밀번호 인증
           </span>
           <span className="font-mono">SmartLab Core</span>
         </div>
       </div>
+
+      {interviewerToAuth && (
+        <InterviewerPinModal
+          interviewer={interviewerToAuth}
+          isOpen={pinModalOpen}
+          onClose={() => setPinModalOpen(false)}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
     </div>
   );
 };

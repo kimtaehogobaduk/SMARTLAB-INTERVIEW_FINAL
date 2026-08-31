@@ -53,6 +53,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
     const avgPresentationBonus = calculateAveragePresentationBonus(candidateEvals, activeCriteria);
     const finalScore = calculateAggregatedScore(evaluatorScores, scoringFormula);
 
+    // List of interviewers who graded this candidate
+    const evaluatedInterviewers = candidateEvals.map(e => e.interviewerName || '심사위원');
+
     // Category item-wise averages for display
     const criteriaAverages: Record<string, number> = {};
     activeCriteria.forEach(crit => {
@@ -69,6 +72,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
       finalScore,
       evaluatorScores,
       evalCount: count,
+      evaluatedInterviewers,
       isCompleted,
       criteriaAverages,
       avgPresentationBonus
@@ -278,14 +282,22 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                     </td>
 
                     <td className="py-3.5 px-2">
-                      {item.isCompleted ? (
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 w-max">
+                      {item.evalCount >= 3 ? (
+                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 w-max border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          평가 완료 ({item.evalCount}인 참여)
+                          정족수 충족 ({item.evalCount}인 평가)
+                        </span>
+                      ) : item.evalCount === 2 ? (
+                        <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full font-bold text-[10px] w-max border border-blue-200">
+                          부분 평가 ({item.evalCount}인 참여)
+                        </span>
+                      ) : item.evalCount === 1 ? (
+                        <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-bold text-[10px] w-max border border-amber-300">
+                          ⚠️ 단일 심사 ({item.evalCount}인 / 추가 권장)
                         </span>
                       ) : (
-                        <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-bold text-[10px] w-max">
-                          진행 중 ({item.evalCount}인 평가 제출)
+                        <span className="text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold text-[10px] w-max">
+                          미심사
                         </span>
                       )}
                     </td>

@@ -2514,6 +2514,217 @@ async function startServer() {
   });
 
   // ----------------------------------------------------
+  // INTERVIEWER 4-DIGIT PIN AUTHENTICATION APIS
+  // ----------------------------------------------------
+  app.get('/api/interviewers/pin-status', (req, res) => {
+    const { name, id } = req.query;
+    const cleanName = typeof name === 'string' ? name.trim() : '';
+    const cleanId = typeof id === 'string' ? id.trim() : '';
+    
+    if (!cleanName && !cleanId) {
+      return res.status(400).json({ error: '면접관 이름 또는 ID가 필요합니다.' });
+    }
+
+    const nameKey = cleanName.toLowerCase().replace(/\s+/g, '');
+    const idKey = cleanId.toLowerCase();
+    const baseKey = cleanName.replace(/(\s*(면접관|심사위원|님))+$/g, '').trim().toLowerCase();
+
+    const pins = db.settings?.interviewerPins || {};
+    const setAts = db.settings?.interviewerPinSetAt || {};
+
+    const storedPin = pins[nameKey] || (cleanId ? pins[idKey] : undefined) || (baseKey ? pins[baseKey] : undefined);
+    const pinSetAt = setAts[nameKey] || (cleanId ? setAts[idKey] : undefined) || (baseKey ? setAts[baseKey] : undefined);
+
+    res.json({
+      isPinSet: Boolean(storedPin && storedPin.length === 4),
+      interviewerName: cleanName || cleanId,
+      pinSetAt: pinSetAt || null
+    });
+  });
+
+  app.post('/api/interviewers/set-pin', async (req, res) => {
+    const { interviewerName, interviewerId, pin } = req.body || {};
+    const cleanName = (interviewerName || interviewerId || '').trim();
+    const cleanId = (interviewerId || '').trim();
+    const cleanPin = typeof pin === 'string' ? pin.trim() : '';
+
+    if (!cleanName) {
+      return res.status(400).json({ error: '면접관 정보가 누락되었습니다.' });
+    }
+
+    if (!/^\d{4}$/.test(cleanPin)) {
+      return res.status(400).json({ error: '비밀번호는 반드시 4자리 숫자여야 합니다.' });
+    }
+
+    if (!db.settings.interviewerPins) db.settings.interviewerPins = {};
+    if (!db.settings.interviewerPinSetAt) db.settings.interviewerPinSetAt = {};
+
+    const nameKey = cleanName.toLowerCase().replace(/\s+/g, '');
+    const idKey = cleanId ? cleanId.toLowerCase() : '';
+    const baseKey = cleanName.replace(/(\s*(면접관|심사위원|님))+$/g, '').trim().toLowerCase();
+    const nowKST = getKSTDateTimeStr();
+
+    db.settings.interviewerPins[nameKey] = cleanPin;
+    db.settings.interviewerPinSetAt[nameKey] = nowKST;
+
+    if (baseKey) {
+      db.settings.interviewerPins[baseKey] = cleanPin;
+      db.settings.interviewerPinSetAt[baseKey] = nowKST;
+    }
+    if (idKey) {
+      db.settings.interviewerPins[idKey] = cleanPin;
+      db.settings.interviewerPinSetAt[idKey] = nowKST;
+    }
+
+    // Update room interviewer entities if present
+    db.rooms.forEach(r => {
+      if (Array.isArray(r.interviewers)) {
+        r.interviewers.forEach(u => {
+          if (u.name === cleanName || u.id === cleanId) {
+            u.pinCode = cleanPin;
+            u.isPinSet = true;
+            u.pinSetAt = nowKST;
+          }
+        });
+      }
+    });
+
+    db.auditLogs.unshift({
+      id: `audit-pin-set-${Date.now().toString(36)}`,
+      timestamp: nowKST,
+      modifiedBy: cleanName,
+      field: `[면접관 4자리 PIN 설정] ${cleanName}`,
+      beforeVal: { isPinSet: false },
+      afterVal: { isPinSet: true, pinSetAt: nowKST },
+      reason: `${cleanName} 면접관이 최초 4자리 숫자 비밀번호를 설정함`
+    });
+
+    await saveCloudState();
+    res.json({
+      success: true,
+      message: '4자리 비밀번호가 안전하게 설정되었습니다.',
+      interviewerName: cleanName,
+      pinSetAt: nowKST
+    });
+  });
+
+  app.post('/api/interviewers/verify-pin', (req, res) => {
+    const { interviewerName, interviewerId, pin } = req.body || {};
+    const cleanName = (interviewerName || interviewerId || '').trim();
+    const cleanId = (interviewerId || '').trim();
+    const cleanPin = typeof pin === 'string' ? pin.trim() : '';
+
+    if (!cleanName) {
+      return res.status(400).json({ error: '면접관 정보가 누락되었습니다.' });
+    }
+
+    if (!cleanPin) {
+      return res.status(400).json({ verified: false, error: '4자리 비밀번호를 입력해주세요.' });
+    }
+
+    const nameKey = cleanName.toLowerCase().replace(/\s+/g, '');
+    const idKey = cleanId ? cleanId.toLowerCase() : '';
+    const baseKey = cleanName.replace(/(\s*(면접관|심사위원|님))+$/g, '').trim().toLowerCase();
+
+    const pins = db.settings?.interviewerPins || {};
+    const storedPin = pins[nameKey] || (idKey ? pins[idKey] : undefined) || (baseKey ? pins[baseKey] : undefined);
+
+    if (!storedPin) {
+      return res.json({
+        verified: false,
+        isPinSet: false,
+        error: '설정된 비밀번호가 없습니다. 최초 4자리 비밀번호 설정을 진행해주세요.'
+      });
+    }
+
+    if (storedPin === cleanPin) {
+      return res.json({
+        success: true,
+        verified: true,
+        interviewerName: cleanName
+      });
+    }
+
+    return res.status(401).json({
+      verified: false,
+      isPinSet: true,
+      error: '비밀번호가 일치하지 않습니다. 4자리 숫자를 다시 확인해주세요.'
+    });
+  });
+
+  app.post('/api/interviewers/reset-pin', async (req, res) => {
+    const { adminPassword, password, interviewerName, interviewerId } = req.body || {};
+    const pwd = (adminPassword || password || '').trim();
+    if (pwd !== getEffectiveAdminPassword()) {
+      return res.status(401).json({ error: '관리자 권한 인증에 실패했습니다.' });
+    }
+
+    const cleanName = (interviewerName || interviewerId || '').trim();
+    const cleanId = (interviewerId || '').trim();
+
+    if (!cleanName) {
+      return res.status(400).json({ error: '초기화할 면접관 정보가 필요합니다.' });
+    }
+
+    const nameKey = cleanName.toLowerCase().replace(/\s+/g, '');
+    const idKey = cleanId ? cleanId.toLowerCase() : '';
+    const baseKey = cleanName.replace(/(\s*(면접관|심사위원|님))+$/g, '').trim().toLowerCase();
+    const nowKST = getKSTDateTimeStr();
+
+    if (db.settings.interviewerPins) {
+      delete db.settings.interviewerPins[nameKey];
+      if (baseKey) delete db.settings.interviewerPins[baseKey];
+      if (idKey) delete db.settings.interviewerPins[idKey];
+    }
+    if (db.settings.interviewerPinSetAt) {
+      delete db.settings.interviewerPinSetAt[nameKey];
+      if (baseKey) delete db.settings.interviewerPinSetAt[baseKey];
+      if (idKey) delete db.settings.interviewerPinSetAt[idKey];
+    }
+
+    db.rooms.forEach(r => {
+      if (Array.isArray(r.interviewers)) {
+        r.interviewers.forEach(u => {
+          if (u.name === cleanName || u.id === cleanId) {
+            u.pinCode = undefined;
+            u.isPinSet = false;
+            u.pinSetAt = undefined;
+          }
+        });
+      }
+    });
+
+    db.auditLogs.unshift({
+      id: `audit-pin-reset-${Date.now().toString(36)}`,
+      timestamp: nowKST,
+      modifiedBy: '총괄 관리자 (Admin)',
+      field: `[면접관 4자리 PIN 초기화] ${cleanName}`,
+      beforeVal: { isPinSet: true },
+      afterVal: { isPinSet: false },
+      reason: `어드민이 ${cleanName} 면접관의 4자리 비밀번호를 초기화하여 재설정할 수 있도록 조치함`
+    });
+
+    await saveCloudState();
+    res.json({
+      success: true,
+      message: `${cleanName} 면접관의 비밀번호가 초기화되었습니다. 다음 입장 시 4자리 비밀번호를 새로 설정합니다.`
+    });
+  });
+
+  app.get('/api/interviewers/all-pins-status', (req, res) => {
+    const pins = db.settings?.interviewerPins || {};
+    const setAts = db.settings?.interviewerPinSetAt || {};
+    res.json({
+      pinsCount: Object.keys(pins).length,
+      pinsSummary: Object.keys(pins).map(key => ({
+        key,
+        isPinSet: true,
+        pinSetAt: setAts[key] || null
+      }))
+    });
+  });
+
+  // ----------------------------------------------------
   // CANDIDATE SELF-SERVICE PORTAL & MESSAGING APIS
   // ----------------------------------------------------
   app.post('/api/candidate-portal/login', async (req, res) => {
@@ -3114,11 +3325,13 @@ async function startServer() {
 
       if (!isPublished) {
         return res.json({
+          success: true,
           isPublished: false,
           isAllCompleted,
           message: '면접 평가 및 최종 심사가 진행 중입니다. 관리자의 공식 결과 발표 후 성적표와 AI 피드백을 확인하실 수 있습니다.',
           candidateName: candidate.name,
-          studentId: candidate.studentId
+          studentId: candidate.studentId,
+          result: null
         });
       }
 

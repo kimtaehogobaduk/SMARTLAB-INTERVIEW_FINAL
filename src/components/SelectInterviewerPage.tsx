@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InterviewerUser, InterviewRoomItem, ClubLeadership } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
-import { UserCheck, Shield, ArrowRight, ArrowLeft, DoorOpen, Users, Crown, Star } from 'lucide-react';
+import { UserCheck, Shield, ArrowRight, ArrowLeft, DoorOpen, Users, Crown, Star, Lock, KeyRound } from 'lucide-react';
 import { getLeadershipRole } from '../lib/leadership';
+import { InterviewerPinModal } from './InterviewerPinModal';
 
 interface SelectInterviewerPageProps {
   room: InterviewRoomItem;
@@ -25,16 +26,30 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
     : availableInterviewers;
 
   const [selectedUser, setSelectedUser] = useState<InterviewerUser>(roomInterviewers[0]);
+  const [pinModalOpen, setPinModalOpen] = useState<boolean>(false);
+  const [interviewerToAuth, setInterviewerToAuth] = useState<InterviewerUser | null>(null);
+
+  const handleOpenPinModal = (user: InterviewerUser) => {
+    const leaderRole = user.leadershipRole || getLeadershipRole(user.name, leadership);
+    const preparedUser = {
+      ...user,
+      leadershipRole: leaderRole
+    };
+    setSelectedUser(preparedUser);
+    setInterviewerToAuth(preparedUser);
+    setPinModalOpen(true);
+  };
 
   const handleEnter = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedUser) {
-      const leaderRole = selectedUser.leadershipRole || getLeadershipRole(selectedUser.name, leadership);
-      onSelectInterviewer({
-        ...selectedUser,
-        leadershipRole: leaderRole
-      });
+      handleOpenPinModal(selectedUser);
     }
+  };
+
+  const handleAuthSuccess = (authenticatedUser: InterviewerUser) => {
+    setPinModalOpen(false);
+    onSelectInterviewer(authenticatedUser);
   };
 
   return (
@@ -69,7 +84,7 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
           </div>
           <h3 className="text-lg font-black text-white">면접관 본인 선택</h3>
           <p className="text-xs text-slate-400">
-            관리자가 배정한 면접관 명단에서 본인의 이름을 선택해주세요
+            배정된 면접관을 선택하고 <span className="text-blue-400 font-semibold">4자리 숫자 비밀번호</span>로 인증하세요
           </p>
         </div>
 
@@ -81,7 +96,7 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
                 <Users className="w-3.5 h-3.5 text-blue-400" />
                 <span>배정된 면접관 ({roomInterviewers.length}명)</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-normal">관리자 지정 명단</span>
+              <span className="text-[10px] text-slate-500 font-normal">4자리 PIN 보안 인증</span>
             </div>
 
             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
@@ -95,6 +110,7 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
                   <div
                     key={user.id || idx}
                     onClick={() => setSelectedUser({ ...user, leadershipRole: role })}
+                    onDoubleClick={() => handleOpenPinModal({ ...user, leadershipRole: role })}
                     className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
                         ? isCap
@@ -138,22 +154,26 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
-                          {isCap
-                            ? (leadership?.captain?.memo || 'SmartLab 동아리 총괄 기장')
-                            : isVc
-                            ? (leadership?.viceCaptains?.find(v => v.name.trim().toLowerCase() === user.name.trim().toLowerCase())?.memo || 'SmartLab 동아리 부기장')
-                            : (user.trackExpertise || 'SmartLab 면접 심사위원')}
+                        <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                          <span>
+                            {isCap
+                              ? (leadership?.captain?.memo || 'SmartLab 동아리 총괄 기장')
+                              : isVc
+                              ? (leadership?.viceCaptains?.find(v => v.name.trim().toLowerCase() === user.name.trim().toLowerCase())?.memo || 'SmartLab 동아리 부기장')
+                              : (user.trackExpertise || 'SmartLab 면접 심사위원')}
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      isSelected
-                        ? isCap ? 'border-amber-500 bg-amber-500' : isVc ? 'border-purple-500 bg-purple-500' : 'border-blue-500 bg-blue-500'
-                        : 'border-slate-600'
-                    }`}>
-                      {isSelected && <div className="w-1.5 h-1.5 bg-slate-950 rounded-full" />}
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        isSelected
+                          ? isCap ? 'border-amber-500 bg-amber-500' : isVc ? 'border-purple-500 bg-purple-500' : 'border-blue-500 bg-blue-500'
+                          : 'border-slate-600'
+                      }`}>
+                        {isSelected && <div className="w-1.5 h-1.5 bg-slate-950 rounded-full" />}
+                      </div>
                     </div>
                   </div>
                 );
@@ -163,19 +183,31 @@ export const SelectInterviewerPage: React.FC<SelectInterviewerPageProps> = ({
 
           {/* Submit Button */}
           <button
+            id="interviewer-select-submit-btn"
             type="submit"
             disabled={!selectedUser}
             className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:scale-98 disabled:opacity-40 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group cursor-pointer mt-2"
           >
-            <span>{selectedUser ? `${selectedUser.name}으로 입장하기` : '면접관을 선택해주세요'}</span>
+            <Lock className="w-3.5 h-3.5" />
+            <span>{selectedUser ? `${selectedUser.name} 비밀번호 입력 및 입장` : '면접관을 선택해주세요'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
         <div className="pt-2 border-t border-slate-800/80 text-center text-[11px] text-slate-500">
-          * 면접관 명단 추가/변경은 관리자(Admin) 콘솔에서 가능합니다.
+          * 처음 입장 시 4자리 숫자 비밀번호를 설정하며, 다음부터는 설정한 비밀번호로 인증합니다.
         </div>
       </div>
+
+      {/* 4-digit PIN Authentication Modal */}
+      {interviewerToAuth && (
+        <InterviewerPinModal
+          interviewer={interviewerToAuth}
+          isOpen={pinModalOpen}
+          onClose={() => setPinModalOpen(false)}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
     </div>
   );
 };

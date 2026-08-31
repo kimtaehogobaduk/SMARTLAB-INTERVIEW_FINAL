@@ -238,9 +238,15 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
 
   // Fetch Candidate Scorecard & AI Diagnostic Results
   const fetchCandidateResult = useCallback(async () => {
+    if (!candidate?.id) return;
     try {
       setIsLoadingResult(true);
-      const res = await fetch(`/api/candidate-portal/result?candidateId=${candidate.id}&roomId=${room.id}&studentId=${candidate.studentId}`);
+      const params = new URLSearchParams({
+        candidateId: candidate.id,
+        roomId: room?.id || '',
+        studentId: candidate.studentId || ''
+      });
+      const res = await fetch(`/api/candidate-portal/result?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         if (data.result) {
@@ -252,11 +258,12 @@ export const CandidatePortalPage: React.FC<CandidatePortalPageProps> = ({
         }
       }
     } catch (e) {
-      console.error('Fetch candidate result error:', e);
+      // Safe fallback for transient network polling
+      console.warn('Notice fetching candidate result:', e);
     } finally {
       setIsLoadingResult(false);
     }
-  }, [candidate.id, candidate.studentId, room.id]);
+  }, [candidate?.id, candidate?.studentId, room?.id]);
 
   useEffect(() => {
     fetchCandidateResult();

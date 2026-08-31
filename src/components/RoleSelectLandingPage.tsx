@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
 import { UserCheck, GraduationCap, ShieldCheck, ArrowRight, Clock, FileText, BellRing, Bell, MessageSquareText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { InterviewRoomItem } from '../types';
+import { ThemeQuickToggle } from './ThemeQuickToggle';
 
 interface RoleSelectLandingPageProps {
   onSelectCandidateMode: () => void;
@@ -63,6 +64,14 @@ export const RoleSelectLandingPage: React.FC<RoleSelectLandingPageProps> = ({
       {/* Main Container */}
       <div className="w-full max-w-4xl bg-slate-900/90 border border-slate-800/90 rounded-3xl shadow-2xl p-6 sm:p-10 backdrop-blur-xl relative z-10 space-y-8 animate-fade-in">
         
+        {/* Top Control Bar with Theme Selector */}
+        <div className="flex items-center justify-between pb-2 border-b border-slate-800/60">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-400 font-mono">SmartLab Architecture</span>
+          </div>
+          <ThemeQuickToggle variant="header" />
+        </div>
+
         {/* Notification Permission Prompt at the Very Start */}
         {notificationPerm !== 'granted' && typeof window !== 'undefined' && 'Notification' in window && (
           <div className="p-3.5 bg-gradient-to-r from-amber-500/15 via-blue-500/15 to-indigo-500/15 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fade-in shadow-lg">
