@@ -473,76 +473,170 @@ body.light {
   color: var(--text-primary) !important;
 }
 
-/* Background mappings */
+/* Background mappings - All Slate / Dark container opacities */
 [data-theme="light"] .bg-slate-950,
-.light .bg-slate-950 {
+[data-theme="light"] .bg-slate-950\/95,
+[data-theme="light"] .bg-slate-950\/90,
+[data-theme="light"] .bg-slate-950\/85,
+[data-theme="light"] .bg-slate-950\/80,
+[data-theme="light"] .bg-slate-950\/70,
+[data-theme="light"] .bg-slate-950\/60,
+[data-theme="light"] .bg-slate-950\/50,
+[data-theme="light"] .bg-slate-950\/40,
+[data-theme="light"] .bg-slate-950\/30,
+[data-theme="light"] .bg-slate-950\/20,
+.light .bg-slate-950,
+.light .bg-slate-950\/95,
+.light .bg-slate-950\/90,
+.light .bg-slate-950\/85,
+.light .bg-slate-950\/80,
+.light .bg-slate-950\/70,
+.light .bg-slate-950\/60,
+.light .bg-slate-950\/50,
+.light .bg-slate-950\/40,
+.light .bg-slate-950\/30,
+.light .bg-slate-950\/20 {
   background-color: var(--bg-app) !important;
   color: var(--text-primary);
 }
 
 [data-theme="light"] .bg-slate-900,
-.light .bg-slate-900 {
-  background-color: var(--bg-surface) !important;
-  color: var(--text-primary);
-}
-
-[data-theme="light"] .bg-slate-900\/90,
 [data-theme="light"] .bg-slate-900\/95,
+[data-theme="light"] .bg-slate-900\/90,
+[data-theme="light"] .bg-slate-900\/85,
 [data-theme="light"] .bg-slate-900\/80,
+[data-theme="light"] .bg-slate-900\/70,
 [data-theme="light"] .bg-slate-900\/60,
-.light .bg-slate-900\/90,
+[data-theme="light"] .bg-slate-900\/50,
+[data-theme="light"] .bg-slate-900\/40,
+[data-theme="light"] .bg-slate-900\/30,
+[data-theme="light"] .bg-slate-900\/20,
+.light .bg-slate-900,
 .light .bg-slate-900\/95,
+.light .bg-slate-900\/90,
+.light .bg-slate-900\/85,
 .light .bg-slate-900\/80,
-.light .bg-slate-900\/60 {
+.light .bg-slate-900\/70,
+.light .bg-slate-900\/60,
+.light .bg-slate-900\/50,
+.light .bg-slate-900\/40,
+.light .bg-slate-900\/30,
+.light .bg-slate-900\/20 {
   background-color: var(--bg-surface) !important;
   color: var(--text-primary);
 }
 
+[data-theme="light"] .bg-slate-850,
 [data-theme="light"] .bg-slate-800,
-.light .bg-slate-800 {
-  background-color: var(--bg-surface-elevated) !important;
-  color: var(--text-primary);
-}
-
+[data-theme="light"] .bg-slate-800\/95,
+[data-theme="light"] .bg-slate-800\/90,
+[data-theme="light"] .bg-slate-800\/85,
 [data-theme="light"] .bg-slate-800\/80,
+[data-theme="light"] .bg-slate-800\/70,
 [data-theme="light"] .bg-slate-800\/60,
 [data-theme="light"] .bg-slate-800\/50,
+[data-theme="light"] .bg-slate-800\/40,
+[data-theme="light"] .bg-slate-800\/30,
+[data-theme="light"] .bg-slate-800\/20,
+.light .bg-slate-850,
+.light .bg-slate-800,
+.light .bg-slate-800\/95,
+.light .bg-slate-800\/90,
+.light .bg-slate-800\/85,
 .light .bg-slate-800\/80,
+.light .bg-slate-800\/70,
 .light .bg-slate-800\/60,
-.light .bg-slate-800\/50 {
+.light .bg-slate-800\/50,
+.light .bg-slate-800\/40,
+.light .bg-slate-800\/30,
+.light .bg-slate-800\/20 {
   background-color: var(--bg-surface-elevated) !important;
   color: var(--text-primary);
+}
+
+[data-theme="light"] .bg-slate-700,
+[data-theme="light"] .bg-slate-700\/80,
+[data-theme="light"] .bg-slate-700\/60,
+[data-theme="light"] .bg-slate-700\/50,
+[data-theme="light"] .bg-slate-700\/40,
+.light .bg-slate-700,
+.light .bg-slate-700\/80,
+.light .bg-slate-700\/60,
+.light .bg-slate-700\/50,
+.light .bg-slate-700\/40 {
+  background-color: #e2e8f0 !important;
+  color: var(--text-primary);
+}
+
+/* Modal overlay backdrop in light mode */
+[data-theme="light"] .fixed.inset-0.bg-slate-950\/80,
+[data-theme="light"] .fixed.inset-0.bg-slate-950\/70,
+[data-theme="light"] .fixed.inset-0.bg-black\/60,
+[data-theme="light"] .fixed.inset-0.bg-black\/70,
+.light .fixed.inset-0.bg-slate-950\/80,
+.light .fixed.inset-0.bg-slate-950\/70,
+.light .fixed.inset-0.bg-black\/60,
+.light .fixed.inset-0.bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 /* Border mappings */
+[data-theme="light"] .border-slate-950,
 [data-theme="light"] .border-slate-900,
 [data-theme="light"] .border-slate-850,
 [data-theme="light"] .border-slate-800,
 [data-theme="light"] .border-slate-800\/90,
 [data-theme="light"] .border-slate-800\/80,
 [data-theme="light"] .border-slate-800\/60,
+[data-theme="light"] .border-slate-800\/50,
+[data-theme="light"] .border-slate-800\/40,
 [data-theme="light"] .border-slate-700,
+[data-theme="light"] .border-slate-700\/90,
 [data-theme="light"] .border-slate-700\/80,
 [data-theme="light"] .border-slate-700\/60,
+[data-theme="light"] .border-slate-700\/50,
+[data-theme="light"] .border-slate-700\/40,
+[data-theme="light"] .border-slate-600,
+[data-theme="light"] .border-slate-600\/60,
+.light .border-slate-950,
 .light .border-slate-900,
+.light .border-slate-850,
 .light .border-slate-800,
 .light .border-slate-800\/90,
 .light .border-slate-800\/80,
 .light .border-slate-800\/60,
+.light .border-slate-800\/50,
+.light .border-slate-800\/40,
 .light .border-slate-700,
+.light .border-slate-700\/90,
 .light .border-slate-700\/80,
-.light .border-slate-700\/60 {
+.light .border-slate-700\/60,
+.light .border-slate-700\/50,
+.light .border-slate-700\/40,
+.light .border-slate-600,
+.light .border-slate-600\/60 {
   border-color: var(--border-main) !important;
 }
 
+[data-theme="light"] .divide-slate-900,
 [data-theme="light"] .divide-slate-800,
 [data-theme="light"] .divide-slate-800\/80,
+[data-theme="light"] .divide-slate-800\/60,
+[data-theme="light"] .divide-slate-700,
+[data-theme="light"] .divide-slate-700\/80,
+[data-theme="light"] .divide-slate-700\/60,
+.light .divide-slate-900,
 .light .divide-slate-800,
-.light .divide-slate-800\/80 {
+.light .divide-slate-800\/80,
+.light .divide-slate-800\/60,
+.light .divide-slate-700,
+.light .divide-slate-700\/80,
+.light .divide-slate-700\/60 {
   border-color: var(--border-main) !important;
 }
 
-/* Typography mappings */
+/* Typography mappings in light mode */
 [data-theme="light"] .text-slate-100,
 [data-theme="light"] .text-white,
 .light .text-slate-100,
@@ -564,33 +658,118 @@ body.light {
   color: var(--text-muted) !important;
 }
 
-/* Keep text white inside solid buttons */
+[data-theme="light"] .text-slate-600,
+[data-theme="light"] .text-slate-700,
+.light .text-slate-600,
+.light .text-slate-700 {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .text-slate-800,
+[data-theme="light"] .text-slate-900,
+[data-theme="light"] .text-slate-950,
+.light .text-slate-800,
+.light .text-slate-900,
+.light .text-slate-950 {
+  color: #0f172a !important;
+}
+
+/* Inputs, Selects and Textareas in Light Mode */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] textarea,
+[data-theme="light"] select,
+.light input:not([type="checkbox"]):not([type="radio"]),
+.light textarea,
+.light select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-main) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder,
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Keep text white inside solid colored action buttons */
 button.btn-theme-primary,
 button.btn-theme-primary *,
 .btn-theme-primary,
 .btn-theme-primary *,
 .bg-blue-600,
 .bg-blue-600 *,
+.bg-blue-500,
+.bg-blue-500 *,
 .bg-rose-600,
 .bg-rose-600 *,
+.bg-rose-500,
+.bg-rose-500 *,
 .bg-emerald-600,
-.bg-emerald-600 * {
+.bg-emerald-600 *,
+.bg-emerald-500,
+.bg-emerald-500 *,
+.bg-purple-600,
+.bg-purple-600 *,
+.bg-purple-500,
+.bg-purple-500 *,
+.bg-amber-600,
+.bg-amber-600 *,
+.bg-indigo-600,
+.bg-indigo-600 *,
+.bg-gradient-to-r.from-amber-500.to-orange-500,
+.bg-gradient-to-r.from-amber-500.to-orange-500 *,
+.bg-gradient-to-br.from-blue-500.to-indigo-600,
+.bg-gradient-to-br.from-blue-500.to-indigo-600 *,
+.bg-gradient-to-br.from-amber-500.to-orange-600,
+.bg-gradient-to-br.from-amber-500.to-orange-600 * {
   color: #ffffff !important;
 }
 
-/* Hover mappings */
+/* Specific contrast for solid amber/orange button text */
+.bg-gradient-to-r.from-amber-500.to-orange-500,
+.bg-gradient-to-r.from-amber-500.to-orange-500 * {
+  color: #030712 !important;
+}
+
+/* Hover mappings in Light Mode */
 [data-theme="light"] .hover\:bg-slate-800:hover,
 [data-theme="light"] .hover\:bg-slate-700:hover,
 [data-theme="light"] .hover\:bg-slate-700\/60:hover,
+[data-theme="light"] .hover\:bg-slate-800\/80:hover,
+[data-theme="light"] .hover\:bg-slate-900:hover,
 .light .hover\:bg-slate-800:hover,
 .light .hover\:bg-slate-700:hover,
-.light .hover\:bg-slate-700\/60:hover {
+.light .hover\:bg-slate-700\/60:hover,
+.light .hover\:bg-slate-800\/80:hover,
+.light .hover\:bg-slate-900:hover {
   background-color: var(--bg-surface-elevated) !important;
 }
 
 [data-theme="light"] .hover\:text-white:hover,
 .light .hover\:text-white:hover {
   color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .group:hover .group-hover\:text-white,
+.light .group:hover .group-hover\:text-white {
+  color: var(--text-primary) !important;
+}
+
+/* When hovering solid action cards */
+[data-theme="light"] .group:hover .group-hover\:bg-amber-600,
+[data-theme="light"] .group:hover .group-hover\:bg-blue-600,
+.light .group:hover .group-hover\:bg-amber-600,
+.light .group:hover .group-hover\:bg-blue-600 {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .group:hover .group-hover\:bg-amber-600 *,
+[data-theme="light"] .group:hover .group-hover\:bg-blue-600 *,
+.light .group:hover .group-hover\:bg-amber-600 *,
+.light .group:hover .group-hover\:bg-blue-600 * {
+  color: #ffffff !important;
 }
 
 /* Dynamic Primary Color Overrides across all themes */
@@ -606,6 +785,28 @@ button.btn-theme-primary *,
 }
 .border-blue-500 {
   border-color: var(--color-primary) !important;
+}
+
+/* Red error alerts in light mode */
+[data-theme="light"] .bg-red-950\/60,
+[data-theme="light"] .bg-red-950,
+[data-theme="light"] .bg-red-900\/40,
+.light .bg-red-950\/60,
+.light .bg-red-950,
+.light .bg-red-900\/40 {
+  background-color: #fef2f2 !important;
+}
+[data-theme="light"] .border-red-800,
+[data-theme="light"] .border-red-900,
+.light .border-red-800,
+.light .border-red-900 {
+  border-color: #fecaca !important;
+}
+[data-theme="light"] .text-red-400,
+[data-theme="light"] .text-red-300,
+.light .text-red-400,
+.light .text-red-300 {
+  color: #dc2626 !important;
 }
 
 /* Harmonious soft badge overrides in light mode (no harsh purple or deep saturated navy) */
