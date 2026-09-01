@@ -104,7 +104,7 @@ export default function App() {
   const [currentRoom, setCurrentRoom] = useState<InterviewRoomItem>({
     id: 'room-main',
     name: 'SmartLab 면접 평가실',
-    description: '동아리 신규 멤버 선발 3인 면접실',
+    description: '동아리 신규 멤버 선발 면접실',
     createdAt: new Date().toISOString(),
     createdBy: '총괄 관리자 (Admin)',
     panelCount: 3,

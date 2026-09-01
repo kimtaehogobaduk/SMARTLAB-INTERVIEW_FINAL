@@ -872,7 +872,7 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
               <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-1">
                 <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  정족수 충족 (3인 이상)
+                  정족수 충족 (3인 이상 평가)
                 </span>
                 <div className="text-2xl font-black text-emerald-300 font-mono">
                   {biasAnalysis.candidateCalibrations.filter(c => c.quorumStatus === 'SUFFICIENT').length}

@@ -1333,7 +1333,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   {
                     id: 'TRIMMED_MEAN' as ScoringFormula,
                     name: '가중 절사 평균 (Trimmed Mean - 권장)',
-                    desc: '3인 이상 평가 시 최고점과 최저점을 제외한 후 가중 합산 (이상치 배제)'
+                    desc: '3인 이상 평가 시 최고점과 최저점을 제외한 후 가중 합산 (2인 이하는 산술평균 자동 적용)'
                   },
                   {
                     id: 'MEDIAN' as ScoringFormula,
@@ -1718,6 +1718,13 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                   <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-400">
                     <button
                       type="button"
+                      onClick={() => setRawInterviewersText('면접관 1')}
+                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors cursor-pointer"
+                    >
+                      1인 단독
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setRawInterviewersText('면접관 1, 면접관 2')}
                       className="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors cursor-pointer"
                     >
@@ -1728,7 +1735,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({
                       onClick={() => setRawInterviewersText('면접관 1, 면접관 2, 면접관 3')}
                       className="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors cursor-pointer"
                     >
-                      3인 기본 조
+                      3인 조
                     </button>
                     <button
                       type="button"

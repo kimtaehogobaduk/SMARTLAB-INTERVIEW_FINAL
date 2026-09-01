@@ -339,7 +339,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
         )}
 
         <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-          <span>SmartLab 3인 블라인드 격리 시스템</span>
+          <span>SmartLab 독립 블라인드 격리 시스템</span>
           <span className="font-mono">v2.5</span>
         </div>
 

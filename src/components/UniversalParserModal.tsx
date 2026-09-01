@@ -110,7 +110,7 @@ export const UniversalParserModal: React.FC<UniversalParserModalProps> = ({
           imageBase64: selectedImageBase64,
           imageMimeType: selectedImageMime,
           config: {
-            panelCount: currentRoom?.panelCount || 3,
+            panelCount: currentRoom?.panelCount || (currentRoom?.interviewers?.length || 2),
             minutesPerPerson: Number(minutesPerPerson) || 30,
             startTime: startTime || '14:00',
             room: roomName
@@ -212,7 +212,7 @@ export const UniversalParserModal: React.FC<UniversalParserModalProps> = ({
     try {
       const interviewerNames = currentRoom?.interviewers && currentRoom.interviewers.length > 0
         ? currentRoom.interviewers.map(i => i.name)
-        : ['면접관 1', '면접관 2', '면접관 3'];
+        : ['면접관 1', '면접관 2'];
 
       const formattedCandidates: Candidate[] = parsedCandidates.map((c: any, idx: number) => ({
         id: `cand-${Date.now().toString(36)}-${idx}-${Math.random().toString(36).substring(2, 5)}`,

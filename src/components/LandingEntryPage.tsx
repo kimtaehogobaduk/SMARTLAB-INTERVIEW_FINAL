@@ -151,7 +151,7 @@ export const LandingEntryPage: React.FC<LandingEntryPageProps> = ({
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 border-t border-slate-800/80 gap-2">
           <div className="flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-slate-400" />
-            <span>3인 블라인드 실시간 채점 및 AI 꼬리질문 어시스턴트</span>
+            <span>실시간 독립 블라인드 채점 및 AI 꼬리질문 어시스턴트</span>
           </div>
           <span className="font-mono text-slate-600">SmartLab v2.5</span>
         </div>

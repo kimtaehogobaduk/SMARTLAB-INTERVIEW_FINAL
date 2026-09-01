@@ -386,7 +386,10 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
 
   const interviewersList = assignedInterviewers.length > 0
     ? assignedInterviewers
-    : (candidate.interviewers || ['면접위원 1', '면접위원 2', '면접위원 3']).map((name, idx) => ({
+    : (candidate.interviewers && candidate.interviewers.length > 0
+        ? candidate.interviewers
+        : (room.interviewers && room.interviewers.length > 0 ? room.interviewers.map(i => i.name) : ['면접위원 1', '면접위원 2'])
+      ).map((name, idx) => ({
         id: `interviewer-${idx}`,
         name: typeof name === 'string' ? name : (name as any).name || `면접관 ${idx + 1}`
       }));

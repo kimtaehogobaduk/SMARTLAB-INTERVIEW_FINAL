@@ -1,0 +1,5273 @@
+{
+  "rooms": [
+    {
+      "panelCount": 2,
+      "interviewers": [
+        {
+          "id": "intv-mtbbxe1c-0",
+          "name": "김태호 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원",
+          "pinCode": "7003",
+          "isPinSet": true,
+          "pinSetAt": "2026-08-31 10:59:04"
+        },
+        {
+          "id": "intv-mtbbxe1c-1",
+          "name": "김이현 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-2",
+          "name": "박민수 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-3",
+          "name": "이건희 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-4",
+          "name": "임규리 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-5",
+          "name": "차민혁 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-6",
+          "name": "김연우 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        },
+        {
+          "id": "intv-mtbbxe1c-7",
+          "name": "최지우 면접관",
+          "role": "interviewer",
+          "trackExpertise": "SmartLab 면접 심사위원"
+        }
+      ],
+      "minutesPerPerson": 15,
+      "scoringFormula": "WEIGHTED_MEAN",
+      "id": "room-mt171tee",
+      "description": "기장단만 들어오세요.",
+      "passThresholdScore": 70,
+      "securityType": "QUIZ",
+      "weights": {
+        "technical": 30,
+        "cultureFit": 15,
+        "problemSolving": 25,
+        "crit_mt2zggld": 10,
+        "communication": 20
+      },
+      "defaultQuestionPersona": "BALANCED",
+      "securityAnswer": "윤현지 선생님",
+      "customFocusKeywords": [],
+      "createdBy": "동아리 총괄 관리자 (Admin)",
+      "securityQuestion": "스마트랩 당담 선생님의 성함은? 답 예시: 000 선생님",
+      "criteria": [
+        {
+          "maxScore": 100,
+          "description": "학생이 동아리에 적합한지 확인. 전반적인 활동을 따라올 수 있는 역량을 평가함. ",
+          "id": "technical",
+          "weight": 30,
+          "name": "동아리 적합성",
+          "color": "blue"
+        },
+        {
+          "maxScore": 100,
+          "weight": 25,
+          "name": "문제 발견 능력",
+          "description": "자신이 찾은 문제에 관하여 이를 어떻게 분석했고, 분석한 결과를 바탕으로 얼마나 결과물을 만들어냈는가?",
+          "color": "purple",
+          "id": "problemSolving"
+        },
+        {
+          "name": "문제 해결능력",
+          "maxScore": 100,
+          "description": "면접자가 얼마나 논리적으로 말하는지",
+          "id": "communication",
+          "color": "emerald",
+          "weight": 20
+        },
+        {
+          "maxScore": 100,
+          "description": "제시된 주제가 얼마나 구체적인지",
+          "weight": 15,
+          "name": "결과 및 발표물",
+          "color": "amber",
+          "id": "cultureFit"
+        },
+        {
+          "name": "명확성 및 구체성",
+          "id": "crit_mt2zggld",
+          "description": "가산 될 부분이 있는지.",
+          "maxScore": 100,
+          "weight": 10,
+          "color": "rose"
+        }
+      ],
+      "candidateCount": 1,
+      "createdAt": "2026. 8. 20.",
+      "name": "SMARTLAB 2027 면접",
+      "securityQuizzes": [
+        {
+          "id": "quiz-0",
+          "question": "스마트랩 당담 선생님의 성함은? 답 예시: 000 선생님",
+          "answer": "윤현지 선생님"
+        },
+        {
+          "id": "quiz-1787823367000-2",
+          "question": "전직 45기 동아리 기장님의 성함 석자를 입력하시오.",
+          "answer": "엄태원"
+        },
+        {
+          "id": "quiz-1787823386663-3",
+          "question": "현 스마트랩의 여부기장은 누구인가요?",
+          "answer": "김이현"
+        },
+        {
+          "id": "quiz-1787823402020-4",
+          "question": "현 스마트랩의 남부기장의 이름은 무엇인가요?",
+          "answer": "박민수"
+        }
+      ],
+      "authorizedQuizDevices": [
+        {
+          "deviceId": "433368c5-cf21-4e2e-81cf-053fc00dd959",
+          "authorizedAt": "2026-08-28T13:11:21.016Z"
+        },
+        "594b0241-92d0-4ef7-b31b-b59fba41359c"
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "mindMapData": {
+        "id": "root",
+        "name": "김태호 (일반)",
+        "children": [
+          {
+            "children": [
+              {
+                "details": "주력 개발 언어의 고급 문법과 프레임워크 라이프사이클에 대한 깊은 이해",
+                "id": "tech-1",
+                "children": [
+                  {
+                    "details": "복잡한 비즈니스 로직을 모듈 단위로 깔끔하게 캡슐화",
+                    "category": "tech",
+                    "id": "tech-1-1",
+                    "name": "타입 안정성 & 모듈 구조화"
+                  },
+                  {
+                    "category": "tech",
+                    "name": "비동기 런타임 제어",
+                    "id": "tech-1-2",
+                    "details": "이벤트 루프, 논블로킹 I/O 및 동시성 이슈 핸들링"
+                  }
+                ],
+                "category": "tech",
+                "name": "핵심 프레임워크 & 언어"
+              },
+              {
+                "details": "리소스 제약 환경에서의 병목 식별 및 최적화",
+                "id": "tech-2",
+                "children": [
+                  {
+                    "details": "KV 캐시 압축, 인덱싱 및 불필요 연산 최소화",
+                    "category": "tech",
+                    "id": "tech-2-1",
+                    "name": "캐싱 및 메모리 최적화"
+                  },
+                  {
+                    "details": "처리량(TPS) 향상 및 응답 지연(Latency) 대폭 개선",
+                    "category": "tech",
+                    "id": "tech-2-2",
+                    "name": "대용량 데이터 서빙"
+                  }
+                ],
+                "category": "tech",
+                "name": "성능 최적화 & 튜닝"
+              }
+            ],
+            "category": "tech",
+            "name": "기술 스택 & 아키텍처",
+            "id": "tech",
+            "details": "직무 전공 지식 및 실전 시스템 구현 역량"
+          },
+          {
+            "children": [
+              {
+                "category": "tech",
+                "children": [
+                  {
+                    "details": "로그 분석과 벤치마크 툴을 통한 정밀 진단",
+                    "name": "병목 원인 프로파일링",
+                    "category": "tech",
+                    "id": "proj-1-1"
+                  },
+                  {
+                    "name": "검증된 성과 지표 도출",
+                    "category": "tech",
+                    "details": "추론 지연 시간 2.8배 단축 및 자원 절감 달성",
+                    "id": "proj-1-2"
+                  }
+                ],
+                "details": "온디바이스/분산 환경에서의 메모리 한계 극복",
+                "name": "기술적 난관 극복 (Troubleshooting)",
+                "id": "proj-1"
+              },
+              {
+                "name": "본인 핵심 기여도",
+                "id": "proj-2",
+                "details": "단순 튜토리얼 구현이 아닌 독자적인 아키텍처 설계와 구현 주도",
+                "category": "tech"
+              }
+            ],
+            "category": "tech",
+            "name": "실전 프로젝트 & 트러블슈팅",
+            "id": "project",
+            "details": "프로젝트 수행 과정에서의 기술적 난관 극복 경험"
+          },
+          {
+            "name": "면접 실시간 발언 검증",
+            "id": "stt_highlight",
+            "category": "stt_highlight",
+            "children": [
+              {
+                "category": "stt_highlight",
+                "children": [
+                  {
+                    "details": "수치와 기술 키워드를 들어 신뢰성 있는 답변 제공",
+                    "name": "구체적 지표 기반 답변",
+                    "id": "stt-1-1",
+                    "category": "stt_highlight"
+                  },
+                  {
+                    "id": "stt-1-2",
+                    "details": "기술적 한계와 트레이드오프를 솔직하고 논리적으로 설명",
+                    "name": "심화 꼬리 질문 대응",
+                    "category": "stt_highlight"
+                  }
+                ],
+                "details": "온디바이스 양자화 및 서빙 파이프라인 경험 명확히 설명",
+                "name": "핵심 기술 주장 (Claim)",
+                "id": "stt-1"
+              }
+            ],
+            "details": "실제 질의응답에서의 논리 일관성 및 기술적 깊이"
+          },
+          {
+            "children": [
+              {
+                "name": "CS/알고리즘 기초 역량",
+                "category": "strength",
+                "details": "자료구조, 네트워크, 운영체제 기본기 탄탄",
+                "id": "str-1"
+              },
+              {
+                "id": "str-2",
+                "details": "도입 시의 비용과 이점을 비교하여 최적의 대안 선택",
+                "name": "기술 트레이드오프 분석",
+                "category": "strength"
+              },
+              {
+                "details": "생소한 기술 스택도 빠르게 습득하여 실전 프로젝트에 접목",
+                "name": "빠른 학습 민첩성",
+                "category": "strength",
+                "id": "str-3"
+              }
+            ],
+            "category": "strength",
+            "name": "문제 해결력 & 논리적 사고",
+            "id": "strength",
+            "details": "CS 기초 원리 및 합리적인 의사결정 프로세스"
+          },
+          {
+            "name": "동아리 컬처핏 & 협업",
+            "children": [
+              {
+                "details": "질문 의도를 정확히 캐치하여 군더더기 없이 핵심 전달",
+                "name": "두괄식 명확한 소통",
+                "category": "fit",
+                "id": "fit-1"
+              },
+              {
+                "name": "피드백 수용 및 코드리뷰",
+                "category": "fit",
+                "details": "건설적인 비판을 성장의 기회로 삼는 유연한 태도",
+                "id": "fit-2"
+              },
+              {
+                "details": "동아리 세미나 발표 및 동료 멘토링에 대한 높은 참여 의지",
+                "id": "fit-3",
+                "category": "fit",
+                "name": "지식 공유 및 열정"
+              }
+            ],
+            "category": "fit",
+            "details": "SmartLab 동아리 문화 수용성 및 팀워크 마인드셋",
+            "id": "fit"
+          }
+        ],
+        "details": "김태호 지원자의 서류, STT 질의응답 및 면접관 평가 종합 역량 마인드맵",
+        "category": "root"
+      },
+      "sttTranscript": [
+        {
+          "speaker": "candidate",
+          "id": "stt-manual-1787566923068",
+          "text": "안녕하세요.",
+          "confidence": 1,
+          "timestamp": "19시 22분 3초"
+        },
+        {
+          "text": "안녕하세요. 이름은?",
+          "speaker": "interviewer",
+          "confidence": 1,
+          "id": "stt-manual-1787566930728",
+          "timestamp": "19시 22분 10초"
+        },
+        {
+          "text": "고사리입니다.",
+          "speaker": "candidate",
+          "confidence": 1,
+          "timestamp": "19시 22분 18초",
+          "id": "stt-manual-1787566938699"
+        },
+        {
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "confidence": 0.98,
+          "speaker": "interviewer",
+          "id": "stt-sim-1787566954498",
+          "timestamp": "19시 22분 34초"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "confidence": 0.98,
+          "speaker": "candidate",
+          "id": "stt-sim-1787566956415",
+          "timestamp": "19시 22분 36초"
+        },
+        {
+          "speaker": "candidate",
+          "timestamp": "19시 22분 39초",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "id": "stt-sim-1787566959552",
+          "confidence": 0.98
+        },
+        {
+          "confidence": 0.98,
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "timestamp": "19시 22분 42초",
+          "speaker": "interviewer",
+          "id": "stt-sim-1787566962151"
+        },
+        {
+          "speaker": "candidate",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "timestamp": "19시 22분 43초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787566963261"
+        },
+        {
+          "speaker": "candidate",
+          "timestamp": "19시 22분 44초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787566964133",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다."
+        },
+        {
+          "timestamp": "19시 22분 44초",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "confidence": 0.98,
+          "speaker": "interviewer",
+          "id": "stt-sim-1787566964403"
+        },
+        {
+          "id": "stt-sim-1787566964942",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "speaker": "candidate",
+          "timestamp": "19시 22분 44초",
+          "confidence": 0.98
+        },
+        {
+          "timestamp": "19시 22분 45초",
+          "speaker": "candidate",
+          "confidence": 0.98,
+          "id": "stt-sim-1787566965229",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다."
+        },
+        {
+          "confidence": 0.98,
+          "id": "stt-sim-1787566965383",
+          "speaker": "interviewer",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "timestamp": "19시 22분 45초"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "id": "stt-sim-1787566965546",
+          "confidence": 0.98,
+          "speaker": "candidate",
+          "timestamp": "19시 22분 45초"
+        },
+        {
+          "timestamp": "19시 22분 45초",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "confidence": 0.98,
+          "id": "stt-sim-1787566965698",
+          "speaker": "candidate"
+        },
+        {
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "speaker": "interviewer",
+          "id": "stt-sim-1787566965847",
+          "timestamp": "19시 22분 45초",
+          "confidence": 0.98
+        },
+        {
+          "id": "stt-sim-1787566966004",
+          "timestamp": "19시 22분 46초",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "speaker": "candidate",
+          "confidence": 0.98
+        },
+        {
+          "speaker": "candidate",
+          "timestamp": "13시 3분 51초",
+          "confidence": 0.95,
+          "id": "stt-mt8oev29"
+        },
+        {
+          "id": "stt-mt8oevcx",
+          "timestamp": "13시 3분 51초",
+          "confidence": 0.95,
+          "speaker": "candidate"
+        },
+        {
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "speaker": "interviewer",
+          "id": "stt-sim-1787714195065",
+          "confidence": 0.98,
+          "timestamp": "12시 16분 35초"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "confidence": 0.98,
+          "timestamp": "12시 16분 35초",
+          "speaker": "candidate",
+          "id": "stt-sim-1787714195221"
+        },
+        {
+          "id": "stt-sim-1787714195367",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "timestamp": "12시 16분 35초",
+          "speaker": "candidate",
+          "confidence": 0.98
+        },
+        {
+          "speaker": "interviewer",
+          "timestamp": "12시 16분 35초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714195515",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?"
+        },
+        {
+          "confidence": 0.98,
+          "id": "stt-sim-1787714195632",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "timestamp": "12시 16분 35초",
+          "speaker": "candidate"
+        },
+        {
+          "confidence": 0.98,
+          "id": "stt-sim-1787714195765",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "speaker": "candidate",
+          "timestamp": "12시 16분 35초"
+        },
+        {
+          "confidence": 0.98,
+          "timestamp": "12시 16분 35초",
+          "id": "stt-sim-1787714195897",
+          "speaker": "interviewer",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?"
+        },
+        {
+          "speaker": "candidate",
+          "timestamp": "12시 16분 36초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714196032",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다."
+        },
+        {
+          "id": "stt-sim-1787714196152",
+          "speaker": "candidate",
+          "confidence": 0.98,
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "timestamp": "12시 16분 36초"
+        },
+        {
+          "id": "stt-sim-1787714196279",
+          "confidence": 0.98,
+          "timestamp": "12시 16분 36초",
+          "speaker": "interviewer",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714196398",
+          "speaker": "candidate",
+          "timestamp": "12시 16분 36초"
+        },
+        {
+          "timestamp": "12시 16분 36초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714196517",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "speaker": "candidate"
+        },
+        {
+          "confidence": 0.98,
+          "speaker": "interviewer",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "timestamp": "12시 16분 36초",
+          "id": "stt-sim-1787714196658"
+        },
+        {
+          "speaker": "candidate",
+          "id": "stt-sim-1787714196778",
+          "confidence": 0.98,
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "timestamp": "12시 16분 36초"
+        },
+        {
+          "id": "stt-sim-1787714196900",
+          "timestamp": "12시 16분 36초",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "speaker": "candidate",
+          "confidence": 0.98
+        },
+        {
+          "speaker": "interviewer",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714197030",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "timestamp": "12시 16분 37초"
+        },
+        {
+          "timestamp": "12시 16분 37초",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714197284",
+          "speaker": "candidate",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다."
+        },
+        {
+          "timestamp": "12시 16분 37초",
+          "id": "stt-sim-1787714197395",
+          "speaker": "interviewer",
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "confidence": 0.98
+        },
+        {
+          "confidence": 0.98,
+          "speaker": "candidate",
+          "id": "stt-sim-1787714197149",
+          "timestamp": "12시 16분 37초",
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다."
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "confidence": 0.98,
+          "id": "stt-sim-1787714197520",
+          "timestamp": "12시 16분 37초",
+          "speaker": "candidate"
+        },
+        {
+          "id": "stt-sim-1787714197647",
+          "confidence": 0.98,
+          "timestamp": "12시 16분 37초",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "speaker": "candidate"
+        },
+        {
+          "timestamp": "12시 16분 37초",
+          "confidence": 0.98,
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?",
+          "speaker": "interviewer",
+          "id": "stt-sim-1787714197774"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "timestamp": "12시 16분 37초",
+          "id": "stt-sim-1787714197905",
+          "confidence": 0.98,
+          "speaker": "candidate"
+        },
+        {
+          "timestamp": "12시 16분 38초",
+          "speaker": "interviewer",
+          "id": "stt-sim-1787714198161",
+          "confidence": 0.98,
+          "text": "김태호 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?"
+        },
+        {
+          "speaker": "candidate",
+          "id": "stt-sim-1787714198046",
+          "text": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+          "confidence": 0.98,
+          "timestamp": "12시 16분 38초"
+        },
+        {
+          "text": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.",
+          "id": "stt-sim-1787714198285",
+          "confidence": 0.98,
+          "speaker": "candidate",
+          "timestamp": "12시 16분 38초"
+        },
+        {
+          "id": "stt-mt9k9p88",
+          "speaker": "candidate",
+          "timestamp": "3시 55분 38초",
+          "confidence": 0.95
+        }
+      ],
+      "aiInsights": {
+        "tailQuestions": [
+          {
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "timestamp": "13시 16분 22초",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "isBookmarked": false,
+            "used": false,
+            "difficulty": "INTERMEDIATE",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "categoryLabel": "협업/컬처핏",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "category": "협업 및 갈등 해결",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "relevanceScore": 90,
+                "weight": 20,
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "relevanceScore": 85,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "matchScore": 90,
+            "id": "tq-1787750182196-1"
+          },
+          {
+            "timestamp": "13시 16분 22초",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "category": "심층 기술 검증",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40,
+                "relevanceScore": 95,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical"
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30,
+                "relevanceScore": 85
+              }
+            ],
+            "difficulty": "ADVANCED",
+            "categoryLabel": "기술 심층",
+            "matchScore": 94,
+            "used": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "id": "tq-1787750182196-0",
+            "isBookmarked": false,
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "claim": "김태호 지원자의 일반 직무 핵심 역량 및 프로젝트 수행 경험",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증"
+          },
+          {
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "timestamp": "3시 16분 47초",
+            "id": "tq-1787714207890-1",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "used": false,
+            "difficulty": "INTERMEDIATE",
+            "isBookmarked": false,
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "relevanceScore": 90,
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "relevanceScore": 85
+              }
+            ],
+            "matchScore": 90,
+            "categoryLabel": "협업/컬처핏",
+            "category": "협업 및 갈등 해결",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ]
+          },
+          {
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "difficulty": "ADVANCED",
+            "id": "tq-1787714207889-0",
+            "timestamp": "3시 16분 47초",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "used": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "categoryLabel": "기술 심층",
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "relevanceScore": 95,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "weight": 40,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "relevanceScore": 85,
+                "weight": 30
+              }
+            ],
+            "isBookmarked": false,
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "matchScore": 94,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "category": "심층 기술 검증"
+          },
+          {
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "matchScore": 90,
+            "used": false,
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "category": "협업 및 갈등 해결",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionId": "communication"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10,
+                "relevanceScore": 85,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit"
+              }
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "difficulty": "INTERMEDIATE",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "id": "tq-1787714200343-1",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "isBookmarked": false,
+            "timestamp": "3시 16분 40초"
+          },
+          {
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "categoryLabel": "기술 심층",
+            "matchScore": 94,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "isBookmarked": false,
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "used": false,
+            "timestamp": "3시 16분 40초",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "criterionId": "technical",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40,
+                "criterionName": "1. 기술 직무 역량 (40%)"
+              },
+              {
+                "relevanceScore": 85,
+                "weight": 30,
+                "criterionId": "problemSolving",
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionName": "2. 논리적 문제 해결력 (30%)"
+              }
+            ],
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "difficulty": "ADVANCED",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "id": "tq-1787714200343-0",
+            "category": "심층 기술 검증"
+          },
+          {
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "id": "tq-1787714200091-1",
+            "matchScore": 90,
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "relevanceScore": 90,
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "relevanceScore": 85,
+                "criterionId": "cultureFit",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "category": "협업 및 갈등 해결",
+            "categoryLabel": "협업/컬처핏",
+            "used": false,
+            "difficulty": "INTERMEDIATE",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "isBookmarked": false,
+            "timestamp": "3시 16분 40초"
+          },
+          {
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "matchScore": 94,
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "timestamp": "3시 16분 40초",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "id": "tq-1787714200091-0",
+            "isBookmarked": false,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "categoryLabel": "기술 심층",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "category": "심층 기술 검증",
+            "difficulty": "ADVANCED",
+            "used": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 40,
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "relevanceScore": 95
+              },
+              {
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30,
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "relevanceScore": 85
+              }
+            ]
+          },
+          {
+            "category": "협업 및 갈등 해결",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "timestamp": "3시 16분 39초",
+            "id": "tq-1787714199639-1",
+            "isBookmarked": false,
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "matchScore": 90,
+            "used": false,
+            "categoryLabel": "협업/컬처핏",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "criterionId": "communication",
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit",
+                "relevanceScore": 85,
+                "weight": 10
+              }
+            ],
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "difficulty": "INTERMEDIATE",
+            "claim": "팀 협업 및 프로젝트 구현 과정"
+          },
+          {
+            "categoryLabel": "기술 심층",
+            "category": "심층 기술 검증",
+            "difficulty": "ADVANCED",
+            "timestamp": "3시 16분 39초",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "id": "tq-1787714199638-0",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "used": false,
+            "isBookmarked": false,
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "matchScore": 94,
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 40,
+                "relevanceScore": 95,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "criterionId": "problemSolving",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30
+              }
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악"
+          },
+          {
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "used": false,
+            "isBookmarked": false,
+            "timestamp": "3시 16분 39초",
+            "categoryLabel": "협업/컬처핏",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "matchScore": 90,
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "weight": 20,
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "relevanceScore": 90
+              },
+              {
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "relevanceScore": 85
+              }
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "id": "tq-1787714199329-1",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "category": "협업 및 갈등 해결",
+            "difficulty": "INTERMEDIATE",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ]
+          },
+          {
+            "isBookmarked": false,
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "weight": 40
+              },
+              {
+                "criterionId": "problemSolving",
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "relevanceScore": 85,
+                "criterionName": "2. 논리적 문제 해결력 (30%)"
+              }
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "timestamp": "3시 16분 39초",
+            "matchScore": 94,
+            "id": "tq-1787714199328-0",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "categoryLabel": "기술 심층",
+            "difficulty": "ADVANCED",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "used": false,
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "category": "심층 기술 검증",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악"
+          },
+          {
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "matchScore": 90,
+            "isBookmarked": false,
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "id": "tq-1787714199323-1",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "used": false,
+            "category": "협업 및 갈등 해결",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "weight": 20,
+                "criterionId": "communication",
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "relevanceScore": 85,
+                "weight": 10,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionId": "cultureFit",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "timestamp": "3시 16분 39초",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증"
+          },
+          {
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "weight": 40,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionId": "technical"
+              },
+              {
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "relevanceScore": 85,
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving"
+              }
+            ],
+            "matchScore": 94,
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "id": "tq-1787714199322-0",
+            "used": false,
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "category": "심층 기술 검증",
+            "categoryLabel": "기술 심층",
+            "isBookmarked": false,
+            "difficulty": "ADVANCED",
+            "timestamp": "3시 16분 39초",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik"
+          },
+          {
+            "used": false,
+            "categoryLabel": "협업/컬처핏",
+            "timestamp": "3시 16분 38초",
+            "difficulty": "INTERMEDIATE",
+            "isBookmarked": false,
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "relevanceScore": 90,
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "relevanceScore": 85,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "category": "협업 및 갈등 해결",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "matchScore": 90,
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "id": "tq-1787714198971-1",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ]
+          },
+          {
+            "isBookmarked": false,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40,
+                "criterionId": "technical"
+              },
+              {
+                "relevanceScore": 85,
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving"
+              }
+            ],
+            "id": "tq-1787714198970-0",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "used": false,
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "matchScore": 94,
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "difficulty": "ADVANCED",
+            "timestamp": "3시 16분 38초",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "category": "심층 기술 검증",
+            "categoryLabel": "기술 심층"
+          },
+          {
+            "category": "협업 및 갈등 해결",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "timestamp": "3시 16분 38초",
+            "matchScore": 90,
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "used": false,
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "id": "tq-1787714198881-1",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "isBookmarked": false,
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "difficulty": "INTERMEDIATE",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "criterionId": "communication",
+                "relevanceScore": 90,
+                "weight": 20,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "relevanceScore": 85,
+                "criterionId": "cultureFit",
+                "weight": 10
+              }
+            ],
+            "categoryLabel": "협업/컬처핏"
+          },
+          {
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "isBookmarked": false,
+            "categoryLabel": "기술 심층",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 40,
+                "criterionId": "technical",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "relevanceScore": 95
+              },
+              {
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "relevanceScore": 85,
+                "weight": 30
+              }
+            ],
+            "difficulty": "ADVANCED",
+            "id": "tq-1787714198880-0",
+            "used": false,
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "matchScore": 94,
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "timestamp": "3시 16분 38초",
+            "category": "심층 기술 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ]
+          },
+          {
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "difficulty": "INTERMEDIATE",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "id": "tq-1787714198740-1",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "category": "협업 및 갈등 해결",
+            "used": false,
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "relevanceScore": 90,
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "relevanceScore": 85,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "isBookmarked": false,
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "matchScore": 90,
+            "timestamp": "3시 16분 38초"
+          },
+          {
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "matchScore": 94,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "isBookmarked": false,
+            "category": "심층 기술 검증",
+            "timestamp": "3시 16분 38초",
+            "categoryLabel": "기술 심층",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30,
+                "relevanceScore": 85
+              }
+            ],
+            "id": "tq-1787714198739-0",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "used": false,
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "difficulty": "ADVANCED",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증"
+          },
+          {
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "relevanceScore": 90,
+                "weight": 20,
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "weight": 10,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "relevanceScore": 85,
+                "criterionId": "cultureFit"
+              }
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "matchScore": 90,
+            "categoryLabel": "협업/컬처핏",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "used": false,
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "isBookmarked": false,
+            "id": "tq-1787714198643-1",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "category": "협업 및 갈등 해결",
+            "difficulty": "INTERMEDIATE",
+            "timestamp": "3시 16분 38초"
+          },
+          {
+            "difficulty": "ADVANCED",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "categoryLabel": "기술 심층",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "used": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "category": "심층 기술 검증",
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "weight": 40,
+                "criterionId": "technical",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionName": "1. 기술 직무 역량 (40%)"
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "relevanceScore": 85,
+                "criterionId": "problemSolving",
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증"
+              }
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "isBookmarked": false,
+            "timestamp": "3시 16분 38초",
+            "id": "tq-1787714198643-0",
+            "matchScore": 94
+          },
+          {
+            "isBookmarked": false,
+            "difficulty": "INTERMEDIATE",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "id": "tq-1787714198604-1",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "weight": 20,
+                "relevanceScore": 90,
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "relevanceScore": 85,
+                "criterionId": "cultureFit",
+                "weight": 10
+              }
+            ],
+            "used": false,
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "matchScore": 90,
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "category": "협업 및 갈등 해결",
+            "timestamp": "3시 16분 38초"
+          },
+          {
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "id": "tq-1787714198603-0",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "criterionId": "technical",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40,
+                "criterionName": "1. 기술 직무 역량 (40%)"
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "relevanceScore": 85,
+                "criterionId": "problemSolving",
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30
+              }
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "matchScore": 94,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "category": "심층 기술 검증",
+            "difficulty": "ADVANCED",
+            "timestamp": "3시 16분 38초",
+            "used": false,
+            "isBookmarked": false,
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "categoryLabel": "기술 심층"
+          },
+          {
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "weight": 20,
+                "relevanceScore": 90,
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "weight": 10,
+                "criterionId": "cultureFit",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "relevanceScore": 85
+              }
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "category": "협업 및 갈등 해결",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "timestamp": "3시 16분 38초",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "matchScore": 90,
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "difficulty": "INTERMEDIATE",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "id": "tq-1787714198340-1",
+            "isBookmarked": false,
+            "categoryLabel": "협업/컬처핏",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "used": false,
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ]
+          },
+          {
+            "categoryLabel": "기술 심층",
+            "category": "심층 기술 검증",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "matchScore": 94,
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 40,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionId": "technical"
+              },
+              {
+                "criterionId": "problemSolving",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "relevanceScore": 85
+              }
+            ],
+            "used": false,
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "isBookmarked": false,
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "difficulty": "ADVANCED",
+            "id": "tq-1787714198340-0",
+            "timestamp": "3시 16분 38초",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?"
+          },
+          {
+            "category": "협업 및 갈등 해결",
+            "matchScore": 90,
+            "isBookmarked": false,
+            "timestamp": "3시 16분 38초",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "relevanceScore": 90,
+                "weight": 20,
+                "criterionId": "communication"
+              },
+              {
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionId": "cultureFit",
+                "relevanceScore": 85,
+                "weight": 10
+              }
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "id": "tq-1787714198137-1",
+            "difficulty": "INTERMEDIATE",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "categoryLabel": "협업/컬처핏",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "used": false
+          },
+          {
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "categoryLabel": "기술 심층",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "isBookmarked": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "matchScore": 94,
+            "timestamp": "3시 16분 38초",
+            "difficulty": "ADVANCED",
+            "id": "tq-1787714198137-0",
+            "category": "심층 기술 검증",
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "used": false,
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40,
+                "relevanceScore": 95
+              },
+              {
+                "weight": 30,
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증"
+              }
+            ]
+          },
+          {
+            "category": "협업 및 갈등 해결",
+            "difficulty": "INTERMEDIATE",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "used": false,
+            "categoryLabel": "협업/컬처핏",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "timestamp": "3시 16분 37초",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "relevanceScore": 90,
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10,
+                "relevanceScore": 85,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit"
+              }
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "isBookmarked": false,
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "id": "tq-1787714197989-1",
+            "matchScore": 90,
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ]
+          },
+          {
+            "used": false,
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "categoryLabel": "기술 심층",
+            "isBookmarked": false,
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "matchScore": 94,
+            "id": "tq-1787714197988-0",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "difficulty": "ADVANCED",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "timestamp": "3시 16분 37초",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40
+              },
+              {
+                "relevanceScore": 85,
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionId": "problemSolving"
+              }
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "category": "심층 기술 검증"
+          },
+          {
+            "difficulty": "INTERMEDIATE",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "category": "협업 및 갈등 해결",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "categoryLabel": "협업/컬처핏",
+            "id": "tq-1787714197845-1",
+            "used": false,
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "weight": 20,
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit",
+                "weight": 10,
+                "relevanceScore": 85
+              }
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "matchScore": 90,
+            "isBookmarked": false,
+            "timestamp": "3시 16분 37초"
+          },
+          {
+            "timestamp": "3시 16분 37초",
+            "id": "tq-1787714197844-0",
+            "used": false,
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "category": "심층 기술 검증",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "categoryLabel": "기술 심층",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "difficulty": "ADVANCED",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "matchScore": 94,
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "isBookmarked": false,
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "weight": 40,
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "criterionId": "problemSolving",
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30,
+                "criterionName": "2. 논리적 문제 해결력 (30%)"
+              }
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik"
+          },
+          {
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "relevanceScore": 90,
+                "criterionId": "communication",
+                "weight": 20
+              },
+              {
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "relevanceScore": 85,
+                "criterionId": "cultureFit",
+                "weight": 10
+              }
+            ],
+            "isBookmarked": false,
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "used": false,
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "category": "협업 및 갈등 해결",
+            "categoryLabel": "협업/컬처핏",
+            "matchScore": 90,
+            "id": "tq-1787714197645-1",
+            "difficulty": "INTERMEDIATE",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "timestamp": "3시 16분 37초",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ]
+          },
+          {
+            "claim": "또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "difficulty": "ADVANCED",
+            "used": false,
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "category": "심층 기술 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "id": "tq-1787714197645-0",
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "relevanceScore": 95,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "weight": 40
+              },
+              {
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "weight": 30,
+                "relevanceScore": 85,
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving"
+              }
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "categoryLabel": "기술 심층",
+            "matchScore": 94,
+            "isBookmarked": false,
+            "timestamp": "3시 16분 37초",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?"
+          },
+          {
+            "category": "협업 및 갈등 해결",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "criterionId": "communication",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "relevanceScore": 90
+              },
+              {
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10,
+                "relevanceScore": 85,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "criterionId": "cultureFit"
+              }
+            ],
+            "matchScore": 90,
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "isBookmarked": false,
+            "used": false,
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "timestamp": "3시 16분 37초",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "categoryLabel": "협업/컬처핏",
+            "id": "tq-1787714197642-1",
+            "difficulty": "INTERMEDIATE"
+          },
+          {
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "question": "김태호 지원자님께서 방금 말씀하신 데이터베이스 처리 구조에서 대용량 트래픽이 몰릴 때 인덱스 설계나 트랜잭션 격리 수준은 어떻게 고려하셨나요?",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "claim": "네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 Hik",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "difficulty": "ADVANCED",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "isBookmarked": false,
+            "category": "심층 기술 검증",
+            "matchScore": 94,
+            "id": "tq-1787714197642-0",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "relevanceScore": 95,
+                "weight": 40,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "weight": 30,
+                "criterionId": "problemSolving",
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "relevanceScore": 85
+              }
+            ],
+            "timestamp": "3시 16분 37초",
+            "used": false,
+            "categoryLabel": "기술 심층"
+          },
+          {
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "timestamp": "2시 10분 2초",
+            "id": "tq-1787710202355-1",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "matchScore": 90,
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "criterionId": "communication",
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)"
+              },
+              {
+                "weight": 10,
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "criterionId": "cultureFit",
+                "relevanceScore": 85
+              }
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "isBookmarked": false,
+            "category": "협업 및 갈등 해결",
+            "used": false
+          },
+          {
+            "matchScore": 94,
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 95,
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "weight": 40
+              },
+              {
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving",
+                "weight": 30,
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증"
+              }
+            ],
+            "timestamp": "2시 10분 2초",
+            "isBookmarked": false,
+            "category": "심층 기술 검증",
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "used": false,
+            "id": "tq-1787710202354-0",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "claim": "김태호 지원자의 일반 직무 핵심 역량 및 프로젝트 수행 경험",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "categoryLabel": "기술 심층",
+            "difficulty": "ADVANCED"
+          },
+          {
+            "id": "tq-1787710173221-1",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "timestamp": "2시 9분 33초",
+            "difficulty": "INTERMEDIATE",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "category": "협업 및 갈등 해결",
+            "categoryLabel": "협업/컬처핏",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "isBookmarked": false,
+            "matchScore": 90,
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "weight": 20,
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "criterionId": "communication"
+              },
+              {
+                "relevanceScore": 85,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10,
+                "criterionId": "cultureFit",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)"
+              }
+            ],
+            "used": false
+          },
+          {
+            "claim": "김태호 지원자의 일반 직무 핵심 역량 및 프로젝트 수행 경험",
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "isBookmarked": false,
+            "category": "심층 기술 검증",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "used": false,
+            "id": "tq-1787710173221-0",
+            "matchScore": 94,
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "categoryLabel": "기술 심층",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "difficulty": "ADVANCED",
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "evaluatedCriteriaDetails": [
+              {
+                "weight": 40,
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "criterionId": "technical",
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "weight": 30,
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "criterionId": "problemSolving"
+              }
+            ],
+            "timestamp": "2시 9분 33초"
+          },
+          {
+            "verificationPoint": "문제 정의의 명확성, 기획 및 구현의 일치도, 프로젝트를 완수하며 얻은 구체적 인사이트",
+            "evaluatedCriteria": [
+              "cultureFit",
+              "crit_mt2zggld"
+            ],
+            "intent": "제출 서류의 포트폴리오와 일반 직무 역량이 실제 사용자의 문제를 주도적으로 정의하고 완성도 높은 결과물로 연결되었는지 진정성을 확인",
+            "used": false,
+            "reason": "단순 구현 과제 수행이 아닌 문제 발견부터 결과 도출까지 진정성 있는 몰입을 경험했는지 파악하기 위함",
+            "idealAnswerSignals": [
+              "기존 암기/학습 방식의 구체적 비효율성을 정의하고 이를 시스템적 기능으로 해결한 흐름을 명료하게 설명함",
+              "본인이 주도적으로 기획 및 개발한 핵심 모듈과 실제 사용자 피드백 반영 경험을 제시함",
+              "실패했던 초기 가설과 이를 수정한 회고 과정을 진정성 있게 공유함"
+            ],
+            "customFocusKeyword": "진전성",
+            "category": "프로젝트 진정성 및 결과 검증",
+            "redFlagSignals": [
+              "단순 클론 코딩이나 강의 예제를 그대로 제출한 수준에 그침",
+              "프로젝트를 만든 이유나 타겟 사용자에 대한 고민 없이 기능 구현에만 급급했음",
+              "본인이 작성한 코드나 아키텍처에 대해 질문했을 때 구체적으로 답변하지 못함"
+            ],
+            "matchScore": 91,
+            "categoryLabel": "결과 및 발표물",
+            "difficulty": "INTERMEDIATE",
+            "id": "tq-1787663655173-2-z8zy",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionName": "결과 및 발표물 (15%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "프로젝트 주제가 실사용자 관점에서 구체적인지, 결과물이 실체성을 띠고 있는지 확인",
+                "criterionId": "cultureFit"
+              },
+              {
+                "criterionName": "명확성 및 구체성 (10%)",
+                "relevanceScore": 85,
+                "criterionId": "crit_mt2zggld",
+                "evaluationGuideline": "본인이 기여한 부분과 직무 역량의 연결 고리를 가산점 요소로 구체적 증명할 수 있는지 평가"
+              }
+            ],
+            "question": "지원자님께서 깃허브 저장소(memorization 등) 및 일반 직무 역량으로 진행하셨던 프로젝트에서, 사용자의 어떤 구체적인 페인 포인트를 발견하고 이를 해결하기 위해 어떤 결과물을 도출하셨는지 본인만의 진정성 있는 문제 정의와 발표 결과물 관점에서 말씀해 주세요.",
+            "personaStyle": "BALANCED",
+            "timestamp": "13시 14분 15초",
+            "followUpProbing": [
+              "해당 프로젝트를 진행하면서 최초 기획과 달리 기술적 한계나 일정 문제로 변경해야 했던 부분은 무엇이었나요?",
+              "SmartLab 활동 중 팀원들과 이 프로젝트를 발전시킨다면 어떤 기능을 가장 먼저 추가하고 싶으신가요?"
+            ],
+            "isBookmarked": false,
+            "claim": "김태호 지원자의 일반 직무 핵심 역량 및 프로젝트 수행 경험 (github/memorization 참조)"
+          },
+          {
+            "reason": "비동기 메시징 아키텍처의 핵심 난제인 중복 소비 및 순서 왜곡에 대한 진정한 기술적 고민 수준을 확인하기 위함",
+            "used": false,
+            "timestamp": "13시 14분 15초",
+            "isBookmarked": false,
+            "id": "tq-1787663655173-1-5ejd",
+            "question": "지원자님께서 Kafka의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했다고 하셨는데, 메시지 재처리 과정에서 발생할 수 있는 멱등성(Idempotency) 보장과 순서 보장 문제를 실무적으로 어떻게 진정성 있게 고민하고 해결하셨는지 설명해 주시겠습니까?",
+            "matchScore": 94,
+            "personaStyle": "BALANCED",
+            "intent": "Kafka DLQ 적용 경험이 단순 튜토리얼 수준인지, 실제 비즈니스 트랜잭션 유실 상황에 대한 예외 처리와 멱등성 설계를 진정성 있게 고민했는지 검증",
+            "followUpProbing": [
+              "재시도 횟수를 초과해 최종적으로 DLQ에 적재된 메시지는 운영 환경에서 어떻게 알림을 받고 재처리(Reprocess)하도록 설계하셨나요?",
+              "컨슈머 그룹 내 리밸런싱(Rebalancing)이 일어날 때 커밋되지 않은 메시지의 중복 처리는 어떻게 방어하셨나요?"
+            ],
+            "evaluatedCriteria": [
+              "problemSolving",
+              "communication"
+            ],
+            "categoryLabel": "문제 해결/진정성",
+            "redFlagSignals": [
+              "DLQ의 개념만 알고 있을 뿐 실제 Consumer 예외 처리 코드 구조나 재시도 인터셉터를 설명하지 못함",
+              "메시지가 재시도되는 동안 순서가 뒤바뀌거나 중복 실행되어 DB 데이터가 오염될 수 있는 가능성을 인지하지 못함",
+              "Kafka 클러스터 장애와 단순 네트워크 타임아웃 예외를 구분하지 못함"
+            ],
+            "verificationPoint": "Consumer 재시도 백오프(Backoff) 전략, 멱등성 프로듀서/컨슈머 키 설계, DLQ 모니터링 체계",
+            "evaluatedCriteriaDetails": [
+              {
+                "relevanceScore": 92,
+                "evaluationGuideline": "분산 환경에서 비동기 메시지 실패 시나리오를 세밀하게 정의하고, DLQ 처리 흐름을 논리적으로 설계했는지 검증",
+                "criterionName": "문제 발견 능력 (25%)",
+                "criterionId": "problemSolving"
+              },
+              {
+                "criterionId": "communication",
+                "criterionName": "문제 해결능력 (20%)",
+                "relevanceScore": 88,
+                "evaluationGuideline": "복잡한 메시지 큐 파이프라인의 재시도 정책 및 실패 처리 과정을 두괄식으로 명확하게 전달하는지 평가"
+              }
+            ],
+            "difficulty": "ADVANCED",
+            "customFocusKeyword": "진전성",
+            "claim": "Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.",
+            "category": "아키텍처 및 장애 복구",
+            "idealAnswerSignals": [
+              "지수 백오프(Exponential Backoff) 및 최대 재시도 횟수 초과 시 DLQ로 이관하는 라이프사이클을 정확히 설명함",
+              "메시지 유니크 ID(Message Key, 트랜잭션 ID)를 활용하여 중복 처리 시 멱등성을 보장한 방식을 설명함",
+              "DLQ에 쌓인 실패 메시지를 수동/자동 재발행(Re-publish)하는 운영 관점의 전략을 제시함"
+            ]
+          }
+        ],
+        "contradictions": [
+          {
+            "id": "susp-1787922430930",
+            "timestamp": "13시 7분 10초",
+            "point": "김태호 면접관 면접관의 실시간 팩트체크/의심 신호",
+            "context": "지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함"
+          },
+          {
+            "point": "김태호 면접관 면접관의 실시간 팩트체크/의심 신호",
+            "id": "susp-1787750427315",
+            "timestamp": "13시 20분 27초",
+            "context": "지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함"
+          },
+          {
+            "timestamp": "2시 9분 0초",
+            "point": "김태호 면접관 면접관의 실시간 팩트체크/의심 신호",
+            "id": "susp-1787710140264",
+            "context": "지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함"
+          },
+          {
+            "timestamp": "10시 35분 51초",
+            "point": "김태호 면접관 면접관의 실시간 팩트체크/의심 신호",
+            "id": "susp-1787567751417",
+            "context": "지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함"
+          },
+          {
+            "point": "김태호 면접관 면접관의 실시간 팩트체크/의심 신호",
+            "id": "susp-1787567061591",
+            "timestamp": "10시 24분 21초",
+            "context": "지원자의 직전 답변에 대해 동료 면접관이 추가 검증 필요성을 제기함"
+          }
+        ],
+        "customQuestions": [
+          {
+            "id": "tq-1787819038906-1",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증",
+                "weight": 20,
+                "relevanceScore": 90
+              },
+              {
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "relevanceScore": 85,
+                "criterionId": "cultureFit",
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증",
+                "weight": 10
+              }
+            ],
+            "category": "협업 및 갈등 해결",
+            "isCustomGenerated": true,
+            "difficulty": "INTERMEDIATE",
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "matchScore": 90,
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "timestamp": "8시 23분 58초",
+            "isBookmarked": false,
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "categoryLabel": "협업/컬처핏",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "used": false
+          },
+          {
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "matchScore": 94,
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "id": "tq-1787819038905-0",
+            "isBookmarked": false,
+            "claim": "김태호 지원자의 일반 직무 핵심 역량 및 프로젝트 수행 경험",
+            "evaluatedCriteriaDetails": [
+              {
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증",
+                "criterionId": "technical",
+                "weight": 40,
+                "relevanceScore": 95,
+                "criterionName": "1. 기술 직무 역량 (40%)"
+              },
+              {
+                "weight": 30,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증",
+                "criterionId": "problemSolving",
+                "relevanceScore": 85,
+                "criterionName": "2. 논리적 문제 해결력 (30%)"
+              }
+            ],
+            "categoryLabel": "기술 심층",
+            "timestamp": "8시 23분 58초",
+            "difficulty": "ADVANCED",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "isCustomGenerated": true,
+            "used": false,
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "category": "심층 기술 검증"
+          }
+        ],
+        "realtimeSummaries": [
+          {
+            "timestamp": "3시 16분 47초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt9ivr0y",
+            "source": "ai"
+          },
+          {
+            "id": "sum-mt9ivl7c",
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "3시 16분 40초"
+          },
+          {
+            "source": "ai",
+            "timestamp": "3시 16분 40초",
+            "id": "sum-mt9ivl0b",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "id": "sum-mt9ivknr",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "3시 16분 39초",
+            "source": "ai"
+          },
+          {
+            "timestamp": "3시 16분 39초",
+            "id": "sum-mt9ivkf5",
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "id": "sum-mt9ivkez",
+            "timestamp": "3시 16분 39초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai"
+          },
+          {
+            "id": "sum-mt9ivk57",
+            "source": "ai",
+            "timestamp": "3시 16분 38초",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "source": "ai",
+            "timestamp": "3시 16분 38초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt9ivk2p"
+          },
+          {
+            "id": "sum-mt9ivjys",
+            "timestamp": "3시 16분 38초",
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "timestamp": "3시 16분 38초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "id": "sum-mt9ivjw3"
+          },
+          {
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "id": "sum-mt9ivjv0",
+            "timestamp": "3시 16분 38초"
+          },
+          {
+            "timestamp": "3시 16분 38초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt9ivjno",
+            "source": "ai"
+          },
+          {
+            "timestamp": "3시 16분 38초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "id": "sum-mt9ivji1"
+          },
+          {
+            "id": "sum-mt9ivjdx",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "timestamp": "3시 16분 37초"
+          },
+          {
+            "id": "sum-mt9ivj9x",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "timestamp": "3시 16분 37초"
+          },
+          {
+            "timestamp": "3시 16분 37초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt9ivj4e",
+            "source": "ai"
+          },
+          {
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "3시 16분 37초",
+            "source": "ai",
+            "id": "sum-mt9ivj4a"
+          },
+          {
+            "source": "ai",
+            "timestamp": "10시 23분 2초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt7387b8"
+          },
+          {
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "10시 22분 46초",
+            "source": "ai",
+            "id": "sum-mt737ur4"
+          },
+          {
+            "timestamp": "10시 22분 46초",
+            "id": "sum-mt737uiy",
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "timestamp": "10시 22분 45초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt737u6x",
+            "source": "ai"
+          },
+          {
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "10시 22분 45초",
+            "id": "sum-mt737tyc"
+          },
+          {
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "10시 22분 44초",
+            "source": "ai",
+            "id": "sum-mt737tbi"
+          },
+          {
+            "source": "ai",
+            "id": "sum-mt737snn",
+            "timestamp": "10시 22분 43초",
+            "text": "김태호 지원자의 최근 발언 요약입니다."
+          },
+          {
+            "id": "sum-mt737psp",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "timestamp": "10시 22분 39초",
+            "source": "ai"
+          },
+          {
+            "source": "ai",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "id": "sum-mt737ne9",
+            "timestamp": "10시 22분 36초"
+          },
+          {
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai",
+            "timestamp": "10시 22분 19초",
+            "id": "sum-mt7379or"
+          },
+          {
+            "id": "sum-mt736xni",
+            "timestamp": "10시 22분 3초",
+            "text": "김태호 지원자의 최근 발언 요약입니다.",
+            "source": "ai"
+          }
+        ]
+      },
+      "studentId": "202631220",
+      "isModifiedUnderAdmin": true,
+      "interviewers": [
+        "면접관 1",
+        "면접관 2",
+        "면접관 3"
+      ],
+      "completedAt": "2026-08-27 17:26:16",
+      "noShowVotes": [],
+      "qualitativeAiSummary": {
+        "strengths": [
+          "성실하고 적극적인 면접 태도",
+          "기본 전공 지식 보유",
+          "동아리 참여 의지 높음"
+        ],
+        "oneLineVerdict": "기본기와 성장 잠재력이 돋보이며 팀에 긍정적인 에너지를 줄 수 있는 지원자",
+        "improvements": [
+          "실무 프로젝트 협업 경험 보완 권장",
+          "자신의 생각을 두괄식으로 정리하는 연습 필요"
+        ],
+        "recommendedRole": "일반",
+        "potentialScore": 88
+      },
+      "lastModifiedAt": "2026-08-28 22:12:32",
+      "status": "COMPLETED",
+      "initialCompletedAt": "2026-08-27 17:26:16",
+      "documents": [
+        {
+          "fileSize": "Google Docs (인앱 연동)",
+          "rawText": "SmartLab 지원자 공식 구글 닥스 서류 링크: https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "id": "gdoc-cand-mt6gewsk",
+          "contentSnippet": "구글 닥스 면접평가기준 원본 (인앱 미리보기 지원)",
+          "type": "gdocs",
+          "url": "https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "title": "면접평가기준",
+          "uploadedAt": "8시 2분 52초"
+        },
+        {
+          "type": "url",
+          "url": "https://github.com/kimtaehogobaduk/memorization",
+          "uploadedAt": "8시 44분 24초",
+          "fileSize": "직접 등록",
+          "contentSnippet": "https://github.com/kimtaehogobaduk/memorization",
+          "rawText": "외부 링크: https://github.com/kimtaehogobaduk/memorization",
+          "title": "김태호_지원서.link",
+          "id": "doc-1787528664452"
+        },
+        {
+          "title": "온라인 포트폴리오",
+          "id": "doc-1787559495459",
+          "type": "url",
+          "contentSnippet": "https://youtube.com/...",
+          "url": "https://youtube.com/",
+          "fileSize": "웹 인라인 서류",
+          "uploadedAt": "17시 18분 15초",
+          "rawText": "참조 및 인앱 로딩 링크: https://youtube.com/"
+        }
+      ],
+      "track": "일반",
+      "id": "cand-mt6gewsk",
+      "reopenedBy": "김태호 면접관",
+      "name": "김태호",
+      "email": "김태호@smartlab.edu",
+      "phone": "010-0000-0000",
+      "reopenedAt": "2026-08-28 22:07:32",
+      "timeslot": {
+        "room": "SMARTLAB 2027 면접",
+        "end": "14:30",
+        "start": "14:00"
+      },
+      "detailedAiReport": {
+        "strengths": [
+          "일반 분야에 대한 진정성 있는 관심과 기초 전공 지식을 탄탄하게 갖추고 있습니다.",
+          "면접관의 질문 의도를 빠르게 파악하고 당황하지 않고 차분하게 답변을 이어가는 태도가 돋보였습니다.",
+          "새로운 기술을 학습하고자 하는 적극적인 호기심과 팀 프로젝트에 대한 협업 마인드가 우수합니다."
+        ],
+        "improvements": [
+          "자신의 기술적 경험이나 문제 해결 과정을 설명할 때 결론을 먼저 제시하는 두괄식 구조(STAR 기법)를 더 강화하면 전달력이 배가될 것입니다.",
+          "단순히 기술을 사용해 본 경험을 넘어, 왜 그 기술을 선택했는지에 대한 트레이드오프 분석을 답변에 녹여내는 연습을 권장합니다.",
+          "예외 상황이나 장애 발생 시의 체계적인 디버깅 접근 방식을 더 구체적인 수치와 함께 설명하면 신뢰도가 높아집니다."
+        ],
+        "competencyAnalysis": [
+          {
+            "category": "기술 역량 및 전공 지식",
+            "score": 86,
+            "evaluation": "일반 분야의 핵심 개념을 바르게 이해하고 있으며, 실전 응용을 위한 기초 체력이 탄탄합니다.",
+            "actionTip": "관심 분야의 공식 문서와 베스트 프랙티스를 정독하며 심화 원리를 정리해보세요."
+          },
+          {
+            "category": "문제 해결 및 논리적 사고",
+            "score": 84,
+            "evaluation": "면접관의 심층 꼬리 질문에도 논리적인 연결고리를 유지하며 단계적으로 해결책을 모색했습니다.",
+            "actionTip": "프로젝트 트러블슈팅 경험을 문제 정의 - 원인 분석 - 해결책 - 교훈의 4단계로 문서화해보세요."
+          },
+          {
+            "category": "의사소통 및 전달력",
+            "score": 89,
+            "evaluation": "명확한 발음과 안정된 톤으로 자신의 생각과 경험을 자신감 있게 전달했습니다.",
+            "actionTip": "핵심 키워드를 먼저 언급한 뒤 부연 설명을 이어가는 습관을 들이면 더욱 효과적입니다."
+          },
+          {
+            "category": "팀워크 및 동아리 적합도",
+            "score": 93,
+            "evaluation": "동아리 활동에 대한 열정과 팀원들과 함께 시너지를 내고자 하는 태도가 매우 인상적입니다.",
+            "actionTip": "동료들과의 코드 리뷰나 페어 프로그래밍 경험을 적극적으로 만들어보세요."
+          }
+        ],
+        "actionPlan": [
+          "핵심 프로젝트 포트폴리오를 GitHub에 기술적 고민과 트러블슈팅 과정을 상세히 기록(ReadMe 보강)",
+          "CS 핵심 이론(자료구조, 알고리즘, 네트워크, DB)을 모의 면접 스터디를 통해 말로 설명하는 훈련 진행",
+          "최신 기술 트렌드 아티클을 주 1회 정독하고 토론하는 스터디 참여"
+        ],
+        "oneLineVerdict": "뛰어난 학습 민첩성과 긍정적인 태도를 겸비하여 향후 팀의 든든한 핵심 인재로 도약할 유망주",
+        "overallReview": "김태호 지원자님은 이번 면접을 통해 일반에 대한 깊은 열정과 성실한 태도를 분명하게 보여주셨습니다. 질문에 솔직하고 진정성 있게 답변해주신 점이 면접관들에게 큰 인상을 남겼으며, 앞으로의 성장 가능성이 매우 기대됩니다. 제안드린 피드백 포인트를 바탕으로 계속해서 멋진 도전을 이어나가시길 응원합니다!"
+      }
+    },
+    {
+      "email": "",
+      "phone": "",
+      "reminder10MinEnabled": true,
+      "name": "김태호",
+      "roomId": "room-mt171tee",
+      "status": "COMPLETED",
+      "track": "AI 엔지니어링",
+      "lastCandidateActiveAt": "2026-08-31 20:51:36",
+      "documents": [
+        {
+          "title": "면접평가기준",
+          "type": "gdocs",
+          "url": "https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "uploadedAt": "17:27:07",
+          "id": "gdoc-cand-mtb9eog7-9tv",
+          "rawText": "SmartLab 지원자 공식 구글 닥스 서류 링크: https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "fileSize": "Google Docs (인앱 연동)",
+          "contentSnippet": "구글 닥스 지원서류 원본 (인앱 미리보기 지원)"
+        }
+      ],
+      "aiInsights": {
+        "contradictions": [],
+        "realtimeSummaries": [
+          {
+            "id": "sum-mtbbznrw",
+            "timestamp": "9시 39분 25초",
+            "text": "면접을 시작하며 면접관에게 인사함.",
+            "source": "ai"
+          }
+        ],
+        "tailQuestions": [
+          {
+            "id": "tq-1787823565340-3-ikeg",
+            "timestamp": "9시 39분 25초",
+            "question": "지원자님께서 이번 SmartLab에 합격하신다면, 기존에 다뤄보지 못했으나 꼭 동아리원들과 함께 도전해보고 싶은 구체적인 AI 기술 도메인이나 서비스 아이디어가 있으신가요? 그리고 그것이 왜 SmartLab에서 진행되어야 한다고 생각하시나요?",
+            "claim": "SmartLab 동아리 적합성 및 향후 활동 목표",
+            "category": "동아리 기여도 및 목표",
+            "categoryLabel": "명확성/구체성",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteria": [
+              "cultureFit",
+              "crit_mt2zggld",
+              "technical"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "cultureFit",
+                "criterionName": "결과 및 발표물 (15%)",
+                "relevanceScore": 95,
+                "evaluationGuideline": "제시하는 주제가 얼마나 명확하고 구체적이며, 동아리 수준의 완성도 높은 결과물로 이어질 수 있는지 평가"
+              },
+              {
+                "criterionId": "crit_mt2zggld",
+                "criterionName": "명확성 및 구체성 (10%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "추상적인 포부가 아닌 구체적인 기술 스택, 타깃 사용자, 구현 로드맵을 갖추고 있는지 확인하여 가산점 부여"
+              }
+            ],
+            "intent": "지원자의 동아리 활동에 대한 열정과 주도성, 그리고 실제 프로젝트로 실현 가능한 명확한 비전을 갖추었는지 검증",
+            "verificationPoint": "관심 기술의 최신 트렌드 이해도 및 구체적인 서비스 기획/구현 가능성",
+            "reason": "단순 참여자가 아닌 동아리 내에서 능동적으로 프로젝트를 리드하거나 가치를 창출할 인재인지 확인",
+            "idealAnswerSignals": [
+              "최신 AI 연구/엔지니어링 트렌드(예: LLM Agent, RAG 고도화, 온디바이스 AI, 멀티모달 등)에 기반한 구체적인 주제 제시",
+              "혼자서는 하기 힘들지만 백엔드/프론트엔드/기획자와 협업하여 시너지를 낼 수 있는 설계안을 설명함",
+              "SmartLab의 지식 공유 문화에 본인이 기여할 수 있는 방안을 함께 언급함"
+            ],
+            "redFlagSignals": [
+              "단순히 '많이 배우고 싶다'는 수동적인 태도만 보임",
+              "실현 불가능하거나 기술적 근거가 전혀 없는 허황된 아이디어 제시",
+              "동아리 활동의 성격과 맞지 않는 개인 학업 위주의 답변"
+            ],
+            "followUpProbing": [
+              "그 프로젝트를 한 학기(혹은 1년) 내에 완성하기 위해 가장 먼저 해결해야 할 기술적 핵심 난제는 무엇이라고 보시나요?",
+              "해당 도메인을 연구하기 위해 최근 팔로우업하고 있는 최신 논문이나 기술 아티클이 있나요?"
+            ],
+            "matchScore": 91,
+            "personaStyle": "BALANCED",
+            "used": false,
+            "isBookmarked": false
+          },
+          {
+            "id": "tq-1787823565340-2-deik",
+            "timestamp": "9시 39분 25초",
+            "question": "SmartLab에서는 다학제/다직군 팀원들과 함께 밀도 높은 프로젝트를 완성해야 합니다. 이전 프로젝트에서 모델 구조나 기술 스택 선정을 두고 팀원과 의견 충돌이 발생했거나, 본인의 설계가 반려되었을 때 어떻게 타협점을 찾고 결과를 도출하셨나요?",
+            "claim": "SmartLab 동아리 활동 참여 및 협업 의지",
+            "category": "협업 및 커뮤니케이션",
+            "categoryLabel": "컬처핏/협업",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "criterionName": "문제 해결능력 (20%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 의견을 경청하고 감정적이지 않게 논리적으로 설득하거나 타협안을 도출하는 논리적 소통 역량 평가"
+              },
+              {
+                "criterionId": "cultureFit",
+                "criterionName": "결과 및 발표물 (15%)",
+                "relevanceScore": 85,
+                "evaluationGuideline": "갈등 상황 속에서도 프로젝트의 최종 목표와 결과물 퀄리티를 최우선으로 두는 태도 확인"
+              }
+            ],
+            "intent": "팀 프로젝트 수행 시 동료 존중 마인드와 투명한 소통, 그리고 합리적인 기술 의사결정 능력을 검증",
+            "verificationPoint": "기술적 고집 대신 데이터와 실험 결과 기반으로 팀원을 설득하거나 타협한 구체적 사례",
+            "reason": "SmartLab 인재상인 '협업 마인드셋'과 '동료 존중' 가치를 실천할 수 있는지 확인",
+            "idealAnswerSignals": [
+              "감정적 대립이 아닌 벤치마크 점수나 실험 데이터 기반으로 의사결정한 경험을 언급함",
+              "동료의 의견에서 타당한 점을 수용하여 절충안을 만들어낸 유연성을 보임",
+              "프로젝트 일정과 목표를 지키기 위해 우선순위를 조정한 경험을 설명함"
+            ],
+            "redFlagSignals": [
+              "자신의 주장만 옳다고 생각하여 끝까지 고집을 부렸거나 타인을 탓함",
+              "갈등이 생겼을 때 소통을 포기하고 혼자 작업을 처리해버림",
+              "협업 과정에 대한 구체적인 예시 없이 원론적인 답변만 반복함"
+            ],
+            "followUpProbing": [
+              "그 결정으로 인해 최종 결과물에는 어떤 긍정적 혹은 아쉬운 영향이 있었나요?",
+              "다시 비슷한 상황이 발생한다면 의사결정 프로세스를 어떻게 개선하고 싶으신가요?"
+            ],
+            "matchScore": 88,
+            "personaStyle": "BALANCED",
+            "used": false,
+            "isBookmarked": false
+          },
+          {
+            "id": "tq-1787823565340-1-rwwg",
+            "timestamp": "9시 39분 25초",
+            "question": "지원자님께서 AI 모델을 학습시키거나 서빙(배포)하는 과정에서 겪었던 가장 까다로웠던 기술적 병목(예: OOM, 추론 지연, 데이터 파이프라인 병목)은 무엇이었으며, 이를 어떻게 프로파일링하고 해결하셨나요?",
+            "claim": "AI 엔지니어링 트랙 지원자로서의 실무/프로젝트 개발 역량",
+            "category": "심층 기술 검증",
+            "categoryLabel": "기술 심층",
+            "difficulty": "ADVANCED",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving",
+              "communication"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "동아리 적합성 (30%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "AI 엔지니어링 실무에서 필연적으로 발생하는 시스템적/학습적 병목 현상을 진단하고 최적화할 수 있는 역량 검증"
+              },
+              {
+                "criterionId": "communication",
+                "criterionName": "문제 해결능력 (20%)",
+                "relevanceScore": 85,
+                "evaluationGuideline": "복잡한 장애 상황과 해결 과정을 얼마나 논리적이고 체계적으로 전달하는지 평가"
+              }
+            ],
+            "intent": "실제 개발 과정에서 겪은 실패 및 디버깅 경험을 통해 지원자의 기술적 집요함과 트러블슈팅 깊이를 확인",
+            "verificationPoint": "단순 파라미터 튜닝이 아닌 시스템 레벨 또는 아키텍처 레벨에서의 병목 원인 규명 및 최적화 기법",
+            "reason": "SmartLab 기술 가이드라인에 따른 '실패 회고 및 기술적 집요함' 인재상 부합 여부 검증",
+            "idealAnswerSignals": [
+              "CUDA OOM, 배치 사이즈/메모리 트레이드오프, 양자화(Quantization) 또는 TensorRT/ONNX 변환 등 구체적인 기술 용어를 사용하여 설명함",
+              "병목을 추측이 아닌 프로파일러(TensorBoard, PyTorch Profiler 등)를 통해 정량적으로 측정한 경험을 공유함",
+              "해결 과정에서 발생한 트레이드오프(예: 정확도 하락 vs 지연 시간 감소)를 명확히 인지함"
+            ],
+            "redFlagSignals": [
+              "한 번도 에러나 병목을 겪어본 적이 없다고 하거나 기억나지 않는다고 회피함",
+              "단순히 배치 사이즈를 줄였다는 수준의 기초적 답변 외에 메커니즘을 설명하지 못함",
+              "트러블슈팅의 논리적 전개 없이 주먹구구식 시도만 나열함"
+            ],
+            "followUpProbing": [
+              "그 해결책을 적용했을 때 지연 시간(Latency)이나 Throughput 등 지표는 정량적으로 얼마나 개선되었나요?",
+              "만약 당시 환경의 리소스 제약이 더 엄격했다면 어떤 대안(예: Pruning, LoRA 등)을 고려하셨을 것 같나요?"
+            ],
+            "matchScore": 92,
+            "personaStyle": "BALANCED",
+            "used": false,
+            "isBookmarked": false
+          },
+          {
+            "id": "tq-1787823565340-0-0oc7",
+            "timestamp": "9시 39분 25초",
+            "question": "김태호 지원자님, 반갑습니다. AI 엔지니어링 트랙에 지원해 주셨는데, 지금까지 수행하셨던 AI 프로젝트 중 가장 기술적으로 깊이 파고들었거나 직접 문제를 정의하고 해결했던 대표 프로젝트 하나를 핵심 기술 스택과 함께 간략히 소개해 주시겠습니까?",
+            "claim": "AI 엔지니어링 트랙 지원 및 면접 시작 인사",
+            "category": "지원 동기 및 기술 역량 개요",
+            "categoryLabel": "역량 탐색",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "동아리 적합성 (30%)",
+                "relevanceScore": 95,
+                "evaluationGuideline": "AI 엔지니어링 트랙의 활동을 원활히 소화할 수 있는 기본적인 모델링/파이프라인 구축 역량을 갖추었는지 확인"
+              },
+              {
+                "criterionId": "problemSolving",
+                "criterionName": "문제 발견 능력 (25%)",
+                "relevanceScore": 90,
+                "evaluationGuideline": "단순한 튜토리얼 수준을 넘어 본인이 직접 해결하고자 한 문제를 명확히 식별하고 기술을 적용했는지 평가"
+              }
+            ],
+            "intent": "지원자가 주도적으로 진행한 AI 프로젝트의 기술적 깊이와 본 동아리 트랙 활동을 수행할 수 있는 기초 체력을 검증하기 위함",
+            "verificationPoint": "직접 구현한 AI 파이프라인/모델 아키텍처 수준 및 문제 정의의 구체성",
+            "reason": "면접 서두에서 지원자의 핵심 기술 도메인과 관심사를 파악하여 후속 심층 기술 검증의 기준점을 잡기 위함",
+            "idealAnswerSignals": [
+              "해결하고자 한 비즈니스/기술 문제의 정의가 명확함",
+              "사용된 딥러닝 프레임워크(PyTorch, TensorFlow 등)와 데이터 파이프라인 선택 근거를 구체적으로 제시함",
+              "단순 오픈소스 클론이 아닌 본인이 직접 기여한 파트와 성과 지표를 두괄식으로 설명함"
+            ],
+            "redFlagSignals": [
+              "Kaggle/Dacon 기본 베이스라인 코드 실행 수준에 그치고 세부 원리를 모름",
+              "문제를 왜 해결해야 했는지에 대한 기술적 배경 없이 결과만 나열함",
+              "팀 프로젝트에서 본인의 역할과 기여도가 불분명함"
+            ],
+            "followUpProbing": [
+              "해당 프로젝트에서 데이터 전처리 및 수집 과정에서 겪었던 데이터 불균형이나 노이즈 문제는 어떻게 해결하셨나요?",
+              "기존 베이스라인 모델 대비 어떤 아키텍처적 개선이나 실험을 시도하셨나요?"
+            ],
+            "matchScore": 95,
+            "personaStyle": "BALANCED",
+            "used": false,
+            "isBookmarked": false
+          }
+        ],
+        "customQuestions": [
+          {
+            "id": "tq-1787923671869-1",
+            "timestamp": "13시 27분 51초",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "category": "협업 및 갈등 해결",
+            "categoryLabel": "협업/컬처핏",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "weight": 20,
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "criterionId": "cultureFit",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "weight": 10,
+                "relevanceScore": 85,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증"
+              }
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "matchScore": 90,
+            "used": false,
+            "isBookmarked": false,
+            "isCustomGenerated": true
+          },
+          {
+            "id": "tq-1787923671868-0",
+            "timestamp": "13시 27분 51초",
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "claim": "안녕하세요.",
+            "category": "심층 기술 검증",
+            "categoryLabel": "기술 심층",
+            "difficulty": "ADVANCED",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "weight": 40,
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "criterionId": "problemSolving",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "weight": 30,
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증"
+              }
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "matchScore": 94,
+            "used": false,
+            "isBookmarked": false,
+            "isCustomGenerated": true
+          },
+          {
+            "id": "tq-1787923664221-1",
+            "timestamp": "13시 27분 44초",
+            "question": "김태호 지원자님, 해당 프로젝트를 진행하면서 팀원들과 기술적 의견 불일치가 있었거나 가장 까다로웠던 요구사항 변경을 조율했던 경험을 구체적으로 들려주실 수 있나요?",
+            "claim": "팀 협업 및 프로젝트 구현 과정",
+            "category": "협업 및 갈등 해결",
+            "categoryLabel": "협업/컬처핏",
+            "difficulty": "INTERMEDIATE",
+            "evaluatedCriteria": [
+              "communication",
+              "cultureFit"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "communication",
+                "criterionName": "3. 의사소통 및 전달력 (20%)",
+                "weight": 20,
+                "relevanceScore": 90,
+                "evaluationGuideline": "상대방의 입장을 경청하고 논리적 근거로 설득하는 역량 검증"
+              },
+              {
+                "criterionId": "cultureFit",
+                "criterionName": "4. 동아리 적합도 & 성장성 (10%)",
+                "weight": 10,
+                "relevanceScore": 85,
+                "evaluationGuideline": "SmartLab 동아리 문화에 부합하는 협업 및 갈등 해결 마인드셋 검증"
+              }
+            ],
+            "intent": "팀 내 갈등 발생 시 감정이 아닌 데이터와 논리로 풀어내는 협업 태도 파악",
+            "verificationPoint": "소통 방식 및 팀워크 기여도 검증",
+            "reason": "협업 및 커뮤니케이션 성향 파악",
+            "idealAnswerSignals": [
+              "상대방의 의견을 존중하며 데이터나 프로토타입으로 설득한 구체적 사례 제시",
+              "팀의 공동 목표를 우선시하는 태도"
+            ],
+            "redFlagSignals": [
+              "독단적으로 처리했거나 갈등 상황을 회피한 경험만 언급",
+              "팀원의 탓으로 책임을 전가하는 태도"
+            ],
+            "followUpProbing": [
+              "만약 팀원이 끝까지 본인의 설득에 동의하지 않았다면 어떤 차선책을 선택하셨을 것 같나요?"
+            ],
+            "matchScore": 90,
+            "used": false,
+            "isBookmarked": false,
+            "isCustomGenerated": true
+          },
+          {
+            "id": "tq-1787923664221-0",
+            "timestamp": "13시 27분 44초",
+            "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+            "claim": "안녕하세요.",
+            "category": "심층 기술 검증",
+            "categoryLabel": "기술 심층",
+            "difficulty": "ADVANCED",
+            "evaluatedCriteria": [
+              "technical",
+              "problemSolving"
+            ],
+            "evaluatedCriteriaDetails": [
+              {
+                "criterionId": "technical",
+                "criterionName": "1. 기술 직무 역량 (40%)",
+                "weight": 40,
+                "relevanceScore": 95,
+                "evaluationGuideline": "아키텍처 및 라이브러리 선정의 타당성과 기술적 깊이 검증"
+              },
+              {
+                "criterionId": "problemSolving",
+                "criterionName": "2. 논리적 문제 해결력 (30%)",
+                "weight": 30,
+                "relevanceScore": 85,
+                "evaluationGuideline": "예외/장애 상황에 대한 논리적 방어 기제 설계 검증"
+              }
+            ],
+            "intent": "단순 기능 구현을 넘어선 기술적 트레이드오프와 예외 상황 방어력 검증",
+            "verificationPoint": "아키텍처 선택 근거 및 예외 처리 역량 검증",
+            "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+            "idealAnswerSignals": [
+              "수치나 벤치마크 지표를 근거로 기술 선택 이유를 설명함",
+              "발생 가능한 예외 상황과 복구 절차를 체계적으로 제시함"
+            ],
+            "redFlagSignals": [
+              "대안 기술과의 장단점 비교 없이 유행이나 익숙함만으로 선택함",
+              "에러 핸들링이나 트랜잭션 롤백에 대해 고려하지 못함"
+            ],
+            "followUpProbing": [
+              "해당 구조에서 데이터 정합성이 깨지는 엣지 케이스가 발생한다면 어떻게 복구하시겠습니까?"
+            ],
+            "matchScore": 94,
+            "used": false,
+            "isBookmarked": false,
+            "isCustomGenerated": true
+          }
+        ]
+      },
+      "id": "cand-mtb9eog7-9tv",
+      "interviewDate": "2026-08-31",
+      "sttTranscript": [
+        {
+          "id": "stt-cand-mtbbz7u6-2xg",
+          "speaker": "candidate",
+          "text": "안녕하세요.",
+          "timestamp": "18시 39분 4초",
+          "confidence": 0.96
+        }
+      ],
+      "studentId": "10208",
+      "interviewers": [
+        "김태호 면접관",
+        "김이현 면접관",
+        "박민수 면접관",
+        "이건희 면접관",
+        "임규리 면접관",
+        "차민혁 면접관",
+        "김연우 면접관",
+        "최지우 면접관"
+      ],
+      "timeslot": {
+        "start": "14:00",
+        "end": "14:30",
+        "room": "SMARTLAB 2027 면접"
+      },
+      "startedAt": "2026-08-27 18:38:09",
+      "interviewStartedTimestamp": 1787823489297,
+      "initialCompletedAt": "2026-08-28 22:50:55",
+      "completedAt": "2026-08-28 22:50:55",
+      "qualitativeAiSummary": {
+        "strengths": [
+          "성실하고 적극적인 면접 태도",
+          "기본 전공 지식 보유",
+          "동아리 참여 의지 높음"
+        ],
+        "improvements": [
+          "실무 프로젝트 협업 경험 보완 권장",
+          "자신의 생각을 두괄식으로 정리하는 연습 필요"
+        ],
+        "oneLineVerdict": "기본기와 성장 잠재력이 돋보이며 팀에 긍정적인 에너지를 줄 수 있는 지원자",
+        "recommendedRole": "AI 엔지니어링",
+        "potentialScore": 88
+      },
+      "detailedAiReport": {
+        "strengths": [
+          "AI 엔지니어링 분야에 대한 진정성 있는 관심과 기초 전공 지식을 탄탄하게 갖추고 있습니다.",
+          "면접관의 질문 의도를 빠르게 파악하고 당황하지 않고 차분하게 답변을 이어가는 태도가 돋보였습니다.",
+          "새로운 기술을 학습하고자 하는 적극적인 호기심과 팀 프로젝트에 대한 협업 마인드가 우수합니다."
+        ],
+        "improvements": [
+          "자신의 기술적 경험이나 문제 해결 과정을 설명할 때 결론을 먼저 제시하는 두괄식 구조(STAR 기법)를 더 강화하면 전달력이 배가될 것입니다.",
+          "단순히 기술을 사용해 본 경험을 넘어, 왜 그 기술을 선택했는지에 대한 트레이드오프 분석을 답변에 녹여내는 연습을 권장합니다.",
+          "예외 상황이나 장애 발생 시의 체계적인 디버깅 접근 방식을 더 구체적인 수치와 함께 설명하면 신뢰도가 높아집니다."
+        ],
+        "competencyAnalysis": [
+          {
+            "category": "기술 역량 및 전공 지식",
+            "score": 86,
+            "evaluation": "AI 엔지니어링 분야의 핵심 개념을 바르게 이해하고 있으며, 실전 응용을 위한 기초 체력이 탄탄합니다.",
+            "actionTip": "관심 분야의 공식 문서와 베스트 프랙티스를 정독하며 심화 원리를 정리해보세요."
+          },
+          {
+            "category": "문제 해결 및 논리적 사고",
+            "score": 84,
+            "evaluation": "면접관의 심층 꼬리 질문에도 논리적인 연결고리를 유지하며 단계적으로 해결책을 모색했습니다.",
+            "actionTip": "프로젝트 트러블슈팅 경험을 문제 정의 - 원인 분석 - 해결책 - 교훈의 4단계로 문서화해보세요."
+          },
+          {
+            "category": "의사소통 및 전달력",
+            "score": 89,
+            "evaluation": "명확한 발음과 안정된 톤으로 자신의 생각과 경험을 자신감 있게 전달했습니다.",
+            "actionTip": "핵심 키워드를 먼저 언급한 뒤 부연 설명을 이어가는 습관을 들이면 더욱 효과적입니다."
+          },
+          {
+            "category": "팀워크 및 동아리 적합도",
+            "score": 93,
+            "evaluation": "동아리 활동에 대한 열정과 팀원들과 함께 시너지를 내고자 하는 태도가 매우 인상적입니다.",
+            "actionTip": "동료들과의 코드 리뷰나 페어 프로그래밍 경험을 적극적으로 만들어보세요."
+          }
+        ],
+        "actionPlan": [
+          "핵심 프로젝트 포트폴리오를 GitHub에 기술적 고민과 트러블슈팅 과정을 상세히 기록(ReadMe 보강)",
+          "CS 핵심 이론(자료구조, 알고리즘, 네트워크, DB)을 모의 면접 스터디를 통해 말로 설명하는 훈련 진행",
+          "최신 기술 트렌드 아티클을 주 1회 정독하고 토론하는 스터디 참여"
+        ],
+        "oneLineVerdict": "뛰어난 학습 민첩성과 긍정적인 태도를 겸비하여 향후 팀의 든든한 핵심 인재로 도약할 유망주",
+        "overallReview": "김태호 지원자님은 이번 면접을 통해 AI 엔지니어링에 대한 깊은 열정과 성실한 태도를 분명하게 보여주셨습니다. 질문에 솔직하고 진정성 있게 답변해주신 점이 면접관들에게 큰 인상을 남겼으며, 앞으로의 성장 가능성이 매우 기대됩니다. 제안드린 피드백 포인트를 바탕으로 계속해서 멋진 도전을 이어나가시길 응원합니다!"
+      }
+    },
+    {
+      "id": "cand-mtgnreku",
+      "name": "ㅇㄹㅇㄹㅇㄹ",
+      "track": "일반",
+      "studentId": "202669328",
+      "phone": "010-0000-0000",
+      "email": "ㅇㄹㅇㄹㅇㄹ@smartlab.edu",
+      "timeslot": {
+        "start": "14:00",
+        "end": "14:30",
+        "room": "SMARTLAB 2027 면접"
+      },
+      "status": "COMPLETED",
+      "interviewers": [
+        "면접관 1",
+        "면접관 2",
+        "면접관 3"
+      ],
+      "documents": [
+        {
+          "id": "gdoc-1788145666398-lc3e",
+          "title": "면접평가기준",
+          "type": "gdocs",
+          "url": "https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "fileSize": "Google Docs (인앱 연동)",
+          "contentSnippet": "구글 닥스 면접평가기준 원본 (인앱 미리보기 지원)",
+          "rawText": "SmartLab 지원자 공식 구글 닥스 서류 링크: https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "uploadedAt": "3시 7분 46초"
+        }
+      ],
+      "sttTranscript": [],
+      "aiInsights": {
+        "realtimeSummaries": [],
+        "tailQuestions": [],
+        "contradictions": []
+      },
+      "initialCompletedAt": "2026-08-31 20:06:37",
+      "completedAt": "2026-08-31 20:06:37",
+      "qualitativeAiSummary": {
+        "strengths": [
+          "해당사항 없음 (제출된 면접 평가 코멘트 및 발언 기록 없음)"
+        ],
+        "improvements": [
+          "해당사항 없음"
+        ],
+        "oneLineVerdict": "해당사항 없음 (면접관 정성 평가 코멘트 및 발언 기록 미등록)",
+        "recommendedRole": "일반",
+        "potentialScore": 0
+      },
+      "detailedAiReport": {
+        "strengths": [
+          "해당사항 없음 (제출된 면접관 평가 및 발언 기록 없음)"
+        ],
+        "improvements": [
+          "해당사항 없음"
+        ],
+        "competencyAnalysis": [
+          {
+            "category": "동아리 적합성",
+            "score": 0,
+            "evaluation": "해당사항 없음 (상세 평가 데이터가 등록되지 않았습니다)",
+            "actionTip": "해당사항 없음"
+          },
+          {
+            "category": "문제 발견 능력",
+            "score": 0,
+            "evaluation": "해당사항 없음 (상세 평가 데이터가 등록되지 않았습니다)",
+            "actionTip": "해당사항 없음"
+          },
+          {
+            "category": "문제 해결능력",
+            "score": 0,
+            "evaluation": "해당사항 없음 (상세 평가 데이터가 등록되지 않았습니다)",
+            "actionTip": "해당사항 없음"
+          },
+          {
+            "category": "결과 및 발표물",
+            "score": 0,
+            "evaluation": "해당사항 없음 (상세 평가 데이터가 등록되지 않았습니다)",
+            "actionTip": "해당사항 없음"
+          },
+          {
+            "category": "명확성 및 구체성",
+            "score": 0,
+            "evaluation": "해당사항 없음 (상세 평가 데이터가 등록되지 않았습니다)",
+            "actionTip": "해당사항 없음"
+          }
+        ],
+        "actionPlan": [
+          "해당사항 없음"
+        ],
+        "oneLineVerdict": "해당사항 없음 (면접 평가 미등록 상태)",
+        "overallReview": "해당사항 없음 (면접관 정성 평가 또는 STT 대화 기록이 등록되지 않아 분석 대상 내용이 없습니다)."
+      }
+    },
+    {
+      "id": "cand-mtiirdx8",
+      "name": "ㅎㅎㅎㅎ",
+      "track": "일반",
+      "studentId": "202681021",
+      "phone": "010-0000-0000",
+      "email": "ㅎㅎㅎㅎ@smartlab.edu",
+      "timeslot": {
+        "start": "14:00",
+        "end": "14:30",
+        "room": "SMARTLAB 2027 면접"
+      },
+      "status": "PENDING",
+      "interviewers": [
+        "김태호 면접관",
+        "김이현 면접관",
+        "박민수 면접관",
+        "이건희 면접관",
+        "임규리 면접관",
+        "차민혁 면접관",
+        "김연우 면접관",
+        "최지우 면접관"
+      ],
+      "documents": [
+        {
+          "id": "gdoc-1788258200175-u2bk",
+          "title": "면접평가기준",
+          "type": "gdocs",
+          "url": "https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "fileSize": "Google Docs (인앱 연동)",
+          "contentSnippet": "구글 닥스 면접평가기준 원본 (인앱 미리보기 지원)",
+          "rawText": "SmartLab 지원자 공식 구글 닥스 서류 링크: https://docs.google.com/document/d/1W1VyHNw3YmpABYzqorSwxdeb6LYt4JQeO2oG06gyc-4/edit?usp=drivesdk",
+          "uploadedAt": "10시 23분 20초"
+        }
+      ],
+      "sttTranscript": [],
+      "aiInsights": {
+        "realtimeSummaries": [],
+        "tailQuestions": [],
+        "contradictions": []
+      }
+    }
+  ],
+  "evaluations": [
+    {
+      "id": "eval-cand-mt6gewsk-intv-mt2zc6pr-0",
+      "interviewerName": "김태호 면접관",
+      "comments": {
+        "technicalNote": "",
+        "attitudeNote": "",
+        "overallComment": ""
+      },
+      "presentationNote": "",
+      "scores": {
+        "crit_mt2zggld": 100,
+        "problemSolving": 72,
+        "communication": 85,
+        "technical": 64,
+        "cultureFit": 85
+      },
+      "submittedAt": "2026-08-26T13:31:02.046Z",
+      "presentationBonusTotal": 1.8,
+      "presentationBonuses": {
+        "crit_mt2zggld": 0,
+        "communication": 0,
+        "technical": 0.3,
+        "problemSolving": 1.5,
+        "cultureFit": 0
+      },
+      "status": "SUBMITTED",
+      "interviewerId": "intv-mt2zc6pr-0",
+      "candidateId": "cand-mt6gewsk"
+    },
+    {
+      "id": "eval-cand-mt6gewsk-intv-mta560mb-0",
+      "scores": {
+        "crit_mt2zggld": 80,
+        "problemSolving": 80,
+        "cultureFit": 85,
+        "communication": 85,
+        "technical": 85
+      },
+      "candidateId": "cand-mt6gewsk",
+      "interviewerId": "intv-mta560mb-0",
+      "presentationBonuses": {
+        "cultureFit": 1.2,
+        "technical": 0,
+        "crit_mt2zggld": 0,
+        "problemSolving": 0,
+        "communication": 0
+      },
+      "interviewerName": "김태호 면접관",
+      "status": "SUBMITTED",
+      "comments": {
+        "overallComment": "",
+        "technicalNote": "",
+        "attitudeNote": ""
+      },
+      "presentationNote": "",
+      "submittedAt": "2026-08-27 17:31:17",
+      "presentationBonusTotal": 1.2
+    },
+    {
+      "scores": {
+        "technical": 85,
+        "crit_mt2zggld": 80,
+        "cultureFit": 100,
+        "communication": 85,
+        "problemSolving": 80
+      },
+      "presentationBonuses": {
+        "technical": 0,
+        "crit_mt2zggld": 0,
+        "communication": 0,
+        "problemSolving": 0,
+        "cultureFit": 0
+      },
+      "submittedAt": "2026-08-27 17:31:17",
+      "presentationBonusTotal": 0,
+      "candidateId": "cand-mt6gewsk",
+      "comments": {
+        "overallComment": "",
+        "attitudeNote": "",
+        "technicalNote": ""
+      },
+      "status": "SUBMITTED",
+      "interviewerId": "intv-mtb91757-0",
+      "presentationNote": "",
+      "interviewerName": "김태호 면접관",
+      "id": "eval-cand-mt6gewsk-intv-mtb91757-0"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit-all-comp-mth4v7hc",
+      "timestamp": "2026-08-31 20:06:37",
+      "modifiedBy": "총괄 관리자",
+      "field": "모든 면접 완료 및 결과 공개 상태 설정",
+      "beforeVal": {
+        "isAllCompleted": false,
+        "isResultsPublished": false
+      },
+      "afterVal": {
+        "isAllCompleted": true,
+        "isResultsPublished": false,
+        "showPassFail": false,
+        "interviewerPolicy": "ALL_PUBLIC"
+      },
+      "reason": "어드민이 모든 면접 평가를 공식 종료 처리하고 학생 성적표/결과 공개 정책을 활성화함"
+    },
+    {
+      "id": "audit-pin-set-mtglb1sz",
+      "timestamp": "2026-08-31 10:59:04",
+      "modifiedBy": "김태호 면접관",
+      "field": "[면접관 4자리 PIN 설정] 김태호 면접관",
+      "beforeVal": {
+        "isPinSet": false
+      },
+      "afterVal": {
+        "isPinSet": true,
+        "pinSetAt": "2026-08-31 10:59:04"
+      },
+      "reason": "김태호 면접관 면접관이 최초 4자리 숫자 비밀번호를 설정함"
+    },
+    {
+      "id": "audit-all-comp-mtd0exw5",
+      "timestamp": "2026-08-28 22:50:55",
+      "modifiedBy": "총괄 관리자",
+      "field": "모든 면접 완료 및 결과 공개 상태 설정",
+      "beforeVal": {
+        "isAllCompleted": false,
+        "isResultsPublished": false
+      },
+      "afterVal": {
+        "isAllCompleted": true,
+        "isResultsPublished": true,
+        "showPassFail": true,
+        "interviewerPolicy": "ALL_PUBLIC"
+      },
+      "reason": "어드민이 모든 면접 평가를 공식 종료 처리하고 학생 성적표/결과 공개 정책을 활성화함"
+    },
+    {
+      "id": "audit-mtd0dzqg",
+      "timestamp": "2026-08-28 22:50:10",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "field": "김태호 (cand-mtb9eog7-9tv) 상태 변경: finish",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "afterVal": {
+        "status": "CLOSING_PENDING"
+      },
+      "reason": "상태 전이 액션 실행 (finish)"
+    },
+    {
+      "id": "audit-auto-recomplete-mtcz1lhx",
+      "timestamp": "2026-08-28 22:12:33",
+      "modifiedBy": "시스템 자동화 (Admin 5분 수정 타이머 만료)",
+      "field": "김태호 (cand-mt6gewsk) 5분 수정 모드 만료 및 면접 자동 재완료",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "afterVal": {
+        "status": "COMPLETED",
+        "completedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "어드민이 허락한 5분 수정 시간이 종료되어 자동으로 면접 완료 상태로 복원되었습니다. (최초 면접 완료 시각: 2026-08-27 17:26:16 유지)"
+    },
+    {
+      "id": "audit-mtcyv6kg",
+      "timestamp": "2026-08-28 22:07:33",
+      "modifiedBy": "김태호 면접관",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: finish",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "afterVal": {
+        "status": "CLOSING_PENDING",
+        "completedAt": "2026-08-27 17:26:16",
+        "initialCompletedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "상태 전이 액션 실행 (finish)"
+    },
+    {
+      "id": "audit-mtcyv5qr",
+      "timestamp": "2026-08-28 22:07:32",
+      "modifiedBy": "김태호 면접관",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: admin_reopen_5min",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "afterVal": {
+        "status": "IN_PROGRESS",
+        "completedAt": "2026-08-27 17:26:16",
+        "initialCompletedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "관리자 승인 5분 수정 모드 개방 (5분 후 자동 재완료, 최초 완료시각 2026-08-27 17:26:16 유지)"
+    },
+    {
+      "id": "audit-mtcyuxzr",
+      "timestamp": "2026-08-28 22:07:22",
+      "modifiedBy": "김태호 면접관",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: cancel_vote_no_show",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "afterVal": {
+        "status": "COMPLETED",
+        "completedAt": "2026-08-27 17:26:16",
+        "initialCompletedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "김태호 결시 동의 철회"
+    },
+    {
+      "id": "audit-mtcyuvwr",
+      "timestamp": "2026-08-28 22:07:19",
+      "modifiedBy": "김태호 면접관",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: vote_no_show",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "afterVal": {
+        "status": "COMPLETED",
+        "completedAt": "2026-08-27 17:26:16",
+        "initialCompletedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "김태호 지원자 미참석 결시 동의 투표"
+    },
+    {
+      "id": "audit-lead-mtcyn0o5",
+      "timestamp": "2026-08-28 22:01:12",
+      "modifiedBy": "총괄 관리자 (Admin)",
+      "field": "동아리 임원진 (기장/부기장) 임명 업데이트",
+      "beforeVal": {
+        "captain": "미임명",
+        "viceCaptains": "없음"
+      },
+      "afterVal": {
+        "captain": "김태호",
+        "viceCaptains": "김이현, 박민수"
+      },
+      "reason": "동아리 임원진 임명 업데이트 (기장: 김태호, 부기장: 김이현, 박민수)"
+    },
+    {
+      "id": "audit-lead-mtcym7d6",
+      "timestamp": "2026-08-28 22:00:34",
+      "modifiedBy": "총괄 관리자 (Admin)",
+      "field": "동아리 임원진 (기장/부기장) 임명 업데이트",
+      "beforeVal": {
+        "captain": "미임명",
+        "viceCaptains": "없음"
+      },
+      "afterVal": {
+        "captain": "미임명",
+        "viceCaptains": "없음"
+      },
+      "reason": "동아리 임원진 임명 업데이트 (기장: 미임명, 부기장: 없음)"
+    },
+    {
+      "id": "audit-auto-recomplete-mtbc4a2k",
+      "timestamp": "2026-08-27 18:43:00",
+      "modifiedBy": "시스템 자동화 (Admin 5분 수정 타이머 만료)",
+      "field": "김태호 (cand-mt6gewsk) 5분 수정 모드 만료 및 면접 자동 재완료",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "afterVal": {
+        "status": "COMPLETED",
+        "completedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "어드민이 허락한 5분 수정 시간이 종료되어 자동으로 면접 완료 상태로 복원되었습니다. (최초 면접 완료 시각: 2026-08-27 17:26:16 유지)"
+    },
+    {
+      "id": "audit-mtbby13m",
+      "timestamp": "2026-08-27 18:38:09",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "field": "김태호 (cand-mtb9eog7-9tv) 상태 변경: start",
+      "beforeVal": {
+        "status": "PENDING"
+      },
+      "afterVal": {
+        "status": "IN_PROGRESS"
+      },
+      "reason": "상태 전이 액션 실행 (start)"
+    },
+    {
+      "id": "audit-mtbbxud6",
+      "timestamp": "2026-08-27 18:38:00",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: admin_reopen_5min",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "afterVal": {
+        "status": "IN_PROGRESS",
+        "completedAt": "2026-08-27 17:26:16",
+        "initialCompletedAt": "2026-08-27 17:26:16"
+      },
+      "reason": "관리자 승인 5분 수정 모드 개방 (5분 후 자동 재완료, 최초 완료시각 2026-08-27 17:26:16 유지)"
+    },
+    {
+      "modifiedBy": "시스템 자동화 (Admin 5분 수정 타이머 만료)",
+      "reason": "어드민이 허락한 5분 수정 시간이 종료되어 자동으로 면접 완료 상태로 복원되었습니다. (최초 면접 완료 시각: 2026-08-27 17:26:16 유지)",
+      "afterVal": {
+        "status": "COMPLETED",
+        "completedAt": "2026-08-27 17:26:16"
+      },
+      "field": "김태호 (cand-mt6gewsk) 5분 수정 모드 만료 및 면접 자동 재완료",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "id": "audit-auto-recomplete-mtb9k1nu",
+      "timestamp": "2026-08-27 17:31:17"
+    },
+    {
+      "id": "audit-cand-reg-mtb9eog8",
+      "beforeVal": null,
+      "timestamp": "2026-08-27 17:27:07",
+      "afterVal": {
+        "room": "SMARTLAB 2027 면접",
+        "studentId": "10208",
+        "id": "cand-mtb9eog7-9tv",
+        "name": "김태호"
+      },
+      "modifiedBy": "지원자 본인 (김태호)",
+      "reason": "지원자 포털에서 직접 학번/이름으로 지원 등록",
+      "field": "지원자 셀프 등록"
+    },
+    {
+      "beforeVal": {
+        "locked": true
+      },
+      "modifiedBy": "관리자 (admin)",
+      "reason": "면접건(전체) 데이터 사후 정정을 위한 5분간 임시 완료 취소 및 수정 권한 활성화 (최초 완료 시간 보존)",
+      "field": "관리자 5분 수정 권한 활성화 및 완료 취소",
+      "id": "audit-unlock-mtb9dmzf",
+      "timestamp": "2026-08-27 17:26:18",
+      "afterVal": {
+        "expiresAt": "2026-08-27 17:31:18",
+        "candidatesReopened": [],
+        "locked": false
+      }
+    },
+    {
+      "field": "관리자 5분 수정 권한 활성화 및 완료 취소",
+      "afterVal": {
+        "locked": false,
+        "candidatesReopened": [
+          "김태호"
+        ],
+        "expiresAt": "2026-08-27 17:31:16"
+      },
+      "timestamp": "2026-08-27 17:26:16",
+      "id": "audit-unlock-mtb9dlhv",
+      "reason": "면접건(전체) 데이터 사후 정정을 위한 5분간 임시 완료 취소 및 수정 권한 활성화 (최초 완료 시간 보존)",
+      "beforeVal": {
+        "locked": true
+      },
+      "modifiedBy": "관리자 (admin)"
+    },
+    {
+      "id": "audit-mt9rez7l",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: cancel_vote_no_show",
+      "timestamp": "2026. 8. 26. 7시 15분 41초",
+      "afterVal": {
+        "status": "COMPLETED"
+      },
+      "reason": "김태호 결시 동의 철회"
+    },
+    {
+      "modifiedBy": "김태호 면접관",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: vote_no_show",
+      "timestamp": "2026. 8. 26. 7시 15분 36초",
+      "afterVal": {
+        "status": "COMPLETED"
+      },
+      "reason": "김태호 지원자 미참석 결시 동의 투표",
+      "beforeVal": {
+        "status": "COMPLETED"
+      },
+      "id": "audit-mt9reurt"
+    },
+    {
+      "reason": "면접건(전체) 데이터 사후 정정을 위한 임시 잠금 해제",
+      "id": "audit-unlock-mt8oiv0p",
+      "field": "관리자 5분 수정 권한 활성화",
+      "timestamp": "2026. 8. 25. 13시 6분 58초",
+      "beforeVal": {
+        "locked": true
+      },
+      "afterVal": {
+        "expiresAt": "PM 1:11:58",
+        "locked": false
+      },
+      "modifiedBy": "관리자 (admin)"
+    },
+    {
+      "field": "관리자 5분 수정 권한 활성화",
+      "reason": "면접건(전체) 데이터 사후 정정을 위한 임시 잠금 해제",
+      "beforeVal": {
+        "locked": true
+      },
+      "afterVal": {
+        "expiresAt": "PM 1:11:57",
+        "locked": false
+      },
+      "id": "audit-unlock-mt8oiube",
+      "modifiedBy": "관리자 (admin)",
+      "timestamp": "2026. 8. 25. 13시 6분 57초"
+    },
+    {
+      "id": "audit-kb-mt73knp2",
+      "beforeVal": null,
+      "reason": "어드민이 문서/자료 기반 AI 지식을 학습 및 인덱싱함",
+      "modifiedBy": "동아리 관리자 (Admin)",
+      "field": "AI 지식 베이스 학습 자료 추가",
+      "timestamp": "2026. 8. 24. 10시 32분 43초",
+      "afterVal": {
+        "sourceType": "rule",
+        "title": "스마트랩평가기준"
+      }
+    },
+    {
+      "modifiedBy": "관리자 (Admin)",
+      "field": "AI 지식 베이스 학습 자료 삭제",
+      "beforeVal": {
+        "sourceType": "youtube",
+        "title": "SmartLab 2026 AI 세미나: 실전 LLM 멀티에이전트 & RAG 아키텍처"
+      },
+      "afterVal": null,
+      "reason": "어드민이 AI 지식 베이스에서 학습 자료를 영구 제거함",
+      "id": "audit-kb-del-mt73js0s",
+      "timestamp": "2026. 8. 24. 10시 32분 2초"
+    },
+    {
+      "beforeVal": {
+        "title": "YouTube 영상 학습 자료",
+        "sourceType": "youtube"
+      },
+      "field": "AI 지식 베이스 학습 자료 삭제",
+      "id": "audit-kb-del-mt73jqhw",
+      "modifiedBy": "관리자 (Admin)",
+      "reason": "어드민이 AI 지식 베이스에서 학습 자료를 영구 제거함",
+      "timestamp": "2026. 8. 24. 10시 32분 0초",
+      "afterVal": null
+    },
+    {
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "afterVal": {
+        "status": "COMPLETED"
+      },
+      "modifiedBy": "김태호 면접관",
+      "id": "audit-mt73j5zi",
+      "reason": "상태 전이 액션 실행 (finish)",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: finish",
+      "timestamp": "2026. 8. 24. 10시 31분 34초"
+    },
+    {
+      "timestamp": "2026. 8. 24. 10시 31분 26초",
+      "reason": "상태 전이 액션 실행 (cancel_finish)",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "status": "CLOSING_PENDING"
+      },
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: cancel_finish",
+      "afterVal": {
+        "status": "IN_PROGRESS"
+      },
+      "id": "audit-mt73izpu"
+    },
+    {
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: finish",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "id": "audit-mt73iz1r",
+      "timestamp": "2026. 8. 24. 10시 31분 25초",
+      "reason": "상태 전이 액션 실행 (finish)",
+      "afterVal": {
+        "status": "CLOSING_PENDING"
+      }
+    },
+    {
+      "beforeVal": {
+        "status": "CLOSING_PENDING"
+      },
+      "modifiedBy": "김태호 면접관",
+      "id": "audit-mt73iyhw",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: cancel_finish",
+      "reason": "상태 전이 액션 실행 (cancel_finish)",
+      "timestamp": "2026. 8. 24. 10시 31분 24초",
+      "afterVal": {
+        "status": "IN_PROGRESS"
+      }
+    },
+    {
+      "reason": "상태 전이 액션 실행 (finish)",
+      "timestamp": "2026. 8. 24. 10시 31분 14초",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: finish",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "status": "IN_PROGRESS"
+      },
+      "id": "audit-mt73iqxq",
+      "afterVal": {
+        "status": "CLOSING_PENDING"
+      }
+    },
+    {
+      "timestamp": "2026. 8. 24. 10시 31분 14초",
+      "field": "김태호 (cand-mt6gewsk) 상태 변경: start",
+      "id": "audit-mt73iqii",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "status": "PENDING"
+      },
+      "reason": "상태 전이 액션 실행 (start)",
+      "afterVal": {
+        "status": "IN_PROGRESS"
+      }
+    },
+    {
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "weights": {
+          "technical": 30,
+          "communication": 20,
+          "problemSolving": 25,
+          "crit_mt2zggld": 10,
+          "cultureFit": 15
+        },
+        "passThreshold": 70,
+        "confirmed": true
+      },
+      "timestamp": "2026. 8. 24. 8시 8분 9초",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "id": "audit-crit-confirm-mt6yeqeo",
+      "modifiedBy": "김태호 면접관",
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "confirmed": true,
+        "weights": {
+          "problemSolving": 25,
+          "communication": 20,
+          "cultureFit": 15,
+          "crit_mt2zggld": 10,
+          "technical": 30
+        }
+      },
+      "id": "audit-crit-confirm-mt6ga0gy",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "modifiedBy": "면접관 1 (김태호)",
+      "timestamp": "2026. 8. 23. 23시 40분 35초"
+    },
+    {
+      "id": "audit-crit-confirm-mt6fl3y9",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "confirmed": true,
+        "weights": {
+          "problemSolving": 25,
+          "cultureFit": 15,
+          "technical": 30,
+          "crit_mt2zggld": 10,
+          "communication": 20
+        }
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "modifiedBy": "면접관 1 (김태호)",
+      "timestamp": "2026. 8. 23. 23시 21분 14초"
+    },
+    {
+      "modifiedBy": "면접관 1 (김태호)",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 23. 23시 21분 13초",
+      "id": "audit-crit-confirm-mt6fl3k1",
+      "afterVal": {
+        "criteriaCount": 5,
+        "confirmed": true,
+        "passThreshold": 70,
+        "weights": {
+          "cultureFit": 15,
+          "communication": 20,
+          "crit_mt2zggld": 10,
+          "problemSolving": 25,
+          "technical": 30
+        },
+        "scoringFormula": "TRIMMED_MEAN"
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정"
+    },
+    {
+      "modifiedBy": "면접관 1 (김태호)",
+      "id": "audit-crit-confirm-mt6fl333",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "confirmed": true,
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "weights": {
+          "technical": 30,
+          "problemSolving": 25,
+          "crit_mt2zggld": 10,
+          "communication": 20,
+          "cultureFit": 15
+        }
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 23. 23시 21분 12초"
+    },
+    {
+      "modifiedBy": "면접관 1 (김태호)",
+      "timestamp": "2026. 8. 23. 23시 21분 12초",
+      "afterVal": {
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "confirmed": true,
+        "weights": {
+          "cultureFit": 15,
+          "problemSolving": 25,
+          "communication": 20,
+          "crit_mt2zggld": 10,
+          "technical": 30
+        }
+      },
+      "id": "audit-crit-confirm-mt6fl2qx",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함"
+    },
+    {
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "timestamp": "2026. 8. 23. 23시 21분 11초",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "modifiedBy": "면접관 1 (김태호)",
+      "afterVal": {
+        "weights": {
+          "problemSolving": 25,
+          "cultureFit": 15,
+          "communication": 20,
+          "technical": 30,
+          "crit_mt2zggld": 10
+        },
+        "confirmed": true,
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN"
+      },
+      "id": "audit-crit-confirm-mt6fl2b4"
+    },
+    {
+      "modifiedBy": "면접관 1 (김태호)",
+      "afterVal": {
+        "weights": {
+          "technical": 30,
+          "communication": 20,
+          "crit_mt2zggld": 10,
+          "problemSolving": 25,
+          "cultureFit": 15
+        },
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "confirmed": true,
+        "passThreshold": 70
+      },
+      "id": "audit-crit-confirm-mt6fl1qf",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "timestamp": "2026. 8. 23. 23시 21분 11초"
+    },
+    {
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "timestamp": "2026. 8. 23. 23시 21분 10초",
+      "id": "audit-crit-confirm-mt6fl127",
+      "modifiedBy": "면접관 1 (김태호)",
+      "afterVal": {
+        "confirmed": true,
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "weights": {
+          "communication": 20,
+          "crit_mt2zggld": 10,
+          "cultureFit": 15,
+          "problemSolving": 25,
+          "technical": 30
+        }
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함"
+    },
+    {
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "weights": {
+          "problemSolving": 25,
+          "crit_mt2zggld": 10,
+          "technical": 30,
+          "cultureFit": 15,
+          "communication": 20
+        },
+        "confirmed": true,
+        "passThreshold": 70
+      },
+      "timestamp": "2026. 8. 23. 23시 20분 57초",
+      "modifiedBy": "면접관 1 (김태호)",
+      "id": "audit-crit-confirm-mt6fkr0s"
+    },
+    {
+      "timestamp": "2026. 8. 23. 23시 20분 54초",
+      "modifiedBy": "면접관 1 (김태호)",
+      "id": "audit-crit-confirm-mt6fkozy",
+      "afterVal": {
+        "confirmed": true,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "weights": {
+          "crit_mt2zggld": 10,
+          "problemSolving": 25,
+          "communication": 20,
+          "cultureFit": 15,
+          "technical": 30
+        }
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정"
+    },
+    {
+      "beforeVal": {
+        "confirmed": false
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "timestamp": "2026. 8. 23. 23시 20분 53초",
+      "id": "audit-crit-confirm-mt6fkodz",
+      "modifiedBy": "면접관 1 (김태호)",
+      "afterVal": {
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "confirmed": true,
+        "weights": {
+          "cultureFit": 15,
+          "communication": 20,
+          "problemSolving": 25,
+          "crit_mt2zggld": 10,
+          "technical": 30
+        }
+      }
+    },
+    {
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "afterVal": {
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "confirmed": true,
+        "weights": {
+          "cultureFit": 15,
+          "crit_mt2zggld": 10,
+          "technical": 30,
+          "problemSolving": 25,
+          "communication": 20
+        },
+        "scoringFormula": "TRIMMED_MEAN"
+      },
+      "modifiedBy": "면접관 1 (김태호)",
+      "timestamp": "2026. 8. 23. 23시 20분 53초",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "id": "audit-crit-confirm-mt6fknz3"
+    },
+    {
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "afterVal": {
+        "passThreshold": 70,
+        "weights": {
+          "problemSolving": 25,
+          "communication": 20,
+          "technical": 30,
+          "crit_mt2zggld": 10,
+          "cultureFit": 15
+        },
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "confirmed": true
+      },
+      "timestamp": "2026. 8. 23. 23시 20분 51초",
+      "id": "audit-crit-confirm-mt6fkmxm",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "modifiedBy": "면접관 1 (김태호)"
+    },
+    {
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "weights": {
+          "communication": 20,
+          "technical": 30,
+          "crit_mt2zggld": 10,
+          "problemSolving": 25,
+          "cultureFit": 15
+        },
+        "confirmed": true,
+        "criteriaCount": 5
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 23. 23시 20분 47초",
+      "id": "audit-crit-confirm-mt6fkjtx",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "modifiedBy": "면접관 1 (김태호)",
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "reason": "어드민이 YouTube 영상 기반 AI 지식을 학습 및 인덱싱함",
+      "field": "AI 지식 베이스 학습 자료 추가",
+      "beforeVal": null,
+      "id": "audit-kb-mt6fgar3",
+      "afterVal": {
+        "title": "YouTube 영상 학습 자료",
+        "sourceType": "youtube",
+        "url": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.youtube.com/watch%3Fv%3DEHkK8qWaL_M&ved=2ahUKEwjUme6I8beWAxVoiuEIHVS7OToQuAJ6BAgREAE&usg=AOvVaw0-RxhWLgw3bhttps://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.youtube.com/watch%3Fv%3DEHkK8qWaL_M&ved=2ahUKEwjUme6I8beWAxVoiuEIHVS7OToQuAJ6BAgREAE&usg=AOvVaw0-RxhWLgw3b9MVv1GVcbbM9MVv1GVcbbM"
+      },
+      "timestamp": "2026. 8. 23. 23시 17분 29초",
+      "modifiedBy": "동아리 관리자 (Admin)"
+    },
+    {
+      "id": "audit-crit-confirm-mt2zi8pm",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "confirmed": true,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "weights": {
+          "cultureFit": 10,
+          "communication": 25,
+          "problemSolving": 30,
+          "crit_mt2zggld": 5,
+          "technical": 30
+        }
+      },
+      "timestamp": "2026. 8. 21. 13시 27분 47초",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "afterVal": {
+        "criteriaCount": 5,
+        "weights": {
+          "crit_mt2zggld": 5,
+          "technical": 30,
+          "problemSolving": 30,
+          "communication": 25,
+          "cultureFit": 10
+        },
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "confirmed": true
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 21. 13시 27분 47초",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "id": "audit-crit-confirm-mt2zi8bn",
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "criteriaCount": 5,
+        "confirmed": true,
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "communication": 25,
+          "problemSolving": 30,
+          "cultureFit": 10,
+          "technical": 30,
+          "crit_mt2zggld": 5
+        }
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "timestamp": "2026. 8. 21. 13시 27분 46초",
+      "id": "audit-crit-confirm-mt2zi7hd"
+    },
+    {
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "confirmed": true,
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "problemSolving": 30,
+          "cultureFit": 10,
+          "technical": 30,
+          "communication": 25,
+          "crit_mt2zggld": 5
+        },
+        "criteriaCount": 5
+      },
+      "timestamp": "2026. 8. 21. 13시 27분 39초",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "id": "audit-crit-confirm-mt2zi24g"
+    },
+    {
+      "beforeVal": {
+        "confirmed": false
+      },
+      "timestamp": "2026. 8. 21. 13시 27분 38초",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "passThreshold": 70,
+        "confirmed": true,
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "technical": 30,
+          "cultureFit": 10,
+          "communication": 25,
+          "problemSolving": 30,
+          "crit_mt2zggld": 5
+        }
+      },
+      "id": "audit-crit-confirm-mt2zi1hu",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함"
+    },
+    {
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "id": "audit-crit-confirm-mt2zi0oh",
+      "timestamp": "2026. 8. 21. 13시 27분 37초",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "confirmed": true,
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "cultureFit": 10,
+          "problemSolving": 30,
+          "communication": 25,
+          "technical": 30,
+          "crit_mt2zggld": 5
+        }
+      }
+    },
+    {
+      "afterVal": {
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "problemSolving": 30,
+          "crit_mt2zggld": 5,
+          "technical": 30,
+          "communication": 25,
+          "cultureFit": 10
+        },
+        "confirmed": true
+      },
+      "id": "audit-crit-confirm-mt2zi0ak",
+      "timestamp": "2026. 8. 21. 13시 27분 36초",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "timestamp": "2026. 8. 21. 13시 27분 36초",
+      "afterVal": {
+        "scoringFormula": "TRIMMED_MEAN",
+        "confirmed": true,
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "weights": {
+          "communication": 25,
+          "crit_mt2zggld": 5,
+          "problemSolving": 30,
+          "cultureFit": 10,
+          "technical": 30
+        }
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "id": "audit-crit-confirm-mt2zhzsy",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함"
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "timestamp": "2026. 8. 21. 13시 27분 35초",
+      "afterVal": {
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "criteriaCount": 5,
+        "confirmed": true,
+        "weights": {
+          "problemSolving": 30,
+          "crit_mt2zggld": 5,
+          "cultureFit": 10,
+          "communication": 25,
+          "technical": 30
+        }
+      },
+      "id": "audit-crit-confirm-mt2zhz5y"
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "id": "audit-crit-confirm-mt2zhybo",
+      "afterVal": {
+        "weights": {
+          "communication": 25,
+          "technical": 30,
+          "crit_mt2zggld": 5,
+          "problemSolving": 30,
+          "cultureFit": 10
+        },
+        "confirmed": true,
+        "passThreshold": 70,
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN"
+      },
+      "beforeVal": {
+        "confirmed": false
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 21. 13시 27분 34초"
+    },
+    {
+      "id": "audit-crit-confirm-mt2zhrir",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "timestamp": "2026. 8. 21. 13시 27분 25초",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "afterVal": {
+        "weights": {
+          "technical": 30,
+          "crit_mt2zggld": 5,
+          "problemSolving": 30,
+          "communication": 25,
+          "cultureFit": 10
+        },
+        "criteriaCount": 5,
+        "passThreshold": 70,
+        "scoringFormula": "TRIMMED_MEAN",
+        "confirmed": true
+      }
+    },
+    {
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "id": "audit-crit-confirm-mt2zhhtu",
+      "timestamp": "2026. 8. 21. 13시 27분 13초",
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "afterVal": {
+        "passThreshold": 70,
+        "confirmed": true,
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "cultureFit": 10,
+          "communication": 25,
+          "problemSolving": 30,
+          "technical": 30,
+          "crit_mt2zggld": 5
+        }
+      },
+      "beforeVal": {
+        "confirmed": false
+      }
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "beforeVal": {
+        "confirmed": false
+      },
+      "afterVal": {
+        "criteriaCount": 5,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "technical": 30,
+          "cultureFit": 10,
+          "communication": 25,
+          "crit_mt2zggld": 5,
+          "problemSolving": 30
+        },
+        "passThreshold": 70,
+        "confirmed": true
+      },
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "id": "audit-crit-confirm-mt2zh9lo",
+      "timestamp": "2026. 8. 21. 13시 27분 2초"
+    },
+    {
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "afterVal": {
+        "weights": {
+          "technical": 30,
+          "cultureFit": 10,
+          "crit_mt2zggld": 5,
+          "problemSolving": 30,
+          "communication": 25
+        },
+        "confirmed": true,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70,
+        "criteriaCount": 5
+      },
+      "beforeVal": {
+        "confirmed": false
+      },
+      "id": "audit-crit-confirm-mt2zh2de",
+      "timestamp": "2026. 8. 21. 13시 26분 52초"
+    },
+    {
+      "beforeVal": {
+        "confirmed": false
+      },
+      "modifiedBy": "동아리 총괄 관리자 (Admin)",
+      "reason": "어드민이 5개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "timestamp": "2026. 8. 21. 13시 26분 49초",
+      "id": "audit-crit-confirm-mt2zgzzu",
+      "afterVal": {
+        "passThreshold": 70,
+        "confirmed": true,
+        "scoringFormula": "TRIMMED_MEAN",
+        "weights": {
+          "problemSolving": 30,
+          "cultureFit": 10,
+          "communication": 25,
+          "technical": 30,
+          "crit_mt2zggld": 5
+        },
+        "criteriaCount": 5
+      },
+      "field": "평가 기준 및 가중치 공식 최종 확정"
+    },
+    {
+      "beforeVal": {
+        "confirmed": false
+      },
+      "id": "audit-crit-confirm-mt27grwd",
+      "modifiedBy": "면접관 1 (김태호)",
+      "timestamp": "2026. 8. 21. 0시 22분 50초",
+      "field": "평가 기준 및 가중치 공식 최종 확정",
+      "reason": "어드민이 4개 평가 항목에 대한 가중 합산 기준을 최종 확정하고 전 면접관 평가를 개시함",
+      "afterVal": {
+        "weights": {
+          "communication": 20,
+          "cultureFit": 10,
+          "technical": 40,
+          "problemSolving": 30
+        },
+        "confirmed": true,
+        "criteriaCount": 4,
+        "scoringFormula": "TRIMMED_MEAN",
+        "passThreshold": 70
+      }
+    },
+    {
+      "afterVal": {
+        "status": "IN_PROGRESS"
+      },
+      "beforeVal": {
+        "status": "PENDING"
+      },
+      "modifiedBy": "김태호 면접관",
+      "reason": "상태 전이 액션 실행 (start)",
+      "field": "홍길동 (cand-mt17299w) 상태 변경: start",
+      "timestamp": "2026. 8. 20. 7시 24분 40초",
+      "id": "audit-mt173ehg"
+    },
+    {
+      "afterVal": "SmartLab 클라우드 데이터베이스 연동 준비 완료",
+      "beforeVal": null,
+      "field": "SYSTEM_BOOT",
+      "id": "log-init",
+      "reason": "시스템 부팅",
+      "timestamp": "2026. 8. 20. 4시 23분 20초",
+      "modifiedBy": "시스템"
+    }
+  ],
+  "chatMessages": [
+    {
+      "senderId": "intv-mt2zc6pr-0",
+      "sharedQuestion": {
+        "isShared": true,
+        "sharedBy": "김태호 면접관",
+        "id": "tail-mt7379or-iud",
+        "reason": "단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+        "sharedAt": "13시 0분 19초",
+        "timestamp": "10시 22분 19초",
+        "question": "김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?",
+        "sharedById": "intv-mt2zc6pr-0",
+        "shareCount": 1,
+        "used": false,
+        "category": "기술 트레이드오프"
+      },
+      "senderName": "김태호 면접관",
+      "id": "chat-q-mt8oab70-gpx",
+      "isImportant": true,
+      "candidateId": "cand-mt6gewsk",
+      "roomName": "SMARTLAB 2027 면접",
+      "senderRole": "면접관 (질문 공유)",
+      "createdAt": 1787662819116,
+      "message": "💡 [면접관 추천 질문 공유]\n\"김태호 지원자님께서 방금 설명해주신 구현 방식 외에 다른 대안 기술들을 비교 검토해보셨는지, 그리고 그 방식을 최종 선택하신 결정적 이유는 무엇인가요?\"\n\n📌 평가 의도: 단순 라이브러리 사용을 넘어선 설계 의도와 문제 해결 깊이 파악",
+      "candidateName": "김태호",
+      "timestamp": "13시 0분 19초",
+      "roomId": ""
+    },
+    {
+      "senderName": "김태호 면접관",
+      "sharedQuestion": {
+        "categoryLabel": "논리적 모순 검증",
+        "shareCount": 1,
+        "claim": "김태호 지원자 답변",
+        "sharedBy": "김태호 면접관",
+        "reason": "면접관 맞춤형 직접 질문",
+        "id": "tq-custom-1787663586206-56rf",
+        "userTypedIntent": "",
+        "timestamp": "13시 13분 6초",
+        "intent": "면접관이 직접 입력한 평가 목적 및 검증 포인트를 확인하기 위한 질문",
+        "matchScore": 99,
+        "evaluatedCriteria": [
+          "technical",
+          "problemSolving",
+          "cultureFit",
+          "communication",
+          "crit_mt2zggld"
+        ],
+        "verificationPoint": "직접 기여도 및 실전 트러블슈팅 역량 검증",
+        "category": "논리적 모순 검증",
+        "isShared": true,
+        "sharedById": "intv-mt2zc6pr-0",
+        "idealAnswerSignals": [
+          "질문의 의도를 정확히 파악하고 핵심 해결책을 두괄식으로 설명함",
+          "직접 경험한 구체적 사례와 수치, 트레이드오프를 명확히 제시함"
+        ],
+        "difficulty": "HARD",
+        "isUserCreated": true,
+        "redFlagSignals": [
+          "질문 의도와 무관한 일반론적인 설명만 반복함",
+          "본인이 직접 담당하지 않았거나 이해도가 부족함을 드러냄"
+        ],
+        "sharedAt": "13시 13분 6초",
+        "evaluatedCriteriaDetails": [
+          {
+            "criterionId": "technical",
+            "criterionName": "동아리 적합성 (30%)",
+            "weight": 30,
+            "evaluationGuideline": "동아리 적합성에 대한 깊이 있는 이해와 논리적 문제 해결력 직접 검증",
+            "relevanceScore": 95
+          },
+          {
+            "criterionName": "문제 발견 능력 (25%)",
+            "weight": 25,
+            "criterionId": "problemSolving",
+            "evaluationGuideline": "문제 발견 능력에 대한 깊이 있는 이해와 논리적 문제 해결력 직접 검증",
+            "relevanceScore": 95
+          },
+          {
+            "weight": 15,
+            "relevanceScore": 95,
+            "criterionId": "cultureFit",
+            "criterionName": "결과 및 발표물 (15%)",
+            "evaluationGuideline": "결과 및 발표물에 대한 깊이 있는 이해와 논리적 문제 해결력 직접 검증"
+          },
+          {
+            "evaluationGuideline": "문제 해결능력에 대한 깊이 있는 이해와 논리적 문제 해결력 직접 검증",
+            "criterionName": "문제 해결능력 (20%)",
+            "relevanceScore": 95,
+            "weight": 20,
+            "criterionId": "communication"
+          },
+          {
+            "criterionName": "명확성 및 구체성 (10%)",
+            "relevanceScore": 95,
+            "evaluationGuideline": "명확성 및 구체성에 대한 깊이 있는 이해와 논리적 문제 해결력 직접 검증",
+            "criterionId": "crit_mt2zggld",
+            "weight": 10
+          }
+        ],
+        "followUpProbing": [
+          "그 과정에서 예상치 못한 문제가 발생했을 때는 어떻게 대처하셨나요?"
+        ],
+        "question": "답변하기 어렵지만, 역사에서 답을 찾을 수 있는 질문"
+      },
+      "senderRole": "면접관 (직접 출제 및 공유)",
+      "roomId": "",
+      "senderId": "intv-mt2zc6pr-0",
+      "timestamp": "13시 13분 6초",
+      "candidateName": "김태호",
+      "isImportant": true,
+      "candidateId": "cand-mt6gewsk",
+      "roomName": "SMARTLAB 2027 면접",
+      "message": "💡 [면접관 직접 출제 질문 공유]\n\"답변하기 어렵지만, 역사에서 답을 찾을 수 있는 질문\"\n\n📌 평가 의도: 면접관이 직접 입력한 평가 목적 및 검증 포인트를 확인하기 위한 질문",
+      "id": "chat-q-mt8oqr33-p0a",
+      "createdAt": 1787663586207
+    },
+    {
+      "id": "chat-mth55e2b-cu0h",
+      "roomId": "room-mt171tee",
+      "roomName": "SMARTLAB 2027 면접",
+      "candidateId": "",
+      "candidateName": "",
+      "senderId": "intv-mtbbxe1c-0",
+      "senderName": "김태호",
+      "senderRole": "interviewer",
+      "senderLeadershipRole": "CAPTAIN",
+      "isOfficialLeaderNotice": false,
+      "message": "질문 끝나셨나요? 다음 질문 제가 진행하겠습니다.",
+      "timestamp": "20:14:32",
+      "createdAt": 1788174872436,
+      "isImportant": false
+    },
+    {
+      "id": "chat-mth55fec-jp3n",
+      "roomId": "room-mt171tee",
+      "roomName": "SMARTLAB 2027 면접",
+      "candidateId": "",
+      "candidateName": "",
+      "senderId": "intv-mtbbxe1c-0",
+      "senderName": "김태호",
+      "senderRole": "interviewer",
+      "senderLeadershipRole": "CAPTAIN",
+      "isOfficialLeaderNotice": true,
+      "message": "질문 끝나셨나요? 다음 질문 제가 진행하겠습니다.",
+      "timestamp": "20:14:34",
+      "createdAt": 1788174874164,
+      "isImportant": true
+    },
+    {
+      "id": "chat-mth55k4g-mkss",
+      "roomId": "room-mt171tee",
+      "roomName": "SMARTLAB 2027 면접",
+      "candidateId": "",
+      "candidateName": "",
+      "senderId": "intv-mtbbxe1c-0",
+      "senderName": "김태호",
+      "senderRole": "interviewer",
+      "senderLeadershipRole": "CAPTAIN",
+      "isOfficialLeaderNotice": true,
+      "message": "기술 구현 깊이 관련 꼬리질문 한번 더 부탁드립니다.",
+      "timestamp": "20:14:40",
+      "createdAt": 1788174880288,
+      "isImportant": true
+    }
+  ],
+  "candidateMessages": [],
+  "settings": {
+    "isCriteriaConfirmed": true,
+    "scoringFormula": "TRIMMED_MEAN",
+    "passThresholdScore": 70,
+    "criteria": [
+      {
+        "weight": 30,
+        "color": "blue",
+        "description": "학생이 동아리에 적합한지 확인. 전반적인 활동을 따라올 수 있는 역량을 평가함. ",
+        "name": "동아리 적합성",
+        "id": "technical",
+        "maxScore": 100
+      },
+      {
+        "id": "problemSolving",
+        "name": "문제 발견 능력",
+        "weight": 25,
+        "description": "자신이 찾은 문제에 관하여 이를 어떻게 분석했고, 분석한 결과를 바탕으로 얼마나 결과물을 만들어냈는가?",
+        "color": "purple",
+        "maxScore": 100
+      },
+      {
+        "description": "면접자가 얼마나 논리적으로 말하는지",
+        "color": "emerald",
+        "maxScore": 100,
+        "id": "communication",
+        "weight": 20,
+        "name": "문제 해결능력"
+      },
+      {
+        "color": "amber",
+        "name": "결과 및 발표물",
+        "maxScore": 100,
+        "weight": 15,
+        "description": "제시된 주제가 얼마나 구체적인지",
+        "id": "cultureFit"
+      },
+      {
+        "maxScore": 100,
+        "color": "rose",
+        "weight": 10,
+        "description": "가산 될 부분이 있는지.",
+        "id": "crit_mt2zggld",
+        "name": "명확성 및 구체성"
+      }
+    ],
+    "weights": {
+      "communication": 20,
+      "problemSolving": 25,
+      "technical": 30,
+      "crit_mt2zggld": 10,
+      "cultureFit": 15
+    },
+    "panelSize": 3,
+    "adminOverrideWindowSeconds": 300,
+    "aiProvider": "groq",
+    "aiModel": "llama-3.3-70b-versatile",
+    "adminMasterPassword": "admin",
+    "knowledgeBase": [
+      {
+        "tags": [
+          "RULE",
+          "SmartLab",
+          "면접지식"
+        ],
+        "addedBy": "동아리 관리자 (Admin)",
+        "extractedInsights": {
+          "evaluationCriteria": [
+            "핵심 개념에 대한 명확한 이해도",
+            "실제 구현 및 디버깅 경험의 진위 여부"
+          ],
+          "summary": "스마트랩평가기준에 관한 학습 지식입니다.",
+          "suggestedQuestions": [
+            "해당 기술/프로젝트를 진행하며 겪었던 가장 큰 한계는 무엇이었나요?",
+            "기존 방식 대비 해당 설계를 채택한 명확한 기술적 근거는 무엇인가요?"
+          ],
+          "keyConcepts": [
+            "핵심 역량",
+            "실무 설계",
+            "문제 해결력"
+          ],
+          "redFlags": [
+            "단순 라이브러리 사용법 나열",
+            "아키텍처 선택 이유 설명 불가"
+          ]
+        },
+        "title": "스마트랩평가기준",
+        "description": "rule 기반 AI 학습 자료입니다.",
+        "content": "2027 SMARTLAB 신입부원 면접 기획 및 평가 체계 세부 정의서\n본 문서에는 2027학년도 SMARTLAB 신입부원 선발을 위한 면접 평가 체계, 항목별 세부 판정 지표, 면접관 가산점 규정, 그리고 사전 작업 시간 동안 운영되는 선배 도우미(Helper) 제도의 정밀 가이드라인이 누락 없이 수록되어 있습니다.\n1. 종합 평가 프레임워크 및 운영 원칙\n1.1 기본 점수 구조\n기본 평가 점수 (100점 만점): 5대 핵심 평가 축의 정량/정성 평가 합산.\n면접관 주관 가산점 (최대 +10점): 각 평가 항목별 만점의 10% 범위 내에서 면접관의 주관적 판단으로 부여하는 별도 가산점.\n최종 총점: 기본 평가 점수(100점) + 면접관 주관 가산점(최대 10점) = 최대 110점 만점 구조\n1.2 자율성 보장 원칙\n발표 시간 초과에 따른 감점 완전히 배제: 준비해 온 내용이 많거나 사고의 깊이가 깊어 발표 시간이 길어지는 것은 지극히 자연스러운 현상입니다. 시간 제한으로 지원자의 발표 흐름이나 생각의 깊이를 끊지 않으며, 시간 초과에 따른 정량 감점은 일절 적용하지 않습니다.\n외홍적 발표 기술(발음/말더듬) 감점 완전히 배제: 면접장의 긴장감으로 인한 발음 불명확, 딕션, 말더듬, 목소리 떨림 등은 개인의 본질적인 기획/기술 역량이 아니므로 감점 요소에서 100% 제외합니다. (단, 면접관 개인의 인지적 직관에 영향을 줄 수 있음은 인정하되, 평가지 기준으로는 철저히 배제)\n2. 평가 5대 축 비중 및 세부 평가 기준\n평가 항목\n비중 (배점)\n가산점 한도\n핵심 검증 요약\n동아리 전반 적합성\n30% (30점)\n최대 +3.0점\n스스로의 문제 해결 의지, 자율적 목표/계획, AI 트렌드 학습 태도, 주관 있는 사고\n문제 발견 능력\n25% (25점)\n최대 +2.5점\n무제한적 문제 범위, '답정너' 배제 진정성, 5대 필수 요건(Target, Problem, Why, Tech, Originality)\n문제 해결 능력\n20% (20점)\n최대 +2.0점\n문제 정의와의 1:1 연결성, 기존 대안 한계 극복, MVP 고민의 깊이 및 부작용 사전 고려, 스스로의 완벽한 이해\n발표 및 결과물\n15% (15점)\n최대 +1.5점\nPPT/결과물 요소의 의도성(이유), 생각의 논리적 구조, 청자와의 거리감 유지 일관성\n명확성 및 구체성\n10% (10점)\n최대 +1.0점\n발표 전반의 단일 목표 일관성, 기술/실행의 실제 현실성 근거, Q&A 직진 답변\n\n세부 항목 1: 동아리 전반 적합성 (30% / 30점 만점)\n[한 줄 정의]\n외부의 강요 없이 스스로 문제를 발굴하고 해결하려는 강한 주체성을 바탕으로, AI 기술 트렌드를 주도적으로 탐구하며 남들의 의견에 휩쓸리지 않고 자신만의 명확한 주관과 목표를 세우는 능력.\n1. 세부 평가 및 검증 지표\n주도적 문제 해결 의지 (Self-Driven Motivation)\n타인이 시켜서나 스펙 쌓기용이 아닌, 자기 자신, 개인적 일상, 속한 단체, 또는 사회 전반의 불편함을 직접 해결하고자 하는 내적 동기와 진정성이 명확한가?\n자율적 목표 및 구체적 계획 수립 (Autonomous Goal Setting)\n수동적으로 지시를 기다리지 않고, 자신이 달성하고자 하는 목표를 직접 설정하며, 이를 이루기 위한 구체적이고 현실적인 실행 로드맵을 스스로 구성해내는가?\nAI 트렌드 학습 및 수용 태도 (AI Adaptability)\nVibe Coding, 최신 LLM, 오픈 API 등 급변하는 AI 기술과 생산성 도구를 거부감 없이 적극적으로 습득하고 프로젝트에 적용해 보려는 개방적인 태도를 갖추었는가?\n주관 있는 사고 (Intellectual Autonomy)\n흔한 정답이나 주변의 분위기에 부화뇌동하지 않고, 자신이 세운 가치관과 논리에 기반하여 자신만의 명확한 시각과 주관을 펼칠 수 있는가?\n세부 항목 2: 문제 발견 능력 (25% / 25점 만점)\n[한 줄 정의]\n사회·단체·개인이 겪는 무궁무진한 규모의 페인 포인트(Pain Point)를 발굴하고, 정해진 답에 끼워 맞추지 않는 진정성 있는 분석을 통해 \"누가, 왜, 무엇을 해결해야 하는지\"를 명확히 입증하는 능력.\n1. 세부 평가 및 검증 지표\n문제 범위의 무제한성 및 확장성 (Unlimited Scope)\n거대한 사회적 담론이나 대규모 시스템의 문제부터, 개인의 미세한 일상 속 불편함(Micro Pain Point)까지 문제의 규모와 관계없이 진짜 '페인 포인트'를 발굴했는가?\n진정성 있는 원인 분석 및 '답정너' 배제 (Genuine Root Cause Analysis)\n자신이 미리 구상해 둔 특정 앱, 기술, 솔루션을 정당화하기 위해 3 Whys의 답을 의도적으로 유도하거나 억지로 끼워 맞추지 않았는가? (솔루션에서 역산한 문제가 아니라, 문제 자체에 대한 파고듦에서 출발했는지 정밀 검증)\n문제 정의 5대 필수 구성 요건:\nTarget & Persona (누가): 문제를 겪는 주체가 구체적인 페르소나 수준으로 선명하게 정의되어 있는가?\nProblem (무엇을): 정확히 어떤 불편함과 페인 포인트를 해결하고 싶은지 손에 잡히게 명시했는가?\nWhy (왜): 이 문제를 '지금, 반드시' 해결해야 하는 당위성과 이유가 타당하게 제시되었는가?\nTech Stack / Means (어떻게): 구체적으로 어떤 기술이나 수단을 바탕으로 문제를 해결하고자 하는가?\nOriginality (독창성): 기존의 일반적인 시각과 달리, 문제를 바라보는 지원자만의 독창적인 접근법과 시각이 담겨 있는가?\n세부 항목 3: 문제 해결 능력 (20% / 20점 만점)\n[한 줄 정의]\n문제 정의와의 강력한 논리적 연결성을 바탕으로, 기존 대안의 한계를 뛰어넘는 창의적·현실적 해결책을 제시하며, 자신이 구상한 MVP/모델에 대한 고민의 깊이와 예외 상황까지 고려해내는 능력.\n1. 세부 평가 및 검증 지표\n문제 정의와의 강력한 연결성 (Problem-Solution Alignment)\n제시한 해결방안이 앞서 3 Whys로 발굴한 페인 포인트 및 근본 원인을 직접적으로 타격하는가? \"이 해결방안으로 정말 그 문제가 해결되는가?\"에 대한 인과관계가 명확한가?\n기존 대안의 한계 분석 및 창의적 설득력 (Creativity & Superiority)\n이미 존재하던 기존의 해결 방식들이 왜 실패했는지(한계)를 정확히 지적하고, 자신만의 방법이 왜 작동할 수밖에 없는지 논리적으로 면접관을 설득할 수 있는가?\nMVP/결과물 고민의 깊이 및 부작용 사전 고려 (Depth of Thought & Trade-off)\n핵심은 MVP의 완성도나 100% 일치가 아닙니다. \"해당 해결방안과 MVP를 구상하면서 얼마나 깊게 생각하고 고려했는가\"를 평가합니다.\n솔루션 도입 시 발생할 수 있는 2차적 문제점, 부작용, 맹점, 예외 상황에 대해 미리 깊이 고민하고 대안을 구상해 두었는지 검증합니다.\n스스로에 대한 완벽한 이해 (Self-Comprehension)\n자신이 사용한 기술, 개념, 논리에 대해 외부(AI/남의 의견)에서 가져온 말을 단순히 읊는 것이 아니라, 자신이 무슨 말을 하고 있는지 스스로 완벽하게 이해하고 있는가?\n설명과 MVP 간의 핵심 논리 부합성 (Core Logic Consistency)\n완성도가 떨어지거나 미완성일지라도, 자신이 입으로 설명하는 해결책의 핵심 아이디어와 흐름이 준비한 프로토타입/MVP의 방향성과 자연스럽게 결을 같이하는가?\n세부 항목 4: 발표 및 발표 자료 + 결과물 (15% / 15점 만점)\n[한 줄 정의]\nPPT 슬라이드와 직접 만든 결과물(MVP)의 모든 요소에 명확한 이유와 의도를 담아내고, 자신이 선택한 발표 스타일(청자와의 거리감 및 소통 방식)을 시작부터 끝까지 일관되게 유지하며 논리적으로 전달하는 능력.\n1. 세부 평가 및 검증 지표\n자료 및 제작 결과물(MVP) 요소의 의도성 (Intentionality of Elements)\nPPT의 레이아웃, 시각 자료, 색상, 배치뿐만 아니라 결과물(MVP)의 버튼, 화면 구성, 특정 기능 하나하나에 \"왜 이 요소를 넣었는지\"에 대한 명확한 이유와 목적의식이 존재하는가? (무의미한 채우기용 디자인 배제)\n생각의 논리적 구조화 (Logical Structure)\n주장과 근거, 원인과 해결책의 흐름이 비약 없이 논리적인 단계로 매끄럽게 연결되는가? (단, 긴장으로 인한 발음, 딕션, 말더듬은 점수 반영 배제)\n발표 스타일 및 청자와의 거리 유지성 (Style & Stance Consistency)\n지원자가 어떤 발표 소통 방식을 선택했든, 그 스타일과 청자와의 거리감을 발표 전체 동안 일정하게 유지하는가를 평가합니다.\n대화/유도형 (거리를 좁히는 스타일): 면접관에게 질문을 던지거나 호응을 유도하며 친근하게 거리를 좁히는 방식을 택했다면, 중간에 당황하거나 흐지부지되지 않고 끝까지 그 소통의 흐름을 주도하는가?\n명확/전달형 (거리를 명확히 나누는 스타일): 큰 목소리와 분명한 어조로 발표자와 청자의 역할을 명확히 구분하여 선명하게 전달하는 방식을 택했다면, 처음부터 끝까지 그 선명함과 전달력을 일정하게 유지하는가?\n세부 항목 5: 명확성 및 구체성 (10% / 10점 만점)\n[한 줄 정의]\n발표 전체가 하나의 목표를 향해 흐트러짐 없이 일관되게 전개되며, 기술 및 실행의 실제 현실성에 대한 자신만의 타당한 근거를 바탕으로 질문의 본질을 정확히 타격해 답변하는 능력.\n1. 세부 평가 및 검증 지표\n전체 발표의 단일 목표 지향성 및 일관성 (Single-Goal Alignment)\n서론, 본론, 3 Whys, PPT, MVP 결과물, Q&A에 이르기까지 발표 전반이 중구난방으로 흩어지지 않고 단 하나의 핵심 목표/페인 포인트를 향해 일관되게 달리고 있는가?\n무엇을 어떻게 해결할 것인가의 명확성 (What & How Precision)\n추상적인 문구에 그치지 않고, \"정확히 무엇을(What), 어떤 기술적/실행적 수단으로(How)\" 해결할 것인지 손에 잡히도록 명확히 제시하는가?\n기술 및 실행의 실제 현실성 / 타당성 근거 (Feasibility & Realism)\n공상적인 가상의 기술이 아니라, 실제로 존재하고 작동 가능한 AI API, 프레임워크, 기술 스택을 바탕으로 실제 실행/구현이 가능한지 본인만의 논리적·실증적 근거로 면접관을 설득해내는가?\nQ&A 직진 답변 (No Off-topic Responses)\n질의응답 단계에서 면접관 질문의 핵심 의도를 즉각 파악하고, 동문서답이나 회피성 변명 없이 질문이 묻는 바를 정확히 직선적으로 답변하는가?\n3. 면접관 주관 가산점 (Bonus Point) 세부 규정\n3.1 목적 및 배경\n정형화된 평가 기준표(Rubric) 규격만으로는 담아낼 수 없는 지원자의 '압도적인 주관', '틀을 깨는 통찰력', '독창적인 시각'을 정당하게 보상하기 위한 예외적 안전장치입니다.\n3.2 가산점 배정 및 부여 한도\n각 항목별 만점의 최대 10% 범위 내에서 면접관 개인이 판단하여 부여할 수 있습니다.\n동아리 전반 적합성 (30점 만점)  최대 +3.0점\n문제 발견 능력 (25점 만점)  최대 +2.5점\n문제 해결 능력 (20점 만점)  최대 +2.0점\n발표 및 결과물 (15점 만점)  최대 +1.5점\n명확성 및 구체성 (10점 만점)  최대 +1.0점\n총 가산점 한도: 최대 +10.0점\n3.3 부여 원칙\n비일반성 (Exceptionality): 남발을 막기 위해 일반적인 우수함에는 부여하지 않으며, 정형화된 점수판을 뛰어넘는 뛰어난 깊이나 독창적 주관이 관찰된 경우에만 제한적으로 활용합니다.\n사유 기록 의무화: 가산점을 부여한 면접관은 평가표 하단 비고란에 \"어떠한 주관/통찰이 탁월하여 가산점을 부여했는지\" 사유를 간략히 명시해야 합니다.\n4. 선배 도우미 (Helper) 제도 운영 정밀 가이드라인\n4.1 선배 도우미의 역할 및 지위\n역할: 사전 작업 시간 동안 지원자의 기술적 장벽을 낮춰주고, SMARTLAB만의 피어 멘토링 문화를 미리 경험하게 돕는 '순수 헬퍼(Helper)'입니다.\n면접관 겸임 가능성 및 평가 완전 분리 (핵심 원칙):\n선배 도우미 부원은 추후 실제 면접관으로 참여할 수도 있습니다.\n그러나 지원자가 선배 도우미에게 질문을 많이 하거나 도움을 많이 요청했다고 해서 평가 시 가산점이나 이점이 주어지는 것은 절대 아닙니다. (\"질문한 것으로 가산점 없음\")\n지원자가 평가를 의식하여 눈치 보거나 억지로 질문하는 부작용을 막기 위해, 사전 작업 동안의 질문 횟수/내용은 평가 지표에 일절 반영되지 않으며 100% 독립적으로 운영됩니다.\n4.2 세부 작업 및 기술 지원 가이드라인\n코드 대리 작성 허용 규칙 (Driver & Navigator)\n지원자가 모르는 코드나 기술적 한계에 부딪혔을 때, 선배 도우미가 직접 코드를 대리 작성해 주는 것을 허용합니다.\n단, 지시와 설계의 주도권은 100% 지원자에게 있어야 합니다. 지원자가 \"이 로직을 이렇게 짜주세요\", \"이 프롬프트를 넣어서 코드를 만들어주세요\"라고 명확히 지시(Driver)해야 하며, 선배는 그 지시에 따라 코드를 쳐주는 조력자(Navigator/인간 IDE) 역할만 수행합니다.\n배포 플랫폼 및 레퍼런스 추천 지원\n지원자가 \"이거 배포할 만한 사이트 있나요?\", \"참고할 만한 사이트나 API가 있나요?\"라고 물어볼 경우, Lovable, Replit, Vercel, Netlify 등 최적의 배포 사이트 및 오픈 API/참고 레퍼런스를 적극적으로 안내하고 추천할 수 있습니다.\n지원자의 요청이 있을 경우, 배포 환경변수 설정이나 배포 버튼 실행 대행까지 도와줄 수 있습니다.\n아이디어 및 논리 개입의 제한\n선배 도우미가 지원자의 문제 정의나 해결 아이디어 자체를 대신 만들어주거나 \"이 문제는 별로니 바꿔라\"라고 주관적 평가를 내리는 행위는 엄격히 금지됩니다.\n지원자가 막혀있을 때는 \"왜 그렇게 생각했어?\", \"타겟이 정확히 누구야?\" 같은 질문을 던져 지원자 스스로 생각을 정립하도록만 유도합니다.\n5. 종합 보고서 수록용 기획 철학 (Rationale)\n\"SMARTLAB의 면접은 단편적인 스펙 평가가 아닌, 함께 문제를 정의하고 해결해 나갈 진짜 동료를 발굴하는 실전 기획 세션입니다.\"\n문제 발견(25%) & 문제 해결(20%): Vibe Coding 시대에 기술 도구의 사용 장벽은 극도로 낮아졌습니다. 이에 따라 SMARTLAB은 '코딩 테크닉'보다 '진짜 풀 가치가 있는 문제인지', 그리고 '해결방안과 MVP에 대한 고민의 깊이가 얼마나 치밀한지'를 핵심으로 평가합니다. 답을 정해두고 3 Whys를 끼워 맞추는 '답정너'를 배제하고, 부작용과 예외 상황까지 고려했는지 검증합니다.\n발표 및 결과물(15%) & 명확성(10%): 외홍적인 말주변이나 긴장으로 인한 말더듬은 평가 대상이 아닙니다. PPT와 결과물에 담긴 '의도성', 자신이 선택한 발표 스타일의 '일관성', 그리고 묻는 말에 동문서답하지 않고 하나의 목표를 향해 달리는 '명확한 현실성'에 집중합니다.\n동아리 적합성(30%) & 가산점(+10점): AI 시대를 주도할 인재의 본질은 자율성과 확실한 주관입니다. 정형화된 틀을 깨고 압도적인 통찰을 보여준 지원자를 가려내기 위해 면접관 주관 가산점을 부여합니다.\n선배 도우미 제도: 개발 스킬이 부족하더라도 AI와 선배 도우미에게 명확한 지시를 내릴 수 있다면(Vibe Coding & Leadership) 누구나 자신의 아이디어를 MVP로 시연해 볼 수 있도록 환경을 마련했습니다. 질문이나 도움 요청은 평가 점수와 완전히 무관하므로, 지원자는 오직 자신의 아이디어를 시각화하고 설득하는 데 전념할 수 있습니다.",
+        "id": "kb-mt73knp2-xok5",
+        "fileSize": "텍스트/문서",
+        "createdAt": "2026. 8. 24. 10시 32분 43초",
+        "isActive": true,
+        "sourceType": "rule"
+      },
+      {
+        "tags": [
+          "동아리 인재상",
+          "평가 기준",
+          "컬처핏",
+          "필수 지침"
+        ],
+        "id": "kb-doc-1",
+        "createdAt": "2026. 8. 21. 10:30:00",
+        "extractedInsights": {
+          "redFlags": [
+            "팀 프로젝트 실패 원인을 팀원 탓으로 돌림",
+            "자신의 코드 스타일에 대한 고집으로 피드백 거부"
+          ],
+          "suggestedQuestions": [
+            "가장 크게 실패했던 프로젝트에서 무엇을 배웠고, 그 경험이 본인의 개발 습관을 어떻게 바꾸었나요?",
+            "팀원이 본인의 코드나 아키텍처에 강하게 반대했을 때 어떤 방식으로 타협점을 찾았나요?"
+          ],
+          "summary": "SmartLab의 핵심 인재상 4요소: 능동적 문제해결, 투명한 소통 및 지식 공유, 기술적 끈기, 동료 존중",
+          "evaluationCriteria": [
+            "상대방의 의견을 경청하고 감정적이지 않게 논리적으로 의견을 개진하는가",
+            "어려운 기술적 문제를 만났을 때 회피하지 않고 원인을 파고드는 집요함이 있는가"
+          ],
+          "keyConcepts": [
+            "협업 마인드셋",
+            "기술적 집요함",
+            "실패 회고 능력",
+            "두괄식 커뮤니케이션"
+          ]
+        },
+        "addedBy": "동아리 관리자 (Admin)",
+        "title": "2026 SmartLab 인재상 및 합격자 평가 가이드라인",
+        "description": "스마트랩 동아리 4대 핵심 가치와 컬처핏/문제해결력 심층 평가 기준",
+        "updatedAt": "2026. 8. 23. 23시 16분 39초",
+        "isActive": true,
+        "sourceType": "document",
+        "content": "SmartLab은 능동적으로 기술적 병목을 해결하고 팀원과 지식을 공유하는 엔지니어를 지향합니다. 실패한 프로젝트라도 원인을 논리적으로 분석하고 회고한 경험을 높게 평가합니다.",
+        "fileSize": "1.2 MB (문서)"
+      }
+    ],
+    "leadership": {
+      "captain": {
+        "id": "lead-cap-1787922073139",
+        "name": "김태호",
+        "role": "CAPTAIN",
+        "appointedAt": "2026. 8. 28. 22시 1분 13초",
+        "appointedBy": "총괄 관리자 (Admin)",
+        "memo": ""
+      },
+      "viceCaptains": [
+        {
+          "id": "lead-vc-1787922073160-0",
+          "name": "김이현",
+          "role": "VICE_CAPTAIN",
+          "appointedAt": "2026. 8. 28. 22시 1분 13초",
+          "appointedBy": "총괄 관리자 (Admin)",
+          "memo": ""
+        },
+        {
+          "id": "lead-vc-1787922073161-1",
+          "name": "박민수",
+          "role": "VICE_CAPTAIN",
+          "appointedAt": "2026. 8. 28. 22시 1분 13초",
+          "appointedBy": "총괄 관리자 (Admin)",
+          "memo": ""
+        }
+      ]
+    },
+    "interviewerPins": {
+      "김태호면접관": "7003",
+      "김태호": "7003",
+      "intv-mtbbxe1c-0": "7003"
+    },
+    "interviewerPinSetAt": {
+      "김태호면접관": "2026-08-31 10:59:04",
+      "김태호": "2026-08-31 10:59:04",
+      "intv-mtbbxe1c-0": "2026-08-31 10:59:04"
+    },
+    "criteriaConfirmedBy": "김태호 면접관",
+    "criteriaConfirmedAt": "2026. 8. 24. 8시 8분 9초",
+    "isAllInterviewsCompleted": true,
+    "allInterviewsCompletedAt": "2026-08-31 20:06:37",
+    "allInterviewsCompletedBy": "총괄 관리자",
+    "isResultsPublished": false,
+    "showPassFailToCandidates": false,
+    "interviewerNameDisplayPolicy": "ALL_PUBLIC",
+    "showStatsToCandidates": true,
+    "showDetailedComments": true
+  },
+  "lastUpdatedAt": "2026-09-01T10:27:07.887Z"
+}

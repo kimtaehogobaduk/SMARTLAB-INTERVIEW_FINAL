@@ -243,7 +243,7 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                       {room.description || 'SmartLab 직무 심층 면접'}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-700/40">
-                      <span>면접관: {room.interviewers?.length || 3}명 배정</span>
+                      <span>면접관: {room.interviewers?.length || room.panelCount || 2}명 배정</span>
                       <span>•</span>
                       <span>1인당 {room.minutesPerPerson || 30}분</span>
                     </div>

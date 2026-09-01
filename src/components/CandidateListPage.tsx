@@ -46,7 +46,8 @@ import {
   ExternalLink,
   ChevronDown,
   Inbox,
-  User
+  User,
+  Loader2
 } from 'lucide-react';
 
 interface CandidateListPageProps {
@@ -86,6 +87,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmittingCandidate, setIsSubmittingCandidate] = useState(false);
   const [selectedCandidateForEntry, setSelectedCandidateForEntry] = useState<Candidate | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -353,56 +355,67 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingCandidate) return;
     if (!newName.trim()) {
       alert('지원자 이름을 입력해주세요.');
       return;
     }
 
-    const docItems = (newDocText.trim() || newDocFileData || newDocUrl) ? [
-      {
-        id: `doc-${Date.now()}`,
-        title: newDocTitle.trim() || `${newName}_지원서.${newDocType === 'url' ? 'link' : newDocType}`,
-        type: newDocType as any,
-        contentSnippet: (newDocText || newDocUrl || '지원 서류').substring(0, 100),
-        rawText: newDocText || (newDocUrl ? `외부 링크: ${newDocUrl}` : ''),
-        url: newDocUrl || undefined,
-        fileData: newDocFileData || undefined,
-        fileSize: newDocFileSize || '직접 등록',
-        uploadedAt: new Date().toLocaleTimeString('ko-KR', { hour12: false })
-      }
-    ] : [];
+    setIsSubmittingCandidate(true);
+    try {
+      const docItems = (newDocText.trim() || newDocFileData || newDocUrl) ? [
+        {
+          id: `doc-${Date.now()}`,
+          title: newDocTitle.trim() || `${newName}_지원서.${newDocType === 'url' ? 'link' : newDocType}`,
+          type: newDocType as any,
+          contentSnippet: (newDocText || newDocUrl || '지원 서류').substring(0, 100),
+          rawText: newDocText || (newDocUrl ? `외부 링크: ${newDocUrl}` : ''),
+          url: newDocUrl || undefined,
+          fileData: newDocFileData || undefined,
+          fileSize: newDocFileSize || '직접 등록',
+          uploadedAt: new Date().toLocaleTimeString('ko-KR', { hour12: false })
+        }
+      ] : [];
 
-    await onAddCandidate({
-      id: `cand-${Date.now().toString(36)}`,
-      name: newName.trim(),
-      track: newFieldNote.trim() || '일반',
-      studentId: newStudentId || `2026${Math.floor(10000 + Math.random() * 90000)}`,
-      phone: newPhone || '010-0000-0000',
-      email: `${newName.trim().toLowerCase()}@smartlab.edu`,
-      timeslot: {
-        start: newStartTime,
-        end: newEndTime,
-        room: currentRoom.name || currentRoom.title || 'SmartLab Studio'
-      },
-      status: 'PENDING',
-      interviewers: ['면접관 1', '면접관 2', '면접관 3'],
-      documents: docItems,
-      sttTranscript: [],
-      aiInsights: {
-        realtimeSummaries: [],
-        tailQuestions: [],
-        contradictions: []
-      }
-    });
+      await onAddCandidate({
+        id: `cand-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+        name: newName.trim(),
+        track: newFieldNote.trim() || '일반',
+        studentId: newStudentId || `2026${Math.floor(10000 + Math.random() * 90000)}`,
+        phone: newPhone || '010-0000-0000',
+        email: `${newName.trim().toLowerCase()}@smartlab.edu`,
+        timeslot: {
+          start: newStartTime,
+          end: newEndTime,
+          room: currentRoom.name || currentRoom.title || 'SmartLab Studio'
+        },
+        status: 'PENDING',
+        interviewers: currentRoom.interviewers && currentRoom.interviewers.length > 0
+          ? currentRoom.interviewers.map(i => i.name)
+          : ['면접관 1', '면접관 2'],
+        documents: docItems,
+        sttTranscript: [],
+        aiInsights: {
+          realtimeSummaries: [],
+          tailQuestions: [],
+          contradictions: []
+        }
+      });
 
-    setIsAddModalOpen(false);
-    setNewName('');
-    setNewFieldNote('');
-    setNewDocText('');
-    setNewDocTitle('');
-    setNewDocFileData(null);
-    setNewDocFileSize('');
-    setNewDocUrl('');
+      setIsAddModalOpen(false);
+      setNewName('');
+      setNewFieldNote('');
+      setNewDocText('');
+      setNewDocTitle('');
+      setNewDocFileData(null);
+      setNewDocFileSize('');
+      setNewDocUrl('');
+    } catch (err: any) {
+      console.error('Candidate registration error:', err);
+      alert(`지원자 등록 중 오류가 발생했습니다: ${err.message || '다시 시도해주세요.'}`);
+    } finally {
+      setIsSubmittingCandidate(false);
+    }
   };
 
   return (
@@ -1313,15 +1326,18 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-slate-800 rounded-xl text-slate-300 font-semibold hover:bg-slate-800 cursor-pointer"
+                  disabled={isSubmittingCandidate}
+                  className="px-4 py-2 border border-slate-800 rounded-xl text-slate-300 font-semibold hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-md shadow-blue-600/20 cursor-pointer"
+                  disabled={isSubmittingCandidate}
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5"
                 >
-                  지원자 등록 완료
+                  {isSubmittingCandidate && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isSubmittingCandidate ? '등록 중...' : '지원자 등록 완료'}</span>
                 </button>
               </div>
             </form>

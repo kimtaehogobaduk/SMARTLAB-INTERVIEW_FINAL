@@ -234,7 +234,7 @@ export const RoleSelectLandingPage: React.FC<RoleSelectLandingPageProps> = ({
               <div className="space-y-2 pt-2 border-t border-slate-700/60">
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span>3인 독립 블라인드 평가 및 실시간 점수 집계</span>
+                  <span>독립 블라인드 면접 평가 및 실시간 점수 집계</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />

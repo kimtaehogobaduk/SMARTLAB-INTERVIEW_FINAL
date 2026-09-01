@@ -111,7 +111,7 @@ const UNIVERSAL_PARSER_PROMPT = \`너는 동아리 'SmartLab'의 만능 지원 �
 
 // 3. Post-Interview Qualitative Synthesis & D3 MindMap Generator Prompt
 const MINDMAP_PROMPT = \`너는 지식 구조화 AI이다.
-지원자의 프로필, 서류, 실시간 STT 발언, 3인 면접관 평가를 종합하여 D3.js 인터랙티브 트리 렌더링에 적합한 계층적 JSON 노드를 생성하라.\`;`;
+지원자의 프로필, 서류, 실시간 STT 발언, 면접관 다면 평가를 종합하여 D3.js 인터랙티브 트리 렌더링에 적합한 계층적 JSON 노드를 생성하라.\`;`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeTab === 'sql' ? SQL_SCHEMA : AI_SYSTEM_PROMPTS);

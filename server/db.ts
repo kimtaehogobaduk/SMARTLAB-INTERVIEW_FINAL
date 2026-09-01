@@ -12,6 +12,8 @@ import {
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import { Candidate, Evaluation, PlatformSettings, ClubLeadership, AuditLog, InterviewRoomInfo, AIKnowledgeItem, DocumentItem, LiveNotification, InterviewerPresence, InterviewerChatMessage, CandidateChatMessage } from '../src/types';
+import { DEFAULT_CRITERIA } from '../src/lib/scoring';
+import { candidateMutex } from './utils/mutex';
 
 // Load config safely in Node environment
 let firebaseConfig: any = null;
@@ -51,40 +53,11 @@ export interface DatabaseState {
   };
 }
 
-export const defaultCriteria = [
-  {
-    id: 'technical',
-    name: '1. 기술 직무 역량',
-    description: '직무 이해도, 기술 스택 깊이, 문제 접근 및 설계 논리',
-    weight: 40,
-    maxScore: 100,
-    color: 'blue'
-  },
-  {
-    id: 'problemSolving',
-    name: '2. 논리적 문제 해결력',
-    description: '돌발 질문 대응, 트러블슈팅 논리, 한계 극복 및 문제 분해 역량',
-    weight: 30,
-    maxScore: 100,
-    color: 'purple'
-  },
-  {
-    id: 'communication',
-    name: '3. 의사소통 및 전달력',
-    description: '두괄식 설명, 경청 태도 및 질문 의도 파악 역량',
-    weight: 20,
-    maxScore: 100,
-    color: 'emerald'
-  },
-  {
-    id: 'cultureFit',
-    name: '4. 조직 적합도 & 성장성',
-    description: 'SmartLab 동아리 문화 수용성, 열정 및 협업 주도성',
-    weight: 10,
-    maxScore: 100,
-    color: 'amber'
-  }
-];
+/**
+ * Single source of truth for evaluation criteria:
+ * Imported directly from src/lib/scoring.ts to eliminate code duplication
+ */
+export const defaultCriteria = DEFAULT_CRITERIA;
 
 export const initialRooms: InterviewRoomInfo[] = [
   {
@@ -629,3 +602,76 @@ export async function saveCloudState(): Promise<void> {
     }, 150); // Fast 150ms debounce
   });
 }
+
+/**
+ * Concurrency-safe atomic evaluation upsert.
+ * Locks by candidateId so multiple interviewers submitting at the exact same millisecond
+ * will be queued and merged without race conditions or lost updates.
+ */
+export async function atomicUpsertEvaluation(
+  candidateId: string,
+  evaluationData: Evaluation
+): Promise<{ evaluation: Evaluation; allCandidateEvaluations: Evaluation[] }> {
+  return candidateMutex.runExclusive(candidateId, async () => {
+    if (!Array.isArray(db.evaluations)) {
+      db.evaluations = [];
+    }
+
+    const normInterviewer = (evaluationData.interviewerName || '').trim();
+    const normInterviewerId = (evaluationData.interviewerId || '').trim();
+
+    // Match existing evaluation by candidateId and interviewer identifier
+    const existingIndex = db.evaluations.findIndex(
+      e =>
+        e.candidateId === candidateId &&
+        ((normInterviewerId && e.interviewerId === normInterviewerId) ||
+          (normInterviewer && (e.interviewerName || '').trim() === normInterviewer))
+    );
+
+    if (existingIndex >= 0) {
+      db.evaluations[existingIndex] = {
+        ...db.evaluations[existingIndex],
+        ...evaluationData,
+        id: db.evaluations[existingIndex].id || evaluationData.id
+      };
+    } else {
+      db.evaluations.push(evaluationData);
+    }
+
+    // Trigger cloud persistence safely
+    await saveCloudState();
+
+    const candidateEvals = db.evaluations.filter(e => e.candidateId === candidateId);
+    const updatedEval = existingIndex >= 0 ? db.evaluations[existingIndex] : evaluationData;
+
+    return {
+      evaluation: updatedEval,
+      allCandidateEvaluations: candidateEvals
+    };
+  });
+}
+
+/**
+ * Concurrency-safe atomic candidate updater
+ */
+export async function atomicUpdateCandidate(
+  candidateId: string,
+  updater: (candidate: Candidate) => Candidate | void
+): Promise<Candidate | null> {
+  return candidateMutex.runExclusive(candidateId, async () => {
+    const candidate = db.candidates.find(c => c.id === candidateId);
+    if (!candidate) return null;
+
+    const result = updater(candidate);
+    if (result) {
+      const idx = db.candidates.findIndex(c => c.id === candidateId);
+      if (idx >= 0) {
+        db.candidates[idx] = result;
+      }
+    }
+
+    await saveCloudState();
+    return db.candidates.find(c => c.id === candidateId) || null;
+  });
+}
+

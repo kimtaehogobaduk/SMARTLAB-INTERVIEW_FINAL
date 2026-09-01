@@ -265,7 +265,7 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
                   type="text"
                   value={roomDescription}
                   onChange={(e) => setRoomDescription(e.target.value)}
-                  placeholder="예: 3인 1조 기술 심사 및 실시간 블라인드 채점"
+                  placeholder="예: 다대일 심층 기술 심사 및 실시간 블라인드 채점"
                   className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
