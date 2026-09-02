@@ -275,7 +275,7 @@ export const CandidateResultScorecard: React.FC<CandidateResultScorecardProps> =
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <SmartLabLogo size={34} />
+                <SmartLabLogo size={36} showText={false} />
                 <div>
                   <span className="text-[11px] font-black tracking-widest text-indigo-400 uppercase">
                     SmartLab Official Evaluation Portal

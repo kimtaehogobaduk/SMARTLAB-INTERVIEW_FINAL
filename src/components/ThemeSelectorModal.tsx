@@ -274,10 +274,23 @@ export const ThemeSelectorModal: React.FC = () => {
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-theme-header border-t border-theme-main flex items-center justify-between shrink-0">
-          <span className="text-[11px] text-theme-muted">
-            설정하신 디자인 테마는 브라우저에 안전하게 저장되며 모든 페이지에 즉시 반영됩니다.
-          </span>
+        <div className="px-6 py-4 bg-theme-header border-t border-theme-main flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setIsThemeModalOpen(false);
+                window.dispatchEvent(new CustomEvent('replay_smartlab_intro'));
+              }}
+              className="px-3.5 py-1.5 rounded-xl border border-theme-main bg-theme-surface hover:bg-theme-elevated text-theme-primary text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>오프닝 인트로 다시보기</span>
+            </button>
+            <span className="text-[11px] text-theme-muted hidden sm:inline">
+              설정하신 디자인 테마는 브라우저에 자동 저장됩니다.
+            </span>
+          </div>
           <button
             type="button"
             onClick={() => setIsThemeModalOpen(false)}

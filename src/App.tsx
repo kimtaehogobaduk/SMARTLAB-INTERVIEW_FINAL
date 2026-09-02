@@ -32,6 +32,7 @@ import { AIQualitativeModal } from './components/AIQualitativeModal';
 import { LiveNotificationToast } from './components/LiveNotificationToast';
 import { ThemeSelectorModal } from './components/ThemeSelectorModal';
 import { ThemeQuickToggle } from './components/ThemeQuickToggle';
+import { GrandIntroAnimation } from './components/GrandIntroAnimation';
 import confetti from 'canvas-confetti';
 
 const DEFAULT_INTERVIEWERS: InterviewerUser[] = [
@@ -1147,6 +1148,9 @@ export default function App() {
 
       {/* Global Theme Selector Modal */}
       <ThemeSelectorModal />
+
+      {/* Daily Grand Entrance Animation (Appears once a day per device) */}
+      <GrandIntroAnimation />
     </>
   );
 }

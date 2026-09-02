@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Palette, Moon, Sun } from 'lucide-react';
+import { Palette, Moon, Sun, Sparkles } from 'lucide-react';
 
 interface ThemeQuickToggleProps {
   variant?: 'header' | 'floating' | 'button-only';
@@ -18,8 +18,23 @@ export const ThemeQuickToggle: React.FC<ThemeQuickToggleProps> = ({
     return null;
   }
 
+  const handleReplayIntro = () => {
+    window.dispatchEvent(new CustomEvent('replay_smartlab_intro'));
+  };
+
   return (
     <div className={`flex items-center gap-1 bg-theme-surface/80 border border-theme-main p-1 rounded-2xl backdrop-blur-xs shadow-xs ${className}`}>
+      {/* 1-Click Grand Intro Opening Replay Button */}
+      <button
+        type="button"
+        onClick={handleReplayIntro}
+        className="w-8 h-8 rounded-xl hover:bg-theme-elevated flex items-center justify-center text-amber-400 hover:text-amber-300 transition-all cursor-pointer"
+        title="SANGSAN SMARTLAB 웅장한 오프닝 인트로 재생"
+        aria-label="오프닝 인트로 재생"
+      >
+        <Sparkles className="w-4 h-4 animate-pulse text-amber-400" />
+      </button>
+
       {/* 1-Click Dark/White Mode Toggle (Icon Button) */}
       <button
         type="button"

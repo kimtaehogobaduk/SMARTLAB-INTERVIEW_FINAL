@@ -338,7 +338,7 @@ export const InterviewerChat: React.FC<InterviewerChatProps> = ({
   if (!isOpen) return null;
 
   // Filter online interviewers
-  const activeInterviewers = presences.filter((p) => p.mode !== 'left');
+  const activeInterviewers = (presences || []).filter((p) => p && p.mode !== 'left');
 
   return (
     <div

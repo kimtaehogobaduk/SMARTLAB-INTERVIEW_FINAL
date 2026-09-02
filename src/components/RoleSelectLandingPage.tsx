@@ -102,9 +102,14 @@ export const RoleSelectLandingPage: React.FC<RoleSelectLandingPageProps> = ({
 
         {/* Header Branding */}
         <div className="text-center space-y-3">
-          <div className="inline-flex justify-center mb-1 scale-110">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('replay_smartlab_intro'))}
+            className="inline-flex justify-center mb-1 scale-110 hover:scale-115 transition-transform cursor-pointer"
+            title="클릭하여 SANGSAN SMARTLAB 웅장한 오프닝 인트로 감상하기"
+          >
             <SmartLabLogo size="lg" />
-          </div>
+          </button>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
             <span>SmartLab 2026 통합 면접 평가 & 지원자 시스템</span>
@@ -266,7 +271,17 @@ export const RoleSelectLandingPage: React.FC<RoleSelectLandingPageProps> = ({
 
         {/* Footer info */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-500 gap-2">
-          <span>개설된 면접 평가 방: {roomsCount}개 활성화</span>
+          <div className="flex items-center gap-3">
+            <span>개설된 면접 평가 방: {roomsCount}개 활성화</span>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('replay_smartlab_intro'))}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 font-semibold text-[11px] transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>오프닝 인트로 다시보기</span>
+            </button>
+          </div>
           <span className="font-mono">SmartLab Interview Architecture v2.5</span>
         </div>
 

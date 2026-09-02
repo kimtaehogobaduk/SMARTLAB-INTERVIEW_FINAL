@@ -522,14 +522,16 @@ export const InterviewRoom: React.FC<InterviewRoomProps> = ({
 
     // 2. Add from server live presences
     livePresences.forEach((p) => {
-      const cleanName = formatInterviewerDisplayName(p.interviewerName);
-      if (knownIds.has(p.interviewerId) || knownIds.has(cleanName) || knownIds.has(p.interviewerName)) {
+      if (!p) return;
+      const cleanName = formatInterviewerDisplayName(p.interviewerName || '');
+      if (!p.interviewerId && !cleanName) return;
+      if (knownIds.has(p.interviewerId) || knownIds.has(cleanName) || (p.interviewerName && knownIds.has(p.interviewerName))) {
         return;
       }
-      knownIds.add(p.interviewerId);
-      knownIds.add(cleanName);
+      if (p.interviewerId) knownIds.add(p.interviewerId);
+      if (cleanName) knownIds.add(cleanName);
 
-      let mode: 'evaluating' | 'observing' | 'left' = p.mode;
+      let mode: 'evaluating' | 'observing' | 'left' = p.mode || 'evaluating';
       let label = '나감';
       if (mode === 'evaluating') label = '채점중';
       else if (mode === 'observing') label = '관전중';
