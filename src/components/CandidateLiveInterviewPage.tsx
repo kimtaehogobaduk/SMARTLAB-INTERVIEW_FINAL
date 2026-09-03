@@ -200,6 +200,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
   const {
     isSupported: speechSupported,
     isListening: isMicActive,
+    isSpeaking: isMicSpeaking,
     status: sttStatus,
     interimText,
     audioLevel: micAudioLevel,
@@ -210,7 +211,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
     lang: 'ko-KR',
     continuous: true,
     autoStart: true,
-    onFinalResult: (speechText, confidence) => {
+    onFinalResult: (speechText, confidence, meta) => {
       handleCommitSpeech(speechText, confidence);
     }
   });
@@ -411,6 +412,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                 status={sttStatus}
                 audioLevel={micAudioLevel}
                 isListening={isMicActive}
+                isSpeaking={isMicSpeaking}
                 lang="ko-KR"
               />
             </div>

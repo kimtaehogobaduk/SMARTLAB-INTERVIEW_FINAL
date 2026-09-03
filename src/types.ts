@@ -24,6 +24,9 @@ export interface STTMessage {
   timestamp: string;
   confidence?: number;
   isImportant?: boolean;
+  isBookmarked?: boolean;
+  wordCount?: number;
+  keyEntities?: string[];
 }
 
 export interface EvaluatedCriterionDetail {

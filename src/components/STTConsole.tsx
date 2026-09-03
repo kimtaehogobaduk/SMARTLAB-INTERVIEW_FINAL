@@ -38,13 +38,16 @@ import {
   ArrowRight,
   Filter,
   Globe,
-  AlertCircle
+  AlertCircle,
+  Star,
+  X
 } from 'lucide-react';
 import { QuestionPersonaSelector } from './QuestionPersonaSelector';
 import { QuestionDetailModal } from './QuestionDetailModal';
 import { TTSPlayButton } from './TTSPlayButton';
 import { TTSQuickControl } from './TTSQuickControl';
 import { STTAudioMeter } from './STTAudioMeter';
+import { HighlightableTranscriptText } from './HighlightableTranscriptText';
 import { useSTT } from '../hooks/useSTT';
 import { COLOR_MAP } from '../lib/scoring';
 
@@ -96,6 +99,9 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [transcriptFilter, setTranscriptFilter] = useState<'ALL' | 'candidate' | 'interviewer'>('ALL');
   const [transcriptSearch, setTranscriptSearch] = useState<string>('');
+  const [bookmarkedTranscriptIds, setBookmarkedTranscriptIds] = useState<Set<string>>(new Set());
+  const [showBookmarkedTranscriptsOnly, setShowBookmarkedTranscriptsOnly] = useState<boolean>(false);
+  const [highlightEntities, setHighlightEntities] = useState<boolean>(true);
 
   // Local standard tail questions vs on-demand custom questions (separate states)
   const [localTailQuestions, setLocalTailQuestions] = useState<TailQuestion[]>(initialTailQuestions || []);
@@ -161,6 +167,7 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   const {
     isSupported: isSTTSupported,
     isListening,
+    isSpeaking: isSTTSpeaking,
     status: sttStatus,
     interimText,
     audioLevel: sttAudioLevel,
@@ -172,14 +179,16 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   } = useSTT({
     lang: 'ko-KR',
     continuous: true,
-    onFinalResult: (speechText, confidence) => {
+    autoPunctuation: true,
+    onFinalResult: (speechText, confidence, meta) => {
       if (!speechText.trim()) return;
       const newMsg: STTMessage = {
         id: `stt-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
         speaker,
         text: speechText.trim(),
         timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-        confidence: confidence || 0.95
+        confidence: confidence || 0.95,
+        wordCount: meta?.wordCount
       };
       onSendMessage(newMsg, speaker === 'candidate');
     }
@@ -196,16 +205,40 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     if (e) e.preventDefault();
     if (!inputText.trim()) return;
 
+    const words = inputText.trim().split(/\s+/).filter(Boolean);
     const newMsg: STTMessage = {
       id: `stt-manual-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       speaker,
       text: inputText.trim(),
       timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-      confidence: 1.0
+      confidence: 1.0,
+      wordCount: words.length
     };
 
     onSendMessage(newMsg, speaker === 'candidate');
     setInputText('');
+  };
+
+  const toggleTranscriptBookmark = (id: string) => {
+    setBookmarkedTranscriptIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        showToast('발화 북마크가 해제되었습니다.');
+      } else {
+        next.add(id);
+        showToast('⭐ 중요 발화로 북마크되었습니다.');
+      }
+      return next;
+    });
+  };
+
+  const handleCopyTranscriptItem = (msgText: string, id: string) => {
+    navigator.clipboard.writeText(msgText).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+      showToast('발화 내용이 클립보드에 복사되었습니다.');
+    });
   };
 
   const handleCopyAllTranscripts = () => {
@@ -1118,6 +1151,7 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
                 status={sttStatus}
                 audioLevel={sttAudioLevel}
                 isListening={isListening}
+                isSpeaking={isSTTSpeaking}
                 lang={sttLang}
               />
             </div>
@@ -1193,50 +1227,103 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
             </div>
           )}
 
-          {/* Filter Bar */}
-          <div className="px-3.5 py-1.5 bg-slate-950/60 border-b border-slate-800/70 flex items-center justify-between gap-2 text-[11px]">
-            <div className="flex items-center gap-1">
-              <span className="text-slate-500 font-medium mr-1 flex items-center gap-1">
-                <Filter className="w-3 h-3 text-slate-400" />
-                <span>화자 필터:</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setTranscriptFilter('ALL')}
-                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-                  transcriptFilter === 'ALL'
-                    ? 'bg-slate-800 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                전체 ({transcript.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTranscriptFilter('candidate')}
-                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-                  transcriptFilter === 'candidate'
-                    ? 'bg-sky-950/80 text-sky-300 font-bold border border-sky-600/40'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                지원자 ({transcript.filter(m => m.speaker === 'candidate').length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTranscriptFilter('interviewer')}
-                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-                  transcriptFilter === 'interviewer'
-                    ? 'bg-slate-800 text-slate-200 font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                면접관 ({transcript.filter(m => m.speaker !== 'candidate').length})
-              </button>
+          {/* Search & Filter Toolbar */}
+          <div className="px-3.5 py-1.5 bg-slate-950/70 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            {/* Realtime Search Input */}
+            <div className="relative flex-1 min-w-[180px] max-w-sm">
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={transcriptSearch}
+                onChange={(e) => setTranscriptSearch(e.target.value)}
+                placeholder="대화록 검색 (단어, 수치, 기술명)..."
+                className="w-full bg-slate-900 text-slate-200 text-xs pl-8 pr-16 py-1 rounded-lg border border-slate-800 focus:outline-none focus:border-sky-500"
+              />
+              {transcriptSearch && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <span className="text-[10px] text-amber-400 font-mono">
+                    {transcript.filter(m => m.text.toLowerCase().includes(transcriptSearch.toLowerCase())).length}건
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setTranscriptSearch('')}
+                    className="p-0.5 text-slate-500 hover:text-slate-300 cursor-pointer"
+                    title="검색어 초기화"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="text-[10px] text-slate-500 font-mono">
-              실시간 상태: {isListening ? '수신 중 (Continuous)' : '대기 (Idle)'}
+            {/* Filter Buttons & Toggles */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Speaker Filters */}
+              <div className="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setTranscriptFilter('ALL')}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                    transcriptFilter === 'ALL'
+                      ? 'bg-slate-800 text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  전체 ({transcript.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTranscriptFilter('candidate')}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                    transcriptFilter === 'candidate'
+                      ? 'bg-sky-950 text-sky-300 font-bold border border-sky-600/40'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  지원자 ({transcript.filter(m => m.speaker === 'candidate').length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTranscriptFilter('interviewer')}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                    transcriptFilter === 'interviewer'
+                      ? 'bg-slate-800 text-slate-200 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  면접관 ({transcript.filter(m => m.speaker !== 'candidate').length})
+                </button>
+              </div>
+
+              {/* Bookmark Filter */}
+              <button
+                type="button"
+                onClick={() => setShowBookmarkedTranscriptsOnly(prev => !prev)}
+                className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border ${
+                  showBookmarkedTranscriptsOnly
+                    ? 'bg-amber-950/70 border-amber-500/50 text-amber-300'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+                title="북마크된 중요 발화만 보기"
+              >
+                <Star className={`w-3 h-3 ${showBookmarkedTranscriptsOnly ? 'fill-amber-400 text-amber-400' : 'text-slate-500'}`} />
+                <span>북마크 ({bookmarkedTranscriptIds.size})</span>
+              </button>
+
+              {/* Entity Highlight Toggle */}
+              <button
+                type="button"
+                onClick={() => setHighlightEntities(prev => !prev)}
+                className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border ${
+                  highlightEntities
+                    ? 'bg-indigo-950/70 border-indigo-500/40 text-indigo-300'
+                    : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
+                }`}
+                title="수치, 기술명, 중요 지표 자동 하이라이트"
+              >
+                <Sparkles className="w-3 h-3 text-indigo-400" />
+                <span>키워드 강조 {highlightEntities ? 'ON' : 'OFF'}</span>
+              </button>
             </div>
           </div>
 
@@ -1252,33 +1339,104 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
               </div>
             )}
 
+            {/* Empty search results state */}
+            {transcript.length > 0 &&
+              transcript.filter(m => {
+                if (transcriptFilter !== 'ALL' && m.speaker !== transcriptFilter) return false;
+                if (showBookmarkedTranscriptsOnly && !bookmarkedTranscriptIds.has(m.id)) return false;
+                if (transcriptSearch.trim() && !m.text.toLowerCase().includes(transcriptSearch.toLowerCase())) return false;
+                return true;
+              }).length === 0 && (
+                <div className="py-8 text-center text-slate-500 space-y-2">
+                  <p className="text-xs font-medium">검색 조건과 일치하는 발화가 없습니다.</p>
+                  {(transcriptSearch || showBookmarkedTranscriptsOnly || transcriptFilter !== 'ALL') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTranscriptSearch('');
+                        setShowBookmarkedTranscriptsOnly(false);
+                        setTranscriptFilter('ALL');
+                      }}
+                      className="text-[11px] text-sky-400 hover:underline cursor-pointer"
+                    >
+                      필터 및 검색어 초기화
+                    </button>
+                  )}
+                </div>
+              )}
+
             {transcript
               .filter(m => {
                 if (transcriptFilter !== 'ALL' && m.speaker !== transcriptFilter) return false;
+                if (showBookmarkedTranscriptsOnly && !bookmarkedTranscriptIds.has(m.id)) return false;
                 if (transcriptSearch.trim() && !m.text.toLowerCase().includes(transcriptSearch.toLowerCase())) return false;
                 return true;
               })
               .map((msg) => {
                 const isCandidate = msg.speaker === 'candidate';
+                const isBookmarked = bookmarkedTranscriptIds.has(msg.id);
+                const wordCount = msg.wordCount || msg.text.trim().split(/\s+/).filter(Boolean).length;
+                const confidencePct = msg.confidence ? Math.round(msg.confidence * 100) : null;
+
                 return (
                   <div
                     key={msg.id}
                     className={`p-2.5 rounded-xl transition-all ${
                       isCandidate
                         ? 'bg-slate-800/90 border-l-4 border-sky-400 text-slate-200 shadow-xs'
-                        : 'bg-slate-800/40 border-l-4 border-slate-600 text-slate-400'
-                    }`}
+                        : 'bg-slate-800/40 border-l-4 border-slate-600 text-slate-300'
+                    } ${isBookmarked ? 'ring-1 ring-amber-400/50 bg-amber-950/10' : ''}`}
                   >
                     <div className="flex items-center justify-between text-[10px] mb-1 font-mono">
-                      <span className={`font-bold ${isCandidate ? 'text-sky-300' : 'text-slate-400'}`}>
-                        {isCandidate ? `지원자 (${candidateName})` : '면접관'}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`font-bold ${isCandidate ? 'text-sky-300' : 'text-slate-400'}`}>
+                          {isCandidate ? `지원자 (${candidateName})` : '면접관'}
+                        </span>
+                        {confidencePct !== null && (
+                          <span className="px-1 py-0.2 bg-slate-900 text-slate-400 rounded text-[9px]">
+                            신뢰도 {confidencePct}%
+                          </span>
+                        )}
+                        <span className="px-1 py-0.2 bg-slate-900 text-slate-500 rounded text-[9px]">
+                          {wordCount}단어
+                        </span>
+                      </div>
                       <div className="flex items-center gap-1.5">
+                        {/* Bookmark Button */}
+                        <button
+                          type="button"
+                          onClick={() => toggleTranscriptBookmark(msg.id)}
+                          className={`p-0.5 rounded hover:bg-slate-700 transition-colors cursor-pointer ${
+                            isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                          title={isBookmarked ? '북마크 해제' : '중요 발언 북마크'}
+                        >
+                          <Star className={`w-3 h-3 ${isBookmarked ? 'fill-amber-400' : ''}`} />
+                        </button>
+                        {/* Copy Single Message */}
+                        <button
+                          type="button"
+                          onClick={() => handleCopyTranscriptItem(msg.text, msg.id)}
+                          className="p-0.5 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer"
+                          title="발화 복사"
+                        >
+                          {copiedId === msg.id ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
                         <TTSPlayButton text={msg.text} size="sm" />
                         <span className="text-slate-500 text-[9px]">{msg.timestamp}</span>
                       </div>
                     </div>
-                    <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                    <div className="text-xs leading-relaxed">
+                      <HighlightableTranscriptText
+                        text={msg.text}
+                        searchQuery={transcriptSearch}
+                        highlightEntities={highlightEntities}
+                      />
+                    </div>
                   </div>
                 );
               })}

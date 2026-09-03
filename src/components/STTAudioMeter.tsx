@@ -6,6 +6,7 @@ interface STTAudioMeterProps {
   status: STTStatus;
   audioLevel: number;
   isListening: boolean;
+  isSpeaking?: boolean;
   lang?: string;
   className?: string;
 }
@@ -14,6 +15,7 @@ export const STTAudioMeter: React.FC<STTAudioMeterProps> = ({
   status,
   audioLevel,
   isListening,
+  isSpeaking = false,
   lang = 'ko-KR',
   className = ''
 }) => {
@@ -30,12 +32,18 @@ export const STTAudioMeter: React.FC<STTAudioMeterProps> = ({
     <div className={`flex items-center gap-2 select-none ${className}`}>
       {/* Live Equalizer Bars */}
       {isListening ? (
-        <div className="flex items-center gap-0.5 h-4 px-1.5 py-0.5 bg-emerald-950/60 border border-emerald-500/40 rounded-lg shadow-xs">
+        <div className={`flex items-center gap-0.5 h-4 px-1.5 py-0.5 rounded-lg shadow-xs transition-colors ${
+          isSpeaking
+            ? 'bg-emerald-950/80 border border-emerald-400/60'
+            : 'bg-emerald-950/40 border border-emerald-500/30'
+        }`}>
           {barHeights.map((h, idx) => (
             <span
               key={idx}
               style={{ height: `${h}%` }}
-              className="w-1 bg-emerald-400 rounded-full transition-all duration-75"
+              className={`w-1 rounded-full transition-all duration-75 ${
+                isSpeaking ? 'bg-emerald-300' : 'bg-emerald-500/70'
+              }`}
             />
           ))}
         </div>
@@ -49,9 +57,13 @@ export const STTAudioMeter: React.FC<STTAudioMeterProps> = ({
 
       {/* Status Badge */}
       {status === 'listening' && (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-500/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-          <span>실시간 인식 중 ({audioLevel}%)</span>
+        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${
+          isSpeaking
+            ? 'text-emerald-200 bg-emerald-900/60 border-emerald-400/50 shadow-xs'
+            : 'text-emerald-300 bg-emerald-950/50 border-emerald-500/30'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isSpeaking ? 'bg-emerald-300 animate-ping' : 'bg-emerald-500'}`} />
+          <span>{isSpeaking ? `음성 감지 (${audioLevel}%)` : `수신 대기 (${audioLevel}%)`}</span>
         </span>
       )}
 

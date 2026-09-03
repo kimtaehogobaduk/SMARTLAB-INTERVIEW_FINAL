@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { STTEngine, STTStatus } from '../lib/stt';
+import { STTEngine, STTStatus, STTResultMeta } from '../lib/stt';
 
 export interface UseSTTOptions {
   lang?: string;
   continuous?: boolean;
   autoStart?: boolean;
-  onFinalResult?: (text: string, confidence: number) => void;
+  autoPunctuation?: boolean;
+  onFinalResult?: (text: string, confidence: number, meta?: STTResultMeta) => void;
 }
 
 export interface UseSTTReturn {
   isSupported: boolean;
   isListening: boolean;
+  isSpeaking: boolean;
   status: STTStatus;
   interimText: string;
   audioLevel: number;
@@ -29,6 +31,7 @@ export function useSTT(options?: UseSTTOptions): UseSTTReturn {
   const [status, setStatus] = useState<STTStatus>('idle');
   const [interimText, setInterimText] = useState<string>('');
   const [audioLevel, setAudioLevel] = useState<number>(0);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const engineRef = useRef<STTEngine | null>(null);
@@ -42,8 +45,9 @@ export function useSTT(options?: UseSTTOptions): UseSTTReturn {
     const engine = new STTEngine({
       lang,
       continuous: options?.continuous ?? true,
-      onFinalResult: (text, confidence) => {
-        onFinalResultRef.current?.(text, confidence);
+      autoPunctuation: options?.autoPunctuation ?? true,
+      onFinalResult: (text, confidence, meta) => {
+        onFinalResultRef.current?.(text, confidence, meta);
       },
       onInterimResult: (interim) => {
         setInterimText(interim);
@@ -59,6 +63,9 @@ export function useSTT(options?: UseSTTOptions): UseSTTReturn {
       },
       onAudioLevelChange: (level) => {
         setAudioLevel(level);
+      },
+      onVoiceActivityChange: (speaking) => {
+        setIsSpeaking(speaking);
       }
     });
 
@@ -76,7 +83,7 @@ export function useSTT(options?: UseSTTOptions): UseSTTReturn {
       engine.destroy();
       engineRef.current = null;
     };
-  }, [lang, options?.continuous]);
+  }, [lang, options?.continuous, options?.autoPunctuation]);
 
   const start = useCallback(async () => {
     if (!engineRef.current) return false;
@@ -109,6 +116,7 @@ export function useSTT(options?: UseSTTOptions): UseSTTReturn {
   return {
     isSupported,
     isListening,
+    isSpeaking,
     status,
     interimText,
     audioLevel,
