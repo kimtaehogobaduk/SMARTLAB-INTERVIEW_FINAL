@@ -1,229 +1,240 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Shuffle } from 'lucide-react';
-import { SmartLabLogo } from './SmartLabLogo';
+import { ChevronRight } from 'lucide-react';
 
-export type IntroTheme = 'pixar_lamp' | 'classic_slot';
+export type IntroTheme = 'smartlab_robot';
 
 export const INTRO_THEMES: { id: IntroTheme; name: string; desc: string }[] = [
-  { id: 'pixar_lamp', name: 'Pixar 스타일 램프 점핑', desc: '스마트랩 램프가 통통 뛰어와 글자를 쿵 밟고 카메라를 응시하는 연출' },
-  { id: 'classic_slot', name: '클래식 슬롯머신 (777 잭팟)', desc: '실제 카지노 3릴 슬롯머신이 고속 회전 후 7-7-7 잭팟이 터지는 연출' },
+  {
+    id: 'smartlab_robot',
+    name: '스마트랩 로봇 오프닝',
+    desc: '귀여운 화이트 로봇이 달려와 SMARTLAB 글자에 쿵 착지하며 눈웃음 짓는 시네마틱 오프닝'
+  },
 ];
 
-const SANGSAN_CHARS = ['S', 'a', 'n', 'g', 's', 'a', 'n'];
-const SMARTLAB_CHARS = ['s', 'm', 'a', 'r', 't', 'l', 'a', 'b'];
+// IndexedDB Helper for persistent offline video storage
+const IDB_NAME = 'smartlab_media_db';
+const IDB_STORE = 'videos';
+const INTRO_VIDEO_KEY = 'kling_intro_video';
+
+async function getStoredVideo(): Promise<string | null> {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(IDB_NAME, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const store = tx.objectStore(IDB_STORE);
+        const getReq = store.get(INTRO_VIDEO_KEY);
+        getReq.onsuccess = () => {
+          if (getReq.result instanceof Blob) {
+            resolve(URL.createObjectURL(getReq.result));
+          } else {
+            resolve(null);
+          }
+        };
+        getReq.onerror = () => resolve(null);
+      };
+      request.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
 
 // ============================================================================
-// AUTHENTIC CASINO SLOT SYMBOL COMPONENTS (Exact Match with Reference Video)
+// AUTHENTIC SMARTLAB 3D ROBOT SVG RIG (Accurate Replica of the Video Animation)
 // ============================================================================
 
-// 1. Golden Lucky 7 with Marquee Dot Lights
-const LuckySevenSymbol: React.FC<{ isJackpot?: boolean }> = ({ isJackpot = false }) => (
-  <div className="relative w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center">
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-      <defs>
-        <linearGradient id="gold7Grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="35%" stopColor="#eab308" />
-          <stop offset="70%" stopColor="#ca8a04" />
-          <stop offset="100%" stopColor="#854d0e" />
-        </linearGradient>
-        <linearGradient id="goldBevel" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#713f12" stopOpacity="0.8" />
-        </linearGradient>
-      </defs>
+interface RobotRigProps {
+  step: number; // 0: enter, 1: run1, 2: run2, 3: jump high, 4: land squat, 5: sit & look, 6: smile & wave
+  isSpotlightOn: boolean;
+}
 
-      {/* 3D Drop Shadow Extrusion */}
-      <path
-        d="M 18 26 L 82 26 L 52 88 L 36 88 L 60 38 L 18 38 Z"
-        fill="#581c87"
-        opacity="0.3"
-        transform="translate(4, 4)"
+const SmartLabCuteRobot: React.FC<RobotRigProps> = ({ step, isSpotlightOn }) => {
+  const isJumping = step === 3;
+  const isLanded = step >= 4;
+  const isSmiling = step >= 5;
+
+  return (
+    <div className="relative flex flex-col items-center justify-end select-none pointer-events-none">
+      {/* Ground Shadow underneath Robot */}
+      <motion.div
+        animate={{
+          scaleX: isJumping ? 0.3 : isLanded ? 1.4 : 1,
+          scaleY: isJumping ? 0.2 : isLanded ? 1.3 : 1,
+          opacity: isJumping ? 0.2 : isLanded ? 0.85 : 0.6
+        }}
+        transition={{ duration: 0.25 }}
+        className="absolute -bottom-2 w-28 h-6 bg-black/80 rounded-full blur-[4px]"
       />
 
-      {/* 7 Main 3D Body */}
-      <path
-        d="M 18 20 L 82 20 L 52 86 L 36 86 L 60 34 L 18 34 Z"
-        fill="url(#gold7Grad)"
-        stroke="#ca8a04"
-        strokeWidth="1.5"
-      />
+      {/* 3D Cute White Robot Body */}
+      <svg
+        viewBox="0 0 160 200"
+        className="w-28 sm:w-36 md:w-40 h-36 sm:h-44 md:h-52 drop-shadow-[0_12px_24px_rgba(0,0,0,0.7)] overflow-visible"
+      >
+        <defs>
+          {/* Smooth White Glossy Ceramic/Plastic Gradient */}
+          <radialGradient id="robotWhiteGlow" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="60%" stopColor="#f1f5f9" />
+            <stop offset="85%" stopColor="#cbd5e1" />
+            <stop offset="100%" stopColor="#94a3b8" />
+          </radialGradient>
 
-      {/* Inner Bevel Contour */}
-      <path
-        d="M 22 23 L 78 23 L 50 82 L 40 82 L 62 31 L 22 31 Z"
-        fill="none"
-        stroke="url(#goldBevel)"
-        strokeWidth="1.5"
-      />
+          {/* Dark Glass Visor Screen */}
+          <linearGradient id="robotVisor" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="50%" stopColor="#1e293b" />
+            <stop offset="100%" stopColor="#020617" />
+          </linearGradient>
 
-      {/* Retro Marquee Cyan/Blue Light Bulb Dots */}
-      <circle cx="28" cy="27" r="3.2" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" className={isJackpot ? 'animate-pulse' : ''} />
-      <circle cx="42" cy="27" r="3.2" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" className={isJackpot ? 'animate-pulse' : ''} />
-      <circle cx="56" cy="27" r="3.2" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" className={isJackpot ? 'animate-pulse' : ''} />
-      <circle cx="70" cy="27" r="3.2" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" className={isJackpot ? 'animate-pulse' : ''} />
+          {/* Glowing Cyan Blue Digital Eye */}
+          <radialGradient id="cyanEyeGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="40%" stopColor="#38bdf8" />
+            <stop offset="80%" stopColor="#0284c7" />
+            <stop offset="100%" stopColor="#0369a1" />
+          </radialGradient>
 
-      <circle cx="58" cy="42" r="3" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" />
-      <circle cx="51" cy="54" r="3" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" />
-      <circle cx="45" cy="66" r="3" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" />
-      <circle cx="40" cy="78" r="3" fill="#38bdf8" stroke="#0284c7" strokeWidth="0.8" />
-    </svg>
-  </div>
-);
+          {/* Metallic Joint Accent */}
+          <linearGradient id="metalJoint" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#cbd5e1" />
+            <stop offset="50%" stopColor="#64748b" />
+            <stop offset="100%" stopColor="#334155" />
+          </linearGradient>
+        </defs>
 
-// 2. Juicy Glossy Cherries
-const CherriesSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center">
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]">
-      {/* Green Stem */}
-      <path
-        d="M 52 18 C 50 36 34 46 32 64 M 52 18 C 58 36 70 46 68 62"
-        fill="none"
-        stroke="#15803d"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* Stem Leaf */}
-      <path
-        d="M 52 18 C 65 14 74 20 70 28 C 62 26 56 22 52 18 Z"
-        fill="#22c55e"
-        stroke="#15803d"
-        strokeWidth="1.2"
-      />
-      {/* Cherry 1 (Left) */}
-      <circle cx="32" cy="68" r="16" fill="url(#cherryGrad1)" />
-      <ellipse cx="28" cy="63" rx="4" ry="2.5" fill="#ffffff" opacity="0.6" transform="rotate(-30 28 63)" />
-      {/* Cherry 2 (Right) */}
-      <circle cx="68" cy="66" r="16" fill="url(#cherryGrad2)" />
-      <ellipse cx="64" cy="61" rx="4" ry="2.5" fill="#ffffff" opacity="0.6" transform="rotate(-30 64 61)" />
+        {/* 1. Cute Stubby Legs */}
+        {isLanded ? (
+          // Sitting Legs (Splayed flat forward like in the reference video)
+          <g id="sitting-legs">
+            <ellipse cx="56" cy="180" rx="16" ry="7" fill="url(#robotWhiteGlow)" stroke="#94a3b8" strokeWidth="1" />
+            <ellipse cx="104" cy="180" rx="16" ry="7" fill="url(#robotWhiteGlow)" stroke="#94a3b8" strokeWidth="1" />
+            <circle cx="50" cy="180" r="4" fill="#64748b" />
+            <circle cx="110" cy="180" r="4" fill="#64748b" />
+          </g>
+        ) : (
+          // Running / Jumping Legs
+          <g id="standing-legs">
+            <ellipse
+              cx="64"
+              cy={isJumping ? 172 : 182}
+              rx="8"
+              ry="12"
+              fill="url(#robotWhiteGlow)"
+              stroke="#94a3b8"
+              strokeWidth="1"
+              transform={isJumping ? 'rotate(-25 64 172)' : 'rotate(10 64 182)'}
+            />
+            <ellipse
+              cx="96"
+              cy={isJumping ? 172 : 182}
+              rx="8"
+              ry="12"
+              fill="url(#robotWhiteGlow)"
+              stroke="#94a3b8"
+              strokeWidth="1"
+              transform={isJumping ? 'rotate(25 96 172)' : 'rotate(-10 96 182)'}
+            />
+          </g>
+        )}
 
-      <defs>
-        <radialGradient id="cherryGrad1" cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#f87171" />
-          <stop offset="40%" stopColor="#dc2626" />
-          <stop offset="100%" stopColor="#7f1d1d" />
-        </radialGradient>
-        <radialGradient id="cherryGrad2" cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#f87171" />
-          <stop offset="40%" stopColor="#dc2626" />
-          <stop offset="100%" stopColor="#7f1d1d" />
-        </radialGradient>
-      </defs>
-    </svg>
-  </div>
-);
+        {/* 2. Round White Pear-Shaped Body */}
+        <g id="robot-body">
+          <ellipse
+            cx="80"
+            cy={isLanded ? 152 : 144}
+            rx={isLanded ? 28 : 25}
+            ry={isLanded ? 22 : 25}
+            fill="url(#robotWhiteGlow)"
+            stroke="#94a3b8"
+            strokeWidth="1.2"
+          />
+          {/* Belly SmartLab Blue Core Accent */}
+          <circle
+            cx="80"
+            cy={isLanded ? 152 : 144}
+            r="5"
+            fill={isSmiling ? '#38bdf8' : '#64748b'}
+            stroke="#0284c7"
+            strokeWidth="1"
+            className={isSmiling ? 'animate-pulse' : ''}
+          />
+        </g>
 
-// 3. Striped Watermelon Slice
-const WatermelonSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center">
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]">
-      {/* Outer Rind */}
-      <path d="M 15 50 A 35 35 0 0 0 85 50 Z" fill="#15803d" stroke="#166534" strokeWidth="2" />
-      {/* White Pith */}
-      <path d="M 19 50 A 31 31 0 0 0 81 50 Z" fill="#bbf7d0" />
-      {/* Red Flesh */}
-      <path d="M 23 50 A 27 27 0 0 0 77 50 Z" fill="#ef4444" />
-      {/* Rind Stripes */}
-      <path d="M 24 64 Q 28 58 32 68" stroke="#14532d" strokeWidth="2.5" fill="none" />
-      <path d="M 45 74 Q 50 66 55 74" stroke="#14532d" strokeWidth="2.5" fill="none" />
-      <path d="M 68 64 Q 72 58 76 68" stroke="#14532d" strokeWidth="2.5" fill="none" />
-      {/* Black Seeds */}
-      <circle cx="36" cy="56" r="1.8" fill="#18181b" />
-      <circle cx="50" cy="60" r="1.8" fill="#18181b" />
-      <circle cx="64" cy="56" r="1.8" fill="#18181b" />
-      <circle cx="43" cy="54" r="1.5" fill="#18181b" />
-      <circle cx="57" cy="54" r="1.5" fill="#18181b" />
-    </svg>
-  </div>
-);
+        {/* 3. Articulated Arms */}
+        {isJumping ? (
+          // Jumping Arms (Hooray! Raised High in the Air)
+          <g id="arms-hooray">
+            <path d="M 58 135 Q 38 100 32 75" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="9" strokeLinecap="round" />
+            <circle cx="30" cy="73" r="6" fill="url(#robotWhiteGlow)" />
+            <path d="M 102 135 Q 122 100 128 75" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="9" strokeLinecap="round" />
+            <circle cx="130" cy="73" r="6" fill="url(#robotWhiteGlow)" />
+          </g>
+        ) : isSmiling ? (
+          // Waving Arms (Friendly Wave from Sitting Position)
+          <g id="arms-wave">
+            {/* Left Arm resting */}
+            <path d="M 56 142 Q 36 138 28 126" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="27" cy="124" r="5.5" fill="url(#robotWhiteGlow)" />
+            {/* Right Arm up and waving */}
+            <path d="M 104 142 Q 128 132 136 110" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="137" cy="108" r="5.5" fill="url(#robotWhiteGlow)" />
+          </g>
+        ) : (
+          // Running Arms
+          <g id="arms-running">
+            <path d="M 56 140 Q 42 145 38 155" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="37" cy="156" r="5" fill="url(#robotWhiteGlow)" />
+            <path d="M 104 140 Q 118 145 124 135" fill="none" stroke="url(#robotWhiteGlow)" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="125" cy="133" r="5" fill="url(#robotWhiteGlow)" />
+          </g>
+        )}
 
-// 4. Sparkling Diamond Gem
-const DiamondSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center">
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]">
-      <defs>
-        <linearGradient id="diamGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#e0f2fe" />
-          <stop offset="100%" stopColor="#38bdf8" />
-        </linearGradient>
-        <linearGradient id="diamGradBot" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0284c7" />
-          <stop offset="100%" stopColor="#0369a1" />
-        </linearGradient>
-      </defs>
-      {/* Top Facets */}
-      <polygon points="30,30 70,30 84,48 16,48" fill="url(#diamGradTop)" stroke="#bae6fd" strokeWidth="1.2" />
-      <polygon points="30,30 50,48 70,30" fill="#bae6fd" opacity="0.7" />
-      <polygon points="16,48 30,30 50,48" fill="#7dd3fc" opacity="0.6" />
-      <polygon points="84,48 70,30 50,48" fill="#38bdf8" opacity="0.8" />
-      {/* Bottom Facets */}
-      <polygon points="16,48 84,48 50,82" fill="url(#diamGradBot)" stroke="#0284c7" strokeWidth="1.2" />
-      <polygon points="16,48 50,48 50,82" fill="#0ea5e9" opacity="0.85" />
-      <polygon points="84,48 50,48 50,82" fill="#0284c7" opacity="0.95" />
-      {/* Glint */}
-      <circle cx="34" cy="36" r="2.5" fill="#ffffff" />
-    </svg>
-  </div>
-);
+        {/* 4. Round Cute Head (Big Helmet Shape) */}
+        <g id="robot-head" transform={isLanded ? 'translate(0, 10)' : 'translate(0, 0)'}>
+          {/* Head Dome */}
+          <ellipse cx="80" cy="78" rx="44" ry="38" fill="url(#robotWhiteGlow)" stroke="#94a3b8" strokeWidth="1.5" />
 
-// 5. Fresh Citrus Lemon
-const LemonSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center">
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]">
-      {/* Leaf */}
-      <path d="M 62 32 C 76 22 84 28 80 38 C 72 38 66 35 62 32 Z" fill="#22c55e" stroke="#15803d" strokeWidth="1" />
-      {/* Lemon Body */}
-      <ellipse cx="48" cy="54" rx="28" ry="22" fill="url(#lemonGrad)" stroke="#eab308" strokeWidth="1.5" transform="rotate(-15 48 54)" />
-      {/* Tips */}
-      <circle cx="22" cy="62" r="3" fill="#facc15" />
-      <circle cx="74" cy="46" r="3" fill="#facc15" />
-      {/* Highlight */}
-      <ellipse cx="45" cy="48" rx="14" ry="7" fill="#ffffff" opacity="0.4" transform="rotate(-15 45 48)" />
+          {/* Cute Ear Disc Accents */}
+          <ellipse cx="36" cy="78" rx="4" ry="10" fill="url(#metalJoint)" stroke="#1e293b" strokeWidth="0.8" />
+          <ellipse cx="124" cy="78" rx="4" ry="10" fill="url(#metalJoint)" stroke="#1e293b" strokeWidth="0.8" />
 
-      <defs>
-        <radialGradient id="lemonGrad" cx="40%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="60%" stopColor="#facc15" />
-          <stop offset="100%" stopColor="#ca8a04" />
-        </radialGradient>
-      </defs>
-    </svg>
-  </div>
-);
+          {/* Black Glass Screen Visor Face */}
+          <ellipse cx="80" cy="80" rx="34" ry="24" fill="url(#robotVisor)" stroke="#334155" strokeWidth="1.2" />
 
-// 6. Orange 10 Symbol
-const TenSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center">
-    <span className="font-black text-3xl sm:text-4xl font-mono text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-orange-500 to-red-600 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] tracking-tight">
-      10
-    </span>
-  </div>
-);
+          {/* Visor Glass Highlight Reflection */}
+          <path d="M 54 68 Q 80 62 106 68" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity="0.3" strokeLinecap="round" />
 
-// 7. Triple BAR Symbol
-const BarSymbol: React.FC = () => (
-  <div className="relative w-14 sm:w-16 h-14 sm:h-16 flex flex-col items-center justify-center gap-1">
-    <div className="w-12 h-3.5 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 rounded border border-amber-600 flex items-center justify-center shadow-xs">
-      <span className="text-[8px] font-black text-amber-950 font-mono tracking-widest">BAR</span>
+          {/* Cute Digital Eyes on Visor */}
+          {isSmiling ? (
+            // Curved Half-Moon Smiling Eyes (^ _ ^) exactly like in video!
+            <g id="smiling-eyes" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" fill="none">
+              <path d="M 60 84 Q 68 74 76 84" filter="drop-shadow(0 0 6px #38bdf8)" />
+              <path d="M 84 84 Q 92 74 100 84" filter="drop-shadow(0 0 6px #38bdf8)" />
+            </g>
+          ) : (
+            // Round Curious Wide Eyes
+            <g id="curious-eyes">
+              <circle cx="68" cy="80" r="6.5" fill="url(#cyanEyeGlow)" filter="drop-shadow(0 0 5px #38bdf8)" />
+              <circle cx="66" cy="78" r="2.2" fill="#ffffff" />
+              <circle cx="92" cy="80" r="6.5" fill="url(#cyanEyeGlow)" filter="drop-shadow(0 0 5px #38bdf8)" />
+              <circle cx="90" cy="78" r="2.2" fill="#ffffff" />
+            </g>
+          )}
+        </g>
+      </svg>
     </div>
-    <div className="w-12 h-3.5 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 rounded border border-amber-600 flex items-center justify-center shadow-xs">
-      <span className="text-[8px] font-black text-amber-950 font-mono tracking-widest">BAR</span>
-    </div>
-  </div>
-);
-
-// Full Reel Strip Array used during rotation
-const REEL_STRIP = [
-  { id: 'lemon', component: <LemonSymbol /> },
-  { id: 'seven', component: <LuckySevenSymbol isJackpot /> },
-  { id: 'cherry', component: <CherriesSymbol /> },
-  { id: 'ten', component: <TenSymbol /> },
-  { id: 'watermelon', component: <WatermelonSymbol /> },
-  { id: 'diamond', component: <DiamondSymbol /> },
-  { id: 'bar', component: <BarSymbol /> },
-  { id: 'seven2', component: <LuckySevenSymbol isJackpot /> },
-];
+  );
+};
 
 interface GrandIntroAnimationProps {
   onComplete?: () => void;
@@ -235,69 +246,112 @@ export const GrandIntroAnimation: React.FC<GrandIntroAnimationProps> = ({
   forceShow = false
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [currentTheme, setCurrentTheme] = useState<IntroTheme>('classic_slot');
   const [animStage, setAnimStage] = useState<'intro' | 'action' | 'climax' | 'exit'>('intro');
-  const [lampHopStep, setLampHopStep] = useState<number>(0);
-  const [reelStopState, setReelStopState] = useState<[boolean, boolean, boolean]>([false, false, false]);
+  const [robotStep, setRobotStep] = useState<number>(0);
+  const [isSpotlightOn, setIsSpotlightOn] = useState<boolean>(false);
+  const [isScreensaverMode, setIsScreensaverMode] = useState<boolean>(false);
 
-  const pickRandomTheme = (): IntroTheme => {
-    return Math.random() > 0.5 ? 'pixar_lamp' : 'classic_slot';
+  // Video State & Source
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const activeTimersRef = useRef<NodeJS.Timeout[]>([]);
+  const lastActivityRef = useRef<number>(Date.now());
+  const isVisibleRef = useRef<boolean>(false);
+  isVisibleRef.current = isVisible;
+
+  // Clear all running animation timeouts safely
+  const clearAnimationTimers = () => {
+    activeTimersRef.current.forEach((t) => clearTimeout(t));
+    activeTimersRef.current = [];
   };
 
-  const runIntro = (themeToRun?: IntroTheme) => {
-    const selected = themeToRun || pickRandomTheme();
-    setCurrentTheme(selected);
-    setIsVisible(true);
+  // Check for uploaded video from IndexedDB or Server /assets/intro.mp4
+  const checkVideoSource = async (): Promise<string | null> => {
+    const localBlobUrl = await getStoredVideo();
+    if (localBlobUrl) return localBlobUrl;
+
+    try {
+      const res = await fetch('/api/intro-video/status');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.exists && data.url) {
+          return data.url;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  };
+
+  const startAnimationCycle = (isScreensaver: boolean) => {
+    clearAnimationTimers();
     setAnimStage('intro');
-    setLampHopStep(0);
-    setReelStopState([false, false, false]);
+    setRobotStep(0);
+    setIsSpotlightOn(false);
 
     const timers: NodeJS.Timeout[] = [];
+    timers.push(setTimeout(() => setAnimStage('action'), 300));
+    timers.push(setTimeout(() => setRobotStep(1), 600));
+    timers.push(setTimeout(() => setRobotStep(2), 1100));
+    timers.push(setTimeout(() => setRobotStep(3), 1600));
+    timers.push(setTimeout(() => setRobotStep(4), 2300));
+    timers.push(setTimeout(() => {
+      setRobotStep(5);
+      setIsSpotlightOn(true);
+    }, 2800));
+    timers.push(setTimeout(() => {
+      setRobotStep(6);
+      setAnimStage('climax');
+    }, 3300));
 
-    if (selected === 'pixar_lamp') {
-      timers.push(setTimeout(() => setAnimStage('action'), 500));
-      timers.push(setTimeout(() => setLampHopStep(1), 800));
-      timers.push(setTimeout(() => setLampHopStep(2), 1200));
-      timers.push(setTimeout(() => setLampHopStep(3), 1600));
-      timers.push(setTimeout(() => setLampHopStep(4), 2000));
+    // If not in persistent screensaver mode, automatically exit after animation
+    if (!isScreensaver) {
       timers.push(setTimeout(() => {
-        setAnimStage('climax');
-        setLampHopStep(5);
-      }, 2500));
-      timers.push(setTimeout(() => setAnimStage('exit'), 4300));
-      timers.push(setTimeout(() => {
-        setIsVisible(false);
-        if (onComplete) onComplete();
-      }, 4900));
-    } else {
-      // Classic Casino Slot Reel sequence:
-      // 0.3s: Cabinet and reels start rolling with blur
-      // 1.3s: Reel 1 stops on 7!
-      // 1.9s: Reel 2 stops on 7! (Reach tension)
-      // 2.7s: Reel 3 stops on 7! -> 7-7-7 Triple Jackpot!
-      // 2.9s: Climax burst + Coin shower + typography reveal
-      // 4.6s: Smooth exit
-      timers.push(setTimeout(() => setAnimStage('action'), 300));
-      timers.push(setTimeout(() => setReelStopState([true, false, false]), 1300));
-      timers.push(setTimeout(() => setReelStopState([true, true, false]), 1900));
-      timers.push(setTimeout(() => {
-        setReelStopState([true, true, true]);
-        setAnimStage('climax');
-      }, 2700));
-      timers.push(setTimeout(() => setAnimStage('exit'), 4600));
-      timers.push(setTimeout(() => {
-        setIsVisible(false);
-        if (onComplete) onComplete();
-      }, 5200));
+        handleDismiss();
+      }, 5800));
     }
 
-    return () => {
-      timers.forEach(t => clearTimeout(t));
-    };
+    activeTimersRef.current = timers;
   };
 
+  const runIntro = async (isScreensaver: boolean = false) => {
+    setIsScreensaverMode(isScreensaver);
+    setIsVisible(true);
+
+    const activeVideo = await checkVideoSource();
+    if (activeVideo) {
+      setVideoSrc(activeVideo);
+      setIsVideoPlaying(true);
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(() => {});
+      }
+      return;
+    }
+
+    setIsVideoPlaying(false);
+    startAnimationCycle(isScreensaver);
+  };
+
+  // Dismiss intro/screensaver instantly on touch or click
+  const handleDismiss = (e?: React.SyntheticEvent | Event) => {
+    if (e && 'stopPropagation' in e) {
+      e.stopPropagation();
+    }
+    clearAnimationTimers();
+    setAnimStage('exit');
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsScreensaverMode(false);
+      lastActivityRef.current = Date.now();
+      if (onComplete) onComplete();
+    }, 150);
+  };
+
+  // 1. Daily intro & Replay event listener
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
     try {
       const today = new Date().toISOString().slice(0, 10);
       const lastSeen = localStorage.getItem('smartlab_intro_last_date');
@@ -307,391 +361,304 @@ export const GrandIntroAnimation: React.FC<GrandIntroAnimationProps> = ({
         if (onComplete) onComplete();
       } else {
         localStorage.setItem('smartlab_intro_last_date', today);
-        cleanup = runIntro();
+        runIntro(false);
       }
     } catch {
-      cleanup = runIntro();
+      runIntro(false);
     }
 
-    const handleReplay = (e: Event) => {
-      const customEvent = e as CustomEvent<{ theme?: IntroTheme }>;
-      if (cleanup) cleanup();
-      cleanup = runIntro(customEvent.detail?.theme);
+    const handleReplay = () => {
+      runIntro(false);
     };
 
     window.addEventListener('replay_smartlab_intro', handleReplay as EventListener);
 
     return () => {
-      if (cleanup) cleanup();
+      clearAnimationTimers();
       window.removeEventListener('replay_smartlab_intro', handleReplay as EventListener);
     };
   }, [forceShow, onComplete]);
 
-  const handleSkip = () => {
-    setAnimStage('exit');
-    setTimeout(() => {
-      setIsVisible(false);
-      if (onComplete) onComplete();
-    }, 250);
-  };
+  // 2. Idle Screensaver Engine (Default: 3 minutes, fully controllable via settings)
+  useEffect(() => {
+    const getIdleMinutes = (): number => {
+      try {
+        const saved = localStorage.getItem('smartlab_screensaver_idle_minutes');
+        if (saved !== null) {
+          const parsed = parseInt(saved, 10);
+          return isNaN(parsed) ? 3 : parsed;
+        }
+      } catch {
+        // fallback
+      }
+      return 3; // Default: 3 minutes
+    };
 
-  const handleToggleTheme = () => {
-    const nextTheme = currentTheme === 'pixar_lamp' ? 'classic_slot' : 'pixar_lamp';
-    runIntro(nextTheme);
+    let idleMinutes = getIdleMinutes();
+
+    const resetActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+
+    // User activity listeners across all input methods
+    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'wheel', 'pointerdown'];
+    activityEvents.forEach((evt) => {
+      window.addEventListener(evt, resetActivity, { passive: true });
+    });
+
+    // Check idle time every 2 seconds
+    const intervalId = setInterval(() => {
+      if (isVisibleRef.current) return; // Already showing
+      if (idleMinutes <= 0) return; // 0 means disabled / off
+
+      const idleDurationMs = Date.now() - lastActivityRef.current;
+      const thresholdMs = idleMinutes * 60 * 1000;
+
+      if (idleDurationMs >= thresholdMs) {
+        runIntro(true); // Launch as screensaver
+      }
+    }, 2000);
+
+    // Dynamic config change listener from ThemeSelectorModal
+    const handleConfigChange = () => {
+      idleMinutes = getIdleMinutes();
+      lastActivityRef.current = Date.now();
+    };
+    window.addEventListener('smartlab_screensaver_config_changed', handleConfigChange);
+
+    return () => {
+      clearInterval(intervalId);
+      activityEvents.forEach((evt) => {
+        window.removeEventListener(evt, resetActivity);
+      });
+      window.removeEventListener('smartlab_screensaver_config_changed', handleConfigChange);
+    };
+  }, []);
+
+  // Global Dismiss Handler: Any touch, click, pointer, or key press immediately returns to the main app
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const onGlobalDismiss = (e: Event) => {
+      handleDismiss(e);
+    };
+
+    const dismissEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+    dismissEvents.forEach((evt) => {
+      window.addEventListener(evt, onGlobalDismiss, { capture: true });
+    });
+
+    return () => {
+      dismissEvents.forEach((evt) => {
+        window.removeEventListener(evt, onGlobalDismiss, { capture: true });
+      });
+    };
+  }, [isVisible]);
+
+  // Video End Handler: If in screensaver mode, loop smoothly; otherwise close
+  const handleVideoEnded = () => {
+    if (isScreensaverMode) {
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(() => {});
+      }
+    } else {
+      handleDismiss();
+    }
   };
 
   return (
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          key="smartlab-grand-intro-refined"
+          key="smartlab-grand-intro-robot"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.05, filter: 'blur(12px)' }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#020617] text-white overflow-hidden select-none pointer-events-auto"
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          onClick={handleDismiss}
+          onTouchStart={handleDismiss}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#070503] text-white overflow-hidden select-none cursor-pointer"
+          title="화면을 터치하거나 클릭하면 원래 화면으로 돌아갑니다"
         >
-          {/* Top Controls: Mode Switcher & Skip */}
-          <div className="absolute top-6 left-6 right-6 z-40 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={handleToggleTheme}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-amber-300 backdrop-blur-md transition-all cursor-pointer active:scale-95 shadow-lg"
-            >
-              <Shuffle className="w-3.5 h-3.5 text-amber-400" />
-              <span>연출 전환: {currentTheme === 'pixar_lamp' ? '픽사 램프' : '클래식 슬롯'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSkip}
-              className="flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-300 hover:text-white transition-all backdrop-blur-md cursor-pointer active:scale-95 shadow-lg"
-            >
-              <span>건너뛰기</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+          {/* Subtle Bottom Ambient Dismiss Hint (No skip button) */}
+          <div className="absolute bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none">
+            <div className="px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-medium text-slate-300 flex items-center gap-2 shadow-2xl animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-sky-400" />
+              <span>화면 아무 곳이나 터치 또는 클릭하면 원래 화면으로 돌아갑니다</span>
+            </div>
           </div>
 
           {/* =========================================================================
-              THEME 1: PIXAR STYLE LAMP (스마트랩 램프의 점핑 & 스탬프 & 카메라 응시)
+              SMARTLAB ROBOT INTRO (Video with Kling AI Logo Removed / 3D Stage Replica)
              ========================================================================= */}
-          {currentTheme === 'pixar_lamp' && (
-            <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: animStage === 'climax' ? 0.45 : 0.15,
-                  scale: animStage === 'climax' ? [1, 1.2, 1.1] : 1
-                }}
-                transition={{ duration: 0.6 }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[680px] rounded-full bg-gradient-to-b from-amber-300/30 via-indigo-600/20 to-transparent blur-[110px] pointer-events-none"
-              />
-
-              {/* Dynamic Pixar Hopper Lamp */}
-              <div className="relative h-32 w-full flex items-center justify-center mb-2">
-                <motion.div
-                  initial={{ x: -280, y: -40, opacity: 0, rotate: -25, scale: 0.8 }}
-                  animate={{
-                    x:
-                      lampHopStep === 0 ? -280 :
-                      lampHopStep === 1 ? -150 :
-                      lampHopStep === 2 ? -50 :
-                      lampHopStep === 3 ? 40 :
-                      0,
-                    y:
-                      lampHopStep === 0 ? -40 :
-                      lampHopStep === 1 ? -95 :
-                      lampHopStep === 2 ? -90 :
-                      lampHopStep === 3 ? -75 :
-                      lampHopStep === 4 ? 12 :
-                      0,
-                    scaleY:
-                      lampHopStep === 4 ? 0.65 :
-                      lampHopStep === 5 ? 1.08 : 1,
-                    scaleX:
-                      lampHopStep === 4 ? 1.35 : 1,
-                    rotate:
-                      lampHopStep === 5 ? 0 :
-                      lampHopStep === 4 ? 6 :
-                      lampHopStep === 1 ? 16 :
-                      lampHopStep === 2 ? -14 :
-                      lampHopStep === 3 ? 12 : -20,
-                    opacity: 1
-                  }}
-                  transition={{
-                    duration: 0.38,
-                    ease: [0.16, 1, 0.3, 1]
-                  }}
-                  className="relative z-20 flex flex-col items-center cursor-pointer"
-                >
-                  {animStage === 'climax' && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 0.8, scale: 1 }}
-                      transition={{ duration: 0.4, ease: 'easeOut' }}
-                      className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"
-                    />
-                  )}
-
-                  <div className="p-3 rounded-3xl bg-[#09090b] border-2 border-amber-400/90 shadow-[0_0_50px_rgba(245,158,11,0.5)] flex items-center justify-center">
-                    <SmartLabLogo size={78} showText={false} />
-                  </div>
-
-                  <motion.div
-                    animate={{
-                      scaleX: lampHopStep === 4 ? 1.5 : 1,
-                      opacity: lampHopStep === 4 ? 0.9 : 0.4
-                    }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="w-16 h-2 rounded-full bg-black/80 blur-[2px] mt-1"
-                  />
-                </motion.div>
-              </div>
-
-              {/* Sangsan smartlab Typography */}
-              <div className="space-y-4 my-2">
-                <div className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-6 gap-y-2 py-2">
-                  <div className="flex items-center tracking-wider">
-                    {SANGSAN_CHARS.map((char, index) => (
-                      <motion.span
-                        key={`pixar-sangsan-${index}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{
-                          opacity: 1,
-                          y: lampHopStep === 4 ? 4 : 0,
-                          color: animStage === 'climax' ? '#ffffff' : '#cbd5e1'
-                        }}
-                        transition={{
-                          delay: 0.1 + index * 0.04,
-                          duration: 0.3,
-                          ease: 'easeOut'
-                        }}
-                        className="text-4xl sm:text-6xl md:text-7xl font-black font-mono inline-block origin-bottom drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]"
-                        style={{
-                          textShadow: animStage === 'climax' ? '0 0 25px rgba(255,255,255,0.6)' : undefined
-                        }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center tracking-wider">
-                    {SMARTLAB_CHARS.map((char, index) => {
-                      const isStompedChar = char === 'a' || char === 'l';
-                      return (
-                        <motion.span
-                          key={`pixar-smartlab-${index}`}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{
-                            opacity: 1,
-                            y:
-                              lampHopStep === 4 && isStompedChar ? 14 :
-                              lampHopStep === 4 ? 4 : 0,
-                            scaleY: lampHopStep === 4 && isStompedChar ? 0.5 : 1,
-                            scaleX: lampHopStep === 4 && isStompedChar ? 1.4 : 1,
-                            color:
-                              animStage === 'climax' ? '#38bdf8' :
-                              lampHopStep >= 4 ? '#7dd3fc' : '#94a3b8'
-                          }}
-                          transition={{
-                            delay: 0.2 + index * 0.04,
-                            duration: 0.32,
-                            ease: 'easeOut'
-                          }}
-                          className="text-4xl sm:text-6xl md:text-7xl font-black font-mono inline-block origin-bottom drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]"
-                          style={{
-                            textShadow: animStage === 'climax' ? '0 0 30px rgba(56,189,248,0.7)' : undefined
-                          }}
-                        >
-                          {char}
-                        </motion.span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{
-                    opacity: animStage === 'exit' ? 0 : 1,
-                    y: animStage === 'exit' ? -10 : 0
-                  }}
-                  transition={{ delay: 1.0, duration: 0.7 }}
-                  className="text-xl sm:text-2xl font-bold tracking-widest text-amber-400 font-sans"
-                >
-                  상산고등학교 스마트랩
-                </motion.p>
-              </div>
-            </div>
-          )}
-
-          {/* =========================================================================
-              THEME 2: REAL CASINO 3-REEL SLOT MACHINE (7 - 7 - 7 JACKPOT)
-             ========================================================================= */}
-          {currentTheme === 'classic_slot' && (
-            <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
-              {/* Climax Jackpot Radiant Glow */}
-              {animStage === 'climax' && (
-                <motion.div
-                  initial={{ scale: 0.2, opacity: 0 }}
-                  animate={{ scale: [1, 1.5, 1.3], opacity: [1, 0.7, 0.85] }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,#eab308_0%,#f59e0b_30%,#b45309_60%,transparent_75%)] blur-[95px] pointer-events-none opacity-40"
+          <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
+            {/* Option A: When Video file is present in server or IndexedDB */}
+            {isVideoPlaying && videoSrc ? (
+              <div className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.9)] border border-amber-950/40 bg-black flex items-center justify-center pointer-events-none">
+                {/*
+                  CRITICAL WATERMARK REMOVAL TECHNIQUE:
+                  1. scale-[1.09] slightly overscans and moves the bottom-right corner out of frame.
+                  2. -translate-x-[1.2%] -translate-y-[1.6%] pushes the watermark cleanly outside the container.
+                */}
+                <video
+                  ref={videoRef}
+                  src={videoSrc}
+                  autoPlay
+                  loop={isScreensaverMode}
+                  playsInline
+                  muted
+                  onEnded={handleVideoEnded}
+                  className="w-full h-full object-cover scale-[1.09] -translate-x-[1.2%] -translate-y-[1.6%]"
                 />
-              )}
 
-              {/* Slot Machine Authentic Cabinet Window (Matching Video Reference) */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0, y: -20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="relative p-3 sm:p-4 rounded-3xl bg-[#1e293b] border-[6px] border-[#334155] shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(234,179,8,0.2)] mb-6"
-              >
-                {/* Inner Gold Bezel */}
-                <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-[#ca8a04] via-[#eab308] to-[#854d0e] shadow-inner">
-                  {/* 3 Physical Cylindrical Reels */}
-                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-[#090d16] p-1.5 sm:p-2 rounded-xl border border-black shadow-[inset_0_4px_16px_rgba(0,0,0,0.9)] overflow-hidden">
-                    {/* REEL 1 */}
-                    <div className="relative w-24 sm:w-32 md:w-36 h-36 sm:h-44 bg-gradient-to-b from-[#fef08a]/90 via-[#fde68a] to-[#d97706]/90 rounded-lg overflow-hidden border border-amber-900/30 flex items-center justify-center">
-                      {/* Cylindrical 3D Lighting Gradients */}
-                      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-transparent to-black/60 z-20" />
-                      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-20 sm:h-24 bg-white/20 pointer-events-none z-10 border-y border-amber-500/30" />
-
-                      {reelStopState[0] ? (
-                        <motion.div
-                          initial={{ y: -60, scale: 1.3 }}
-                          animate={{ y: [ -60, 10, -4, 0 ], scale: 1 }}
-                          transition={{ duration: 0.35, ease: 'easeOut' }}
-                          className="relative z-10 flex flex-col items-center justify-center"
-                        >
-                          <LuckySevenSymbol isJackpot />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          animate={{ y: [-240, 240] }}
-                          transition={{ duration: 0.1, repeat: Infinity, ease: 'linear' }}
-                          className="flex flex-col items-center gap-6 blur-[1.5px] opacity-80"
-                        >
-                          {REEL_STRIP.map((sym, idx) => (
-                            <div key={`reel1-strip-${idx}`}>{sym.component}</div>
-                          ))}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {/* REEL 2 */}
-                    <div className="relative w-24 sm:w-32 md:w-36 h-36 sm:h-44 bg-gradient-to-b from-[#fef08a]/90 via-[#fde68a] to-[#d97706]/90 rounded-lg overflow-hidden border border-amber-900/30 flex items-center justify-center">
-                      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-transparent to-black/60 z-20" />
-                      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-20 sm:h-24 bg-white/20 pointer-events-none z-10 border-y border-amber-500/30" />
-
-                      {reelStopState[1] ? (
-                        <motion.div
-                          initial={{ y: -60, scale: 1.3 }}
-                          animate={{ y: [ -60, 10, -4, 0 ], scale: 1 }}
-                          transition={{ duration: 0.35, ease: 'easeOut' }}
-                          className="relative z-10 flex flex-col items-center justify-center"
-                        >
-                          <LuckySevenSymbol isJackpot />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          animate={{ y: [-240, 240] }}
-                          transition={{ duration: 0.09, repeat: Infinity, ease: 'linear' }}
-                          className="flex flex-col items-center gap-6 blur-[1.5px] opacity-80"
-                        >
-                          {REEL_STRIP.map((sym, idx) => (
-                            <div key={`reel2-strip-${idx}`}>{sym.component}</div>
-                          ))}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {/* REEL 3 */}
-                    <div className="relative w-24 sm:w-32 md:w-36 h-36 sm:h-44 bg-gradient-to-b from-[#fef08a]/90 via-[#fde68a] to-[#d97706]/90 rounded-lg overflow-hidden border border-amber-900/30 flex items-center justify-center">
-                      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-transparent to-black/60 z-20" />
-                      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-20 sm:h-24 bg-white/20 pointer-events-none z-10 border-y border-amber-500/30" />
-
-                      {reelStopState[2] ? (
-                        <motion.div
-                          initial={{ y: -70, scale: 1.4 }}
-                          animate={{ y: [ -70, 12, -4, 0 ], scale: 1 }}
-                          transition={{ duration: 0.38, ease: 'easeOut' }}
-                          className="relative z-10 flex flex-col items-center justify-center"
-                        >
-                          <LuckySevenSymbol isJackpot />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          animate={{ y: [-240, 240] }}
-                          transition={{ duration: 0.08, repeat: Infinity, ease: 'linear' }}
-                          className="flex flex-col items-center gap-6 blur-[1.5px] opacity-80"
-                        >
-                          {REEL_STRIP.map((sym, idx) => (
-                            <div key={`reel3-strip-${idx}`}>{sym.component}</div>
-                          ))}
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
+                {/*
+                  SECONDARY WATERMARK SHIELD:
+                  Matches the exact dark walnut wood tone & studio floor shadow of the video.
+                  Completely eliminates any residual pixel of the logo.
+                */}
+                <div className="absolute right-0 bottom-0 w-80 h-24 bg-gradient-to-tl from-[#080503] via-[#140d08]/95 to-transparent pointer-events-none blur-[1px]" />
+                <div className="absolute right-4 bottom-3 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-xs border border-white/5 opacity-80">
+                  <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                  <span className="text-[10px] font-bold text-slate-300 font-sans tracking-wider">
+                    Sangsan SmartLab
+                  </span>
                 </div>
 
-                {/* Climax Jackpot Golden Coins Splash */}
-                {animStage === 'climax' && (
-                  <div className="absolute -inset-8 pointer-events-none overflow-hidden">
-                    {Array.from({ length: 26 }).map((_, i) => (
-                      <motion.div
-                        key={`real-coin-${i}`}
-                        initial={{ y: 80, x: 0, opacity: 1, scale: 0.6 }}
-                        animate={{
-                          y: [80, -40, 240],
-                          x: (i % 2 === 0 ? 1 : -1) * (30 + (i * 14)),
-                          opacity: [1, 1, 0],
-                          rotate: 720
-                        }}
-                        transition={{ duration: 1.5, delay: (i % 8) * 0.08, ease: 'easeOut' }}
-                        className="absolute top-1/2 left-1/2 w-6 h-6 rounded-full bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 border border-amber-200 shadow-[0_0_15px_#f59e0b] flex items-center justify-center font-black text-[11px] text-amber-950 font-mono"
-                      >
-                        7
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Sangsan smartlab Typography & Logo Reveal */}
-              <div className="space-y-4 my-1 flex flex-col items-center">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{
-                    opacity: animStage === 'climax' ? 1 : 0.8,
-                    scale: animStage === 'climax' ? [0.9, 1.08, 1] : 1
-                  }}
-                  transition={{ duration: 0.4 }}
-                  className="flex items-center gap-4"
-                >
-                  <div className="p-2.5 rounded-2xl bg-[#09090b] border border-amber-400/80 shadow-[0_0_30px_rgba(245,158,11,0.4)]">
-                    <SmartLabLogo size={48} showText={false} />
-                  </div>
-                  <div className="text-4xl sm:text-6xl font-black font-mono tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400 drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
-                    Sangsan smartlab
-                  </div>
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{
-                    opacity: animStage === 'exit' ? 0 : 1,
-                    y: animStage === 'exit' ? -10 : 0
-                  }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
-                  className="text-xl sm:text-2xl font-bold tracking-widest text-amber-400 font-sans"
-                >
-                  상산고등학교 스마트랩
-                </motion.p>
+                {/* Subtle Studio Vignette Overlay */}
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_65%,rgba(0,0,0,0.7)_100%)]" />
               </div>
-            </div>
-          )}
+            ) : (
+              /* Option B: Ultra-High-Fidelity 3D Replica of the Uploaded Kling Video */
+              <div className="relative w-full max-w-5xl flex flex-col items-center justify-center">
+                {/* Top Warm Studio Ceiling Light Spotlight */}
+                <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-48 h-12 bg-amber-200/40 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-2 h-24 bg-gradient-to-b from-amber-100 to-transparent opacity-30 pointer-events-none" />
+
+                {/* Left Cool Blue Spotlight on Climax (from video 00:04) */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: isSpotlightOn ? 0.75 : 0,
+                    scale: isSpotlightOn ? 1.2 : 0.8
+                  }}
+                  transition={{ duration: 0.6 }}
+                  className="absolute -top-40 -left-20 w-[600px] h-[600px] rounded-full bg-[radial-gradient(ellipse_at_top_left,#38bdf8_0%,#0284c7_30%,transparent_70%)] blur-[90px] pointer-events-none"
+                />
+
+                {/* Wood Floor Perspective Plane */}
+                <div
+                  className="relative w-full h-[460px] sm:h-[520px] rounded-3xl overflow-hidden border border-amber-950/50 shadow-[0_20px_70px_rgba(0,0,0,0.95)] flex flex-col justify-end"
+                  style={{
+                    background: 'radial-gradient(ellipse at 50% 30%, #1e130c 0%, #0c0805 70%, #040201 100%)'
+                  }}
+                >
+                  {/* Perspective Wood Planks Surface */}
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-64 sm:h-72 opacity-90 border-t border-amber-900/40"
+                    style={{
+                      background:
+                        'repeating-linear-gradient(90deg, #1c130d 0px, #2a1c13 40px, #1c130d 80px, #261810 120px, #180f0a 160px)',
+                      boxShadow: 'inset 0 30px 60px rgba(0,0,0,0.8)'
+                    }}
+                  >
+                    {/* Floor Plank Separators */}
+                    <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(254,240,138,0.15)_0%,transparent_60%)]" />
+                  </div>
+
+                  {/* Stage Center Elements: 3D "SMARTLAB" Letters + Cute Robot */}
+                  <div className="relative z-20 flex flex-col items-center justify-end pb-12 sm:pb-16 px-4">
+                    {/* Hopping / Jumping Cute White Robot */}
+                    <motion.div
+                      initial={{ x: 340, y: 10, opacity: 0 }}
+                      animate={{
+                        x:
+                          robotStep === 0 ? 340 :
+                          robotStep === 1 ? 220 :
+                          robotStep === 2 ? 100 :
+                          robotStep === 3 ? 12 : // Jump above 'R'
+                          robotStep >= 4 ? 8 : 8, // Sit in front of 'R'
+                        y:
+                          robotStep === 0 ? 10 :
+                          robotStep === 1 ? -15 : // hop 1
+                          robotStep === 2 ? -25 : // hop 2
+                          robotStep === 3 ? -110 : // HIGH JUMP!
+                          robotStep === 4 ? 20 :  // LAND THUD!
+                          robotStep >= 5 ? 16 : 10,
+                        rotate:
+                          robotStep === 1 ? 12 :
+                          robotStep === 2 ? -8 :
+                          robotStep === 3 ? 4 :
+                          0,
+                        scaleY:
+                          robotStep === 4 ? 0.78 :
+                          robotStep >= 5 ? 1.05 : 1,
+                        scaleX:
+                          robotStep === 4 ? 1.25 :
+                          robotStep >= 5 ? 1 : 1,
+                        opacity: 1
+                      }}
+                      transition={{
+                        duration:
+                          robotStep === 3 ? 0.42 :
+                          robotStep === 4 ? 0.22 :
+                          0.32,
+                        ease: [0.16, 1, 0.3, 1]
+                      }}
+                      className="relative z-30 mb-[-18px]"
+                    >
+                      <SmartLabCuteRobot step={robotStep} isSpotlightOn={isSpotlightOn} />
+                    </motion.div>
+
+                    {/* Giant 3D White "SMARTLAB" Letters (Exact Font & Style of the Video) */}
+                    <div className="flex items-center justify-center tracking-tight sm:tracking-normal select-none relative z-10">
+                      {['S', 'M', 'A', 'R', 'T', 'L', 'A', 'B'].map((letter, idx) => {
+                        const isR = idx === 3;
+                        return (
+                          <motion.span
+                            key={`smartlab-char-3d-${idx}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{
+                              opacity: 1,
+                              y:
+                                robotStep === 4 && isR ? 12 :
+                                robotStep >= 5 && isR ? 6 :
+                                0,
+                              scaleY: robotStep === 4 && isR ? 0.92 : 1
+                            }}
+                            transition={{ duration: 0.25 }}
+                            className="text-5xl sm:text-7xl md:text-8xl font-black font-sans text-white uppercase inline-block drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
+                            style={{
+                              textShadow:
+                                '0 1px 0 #e2e8f0, 0 2px 0 #cbd5e1, 0 3px 0 #94a3b8, 0 4px 0 #64748b, 0 5px 0 #475569, 0 6px 0 #334155, 0 10px 20px rgba(0,0,0,0.8)'
+                            }}
+                          >
+                            {letter}
+                          </motion.span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Korean SmartLab Title Reveal */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{
+                        opacity: robotStep >= 5 ? 1 : 0,
+                        y: robotStep >= 5 ? 0 : 10
+                      }}
+                      transition={{ duration: 0.5 }}
+                      className="mt-4 flex items-center gap-2 text-center"
+                    >
+                      <span className="text-lg sm:text-xl font-bold tracking-widest text-sky-400 drop-shadow-[0_2px_10px_rgba(56,189,248,0.7)]">
+                        상산고등학교 스마트랩
+                      </span>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

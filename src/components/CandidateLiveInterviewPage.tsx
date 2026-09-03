@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
 import { Candidate, InterviewRoomItem, STTMessage, CandidateChatMessage } from '../types';
+import { TTSPlayButton } from './TTSPlayButton';
+import { TTSQuickControl } from './TTSQuickControl';
+import { ttsEngine } from '../lib/tts';
+import { useSTT } from '../hooks/useSTT';
+import { STTAudioMeter } from './STTAudioMeter';
 import {
   Mic,
   MicOff,
@@ -38,11 +43,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
   const [assignedInterviewers, setAssignedInterviewers] = useState<Array<{ id: string; name: string; avatarColor?: string }>>([]);
   
   // Realtime Audio & STT State
-  const [isMicActive, setIsMicActive] = useState<boolean>(true);
-  const [interimText, setInterimText] = useState<string>('');
   const [transcript, setTranscript] = useState<STTMessage[]>(initialCandidate.sttTranscript || []);
-  const [micAudioLevel, setMicAudioLevel] = useState<number>(0);
-  const [speechSupported, setSpeechSupported] = useState<boolean>(true);
   const [manualSpeechText, setManualSpeechText] = useState<string>('');
 
   // Interview Elapsed Timer
@@ -55,11 +56,6 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
   const [isSendingChat, setIsSendingChat] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
-  const recognitionRef = useRef<any>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const animFrameRef = useRef<number | null>(null);
   const transcriptBottomRef = useRef<HTMLDivElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +111,16 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
             }));
 
             if (data.candidate.sttTranscript && data.candidate.sttTranscript.length > transcript.length) {
+              const newItems = data.candidate.sttTranscript.slice(transcript.length);
               setTranscript(data.candidate.sttTranscript);
+              // Auto-read incoming interviewer questions if enabled
+              const ttsSettings = ttsEngine.getSettings();
+              if (ttsSettings.autoReadIncomingQuestions && !ttsSettings.muted) {
+                const lastInterviewerMsg = newItems.find((m: any) => m.speaker !== 'candidate' && m.text);
+                if (lastInterviewerMsg) {
+                  ttsEngine.speak(lastInterviewerMsg.text);
+                }
+              }
             }
 
             if (data.candidate.status === 'COMPLETED') {
@@ -164,144 +169,14 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
     return () => clearInterval(chatInterval);
   }, [candidate.id, room.id]);
 
-  // Auto-scroll transcript feed
-  useEffect(() => {
-    transcriptBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcript, interimText]);
-
-  // Auto-scroll chat feed
-  useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isChatOpen]);
-
-  // 4. Initialize Mic Audio Visualizer Stream
-  useEffect(() => {
-    const initAudioStream = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        mediaStreamRef.current = stream;
-
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioCtx) {
-          const audioCtx = new AudioCtx();
-          audioContextRef.current = audioCtx;
-          const analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 64;
-          analyserRef.current = analyser;
-
-          const source = audioCtx.createMediaStreamSource(stream);
-          source.connect(analyser);
-
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          const updateAudioLevel = () => {
-            if (analyserRef.current && isMicActive) {
-              analyserRef.current.getByteFrequencyData(dataArray);
-              let sum = 0;
-              for (let i = 0; i < dataArray.length; i++) {
-                sum += dataArray[i];
-              }
-              const avg = sum / dataArray.length;
-              setMicAudioLevel(Math.min(100, Math.round((avg / 128) * 100)));
-            } else {
-              setMicAudioLevel(0);
-            }
-            animFrameRef.current = requestAnimationFrame(updateAudioLevel);
-          };
-          updateAudioLevel();
-        }
-      } catch (err) {
-        console.warn('Microphone audio level capture warning:', err);
-      }
-    };
-
-    initAudioStream();
-
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(t => t.stop());
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close().catch(() => {});
-      }
-    };
-  }, []);
-
-  // 5. Continuous Speech Recognition (STT Engine)
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setSpeechSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'ko-KR';
-
-    recognition.onresult = (event: any) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        const res = event.results[i];
-        if (res.isFinal) {
-          const finalSpeech = res[0].transcript.trim();
-          if (finalSpeech) {
-            handleCommitSpeech(finalSpeech);
-          }
-          setInterimText('');
-        } else {
-          interim += res[0].transcript;
-        }
-      }
-      setInterimText(interim);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.warn('Live SpeechRecognition error:', event.error);
-      if (event.error === 'not-allowed') {
-        setIsMicActive(false);
-      }
-    };
-
-    recognition.onend = () => {
-      if (isMicActive) {
-        try {
-          recognition.start();
-        } catch (e) {
-          // Restart gracefully
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    if (isMicActive) {
-      try {
-        recognition.start();
-      } catch (e) {
-        // Ignore already started
-      }
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
-      }
-    };
-  }, [isMicActive]);
-
   // Commit Candidate Speech to Server & Local State
-  const handleCommitSpeech = async (speechText: string) => {
+  const handleCommitSpeech = async (speechText: string, confidence?: number) => {
     const newMsg: STTMessage = {
       id: `stt-cand-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`,
       speaker: 'candidate',
       text: speechText,
       timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-      confidence: 0.96
+      confidence: confidence || 0.96
     };
 
     // Optimistic local update
@@ -321,6 +196,25 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
     }
   };
 
+  // Robust Universal STT Engine Hook
+  const {
+    isSupported: speechSupported,
+    isListening: isMicActive,
+    status: sttStatus,
+    interimText,
+    audioLevel: micAudioLevel,
+    errorMessage: sttErrorMessage,
+    toggle: toggleMic,
+    clearError: clearSTTError
+  } = useSTT({
+    lang: 'ko-KR',
+    continuous: true,
+    autoStart: true,
+    onFinalResult: (speechText, confidence) => {
+      handleCommitSpeech(speechText, confidence);
+    }
+  });
+
   const handleManualSendSpeech = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualSpeechText.trim()) return;
@@ -328,27 +222,15 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
     setManualSpeechText('');
   };
 
-  const toggleMic = () => {
-    if (!recognitionRef.current) {
-      alert('브라우저에서 마이크 음성 인식을 지원하지 않습니다. 텍스트 입력을 활용해주세요.');
-      return;
-    }
+  // Auto-scroll transcript feed
+  useEffect(() => {
+    transcriptBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [transcript, interimText]);
 
-    if (isMicActive) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {}
-      setIsMicActive(false);
-      setInterimText('');
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsMicActive(true);
-      } catch (e) {
-        setIsMicActive(true);
-      }
-    }
-  };
+  // Auto-scroll chat feed
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isChatOpen]);
 
   // Send Emergency Chat Message to Interviewers
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -525,10 +407,40 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                 <Radio className="w-4 h-4 text-emerald-400" />
                 <h3 className="font-bold text-xs text-white">마이크 입력 상태</h3>
               </div>
+              <STTAudioMeter
+                status={sttStatus}
+                audioLevel={micAudioLevel}
+                isListening={isMicActive}
+                lang="ko-KR"
+              />
+            </div>
+
+            {/* STT Error Alert Banner (if any) */}
+            {sttErrorMessage && (
+              <div className="p-3 bg-rose-950/80 border border-rose-800/80 rounded-2xl flex items-start justify-between text-xs text-rose-200 animate-fade-in">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-xs">마이크 연결 확인 필요</p>
+                    <p className="text-[11px] text-rose-300 leading-relaxed">{sttErrorMessage}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearSTTError}
+                  className="text-[11px] text-rose-400 hover:text-white underline ml-2 shrink-0 cursor-pointer"
+                >
+                  닫기
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs text-slate-400">마이크 동작 제어:</span>
               <button
                 type="button"
                 onClick={toggleMic}
-                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
                   isMicActive
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
                     : 'bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30'
@@ -536,13 +448,13 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
               >
                 {isMicActive ? (
                   <>
-                    <Mic className="w-3 h-3 text-emerald-400 animate-pulse" />
-                    <span>마이크 켜짐</span>
+                    <Mic className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span>마이크 켜짐 (클릭시 음소거)</span>
                   </>
                 ) : (
                   <>
-                    <MicOff className="w-3 h-3 text-red-400" />
-                    <span>마이크 음소거</span>
+                    <MicOff className="w-3.5 h-3.5 text-red-400" />
+                    <span>마이크 꺼짐 (클릭시 활성화)</span>
                   </>
                 )}
               </button>
@@ -612,16 +524,19 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
           <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl backdrop-blur-md flex-1 flex flex-col min-h-[420px] overflow-hidden">
             
             {/* Feed Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 mb-4 gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <h3 className="font-bold text-sm text-white">
                   실시간 발화 기록 모니터링
                 </h3>
               </div>
-              <span className="text-[11px] text-slate-400 bg-slate-800 px-3 py-1 rounded-xl">
-                기록 건수: <strong className="text-white">{transcript.length}건</strong>
-              </span>
+              <div className="flex items-center gap-2">
+                <TTSQuickControl />
+                <span className="text-[11px] text-slate-400 bg-slate-800 px-3 py-1 rounded-xl">
+                  기록 건수: <strong className="text-white">{transcript.length}건</strong>
+                </span>
+              </div>
             </div>
 
             {/* Scrollable Live Transcript Stream */}
@@ -653,6 +568,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                       </span>
                       <span>•</span>
                       <span className="font-mono text-slate-500">{msg.timestamp}</span>
+                      <TTSPlayButton text={msg.text} size="sm" />
                     </div>
 
                     <div

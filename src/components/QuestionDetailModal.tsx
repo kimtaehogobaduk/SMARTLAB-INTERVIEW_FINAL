@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TailQuestion, EvaluationCriterion } from '../types';
+import { TTSPlayButton } from './TTSPlayButton';
 import {
   X,
   Sparkles,
@@ -140,14 +141,17 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
                 <MessageSquareQuote className="w-3.5 h-3.5" />
                 <span>면접관 실전 구어체 질문 대본</span>
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? '복사 완료!' : '질문 복사'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <TTSPlayButton text={question.question} showLabel label="질문 음성 듣기" size="md" />
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? '복사 완료!' : '질문 복사'}</span>
+                </button>
+              </div>
             </div>
             <p className="text-base sm:text-lg font-bold text-slate-100 leading-relaxed select-text">
               "{question.question}"

@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { loadCloudState, saveCloudState } from './server/db';
@@ -39,8 +40,41 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json({ limit: '20mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+
+  // Static serving for assets directory (including uploaded intro video)
+  const assetsDir = path.join(process.cwd(), 'assets');
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir, { recursive: true });
+  }
+  app.use('/assets', express.static(assetsDir));
+
+  // Check intro video availability
+  app.get('/api/intro-video/status', (req, res) => {
+    const videoPath = path.join(assetsDir, 'intro.mp4');
+    const exists = fs.existsSync(videoPath);
+    res.json({ exists, url: exists ? '/assets/intro.mp4' : null });
+  });
+
+  // Upload/Save intro video directly (base64 encoded)
+  app.post('/api/intro-video', (req, res) => {
+    try {
+      const { videoBase64 } = req.body;
+      if (!videoBase64) {
+        return res.status(400).json({ error: 'videoBase64 is required' });
+      }
+      const base64Data = videoBase64.replace(/^data:video\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+      const videoPath = path.join(assetsDir, 'intro.mp4');
+      fs.writeFileSync(videoPath, buffer);
+      console.log(`[SmartLab] Intro video saved successfully (${(buffer.length / 1024 / 1024).toFixed(2)} MB)`);
+      return res.json({ success: true, url: '/assets/intro.mp4' });
+    } catch (err: any) {
+      console.error('[SmartLab] Error saving intro video:', err);
+      return res.status(500).json({ error: err.message || 'Failed to save intro video' });
+    }
+  });
 
   // ----------------------------------------------------
   // MOUNT API ROUTERS

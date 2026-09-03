@@ -35,10 +35,17 @@ import {
   Users,
   MessageSquareQuote,
   Lightbulb,
-  ArrowRight
+  ArrowRight,
+  Filter,
+  Globe,
+  AlertCircle
 } from 'lucide-react';
 import { QuestionPersonaSelector } from './QuestionPersonaSelector';
 import { QuestionDetailModal } from './QuestionDetailModal';
+import { TTSPlayButton } from './TTSPlayButton';
+import { TTSQuickControl } from './TTSQuickControl';
+import { STTAudioMeter } from './STTAudioMeter';
+import { useSTT } from '../hooks/useSTT';
 import { COLOR_MAP } from '../lib/scoring';
 
 interface STTConsoleProps {
@@ -82,14 +89,13 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   onRefreshQuestions,
   isLoadingAI = false
 }) => {
-  const [isListening, setIsListening] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>('');
   const [speaker, setSpeaker] = useState<'candidate' | 'interviewer'>('candidate');
-  const [interimText, setInterimText] = useState<string>('');
-  const [simIndex, setSimIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sharedId, setSharedId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [transcriptFilter, setTranscriptFilter] = useState<'ALL' | 'candidate' | 'interviewer'>('ALL');
+  const [transcriptSearch, setTranscriptSearch] = useState<string>('');
 
   // Local standard tail questions vs on-demand custom questions (separate states)
   const [localTailQuestions, setLocalTailQuestions] = useState<TailQuestion[]>(initialTailQuestions || []);
@@ -130,7 +136,6 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
   const [showLiveSTTStream, setShowLiveSTTStream] = useState<boolean>(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const recognitionRef = useRef<any>(null);
 
   const effectiveCriteria: EvaluationCriterion[] = roomCriteria && roomCriteria.length > 0
     ? roomCriteria
@@ -152,6 +157,34 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // Robust Universal STT Engine Hook
+  const {
+    isSupported: isSTTSupported,
+    isListening,
+    status: sttStatus,
+    interimText,
+    audioLevel: sttAudioLevel,
+    errorMessage: sttErrorMessage,
+    lang: sttLang,
+    setLang: setSTTLang,
+    toggle: toggleMic,
+    clearError: clearSTTError
+  } = useSTT({
+    lang: 'ko-KR',
+    continuous: true,
+    onFinalResult: (speechText, confidence) => {
+      if (!speechText.trim()) return;
+      const newMsg: STTMessage = {
+        id: `stt-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+        speaker,
+        text: speechText.trim(),
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+        confidence: confidence || 0.95
+      };
+      onSendMessage(newMsg, speaker === 'candidate');
+    }
+  });
+
   // Auto-scroll STT terminal to bottom
   useEffect(() => {
     if (scrollRef.current) {
@@ -159,90 +192,12 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     }
   }, [transcript, interimText]);
 
-  // Web Speech API initialization
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'ko-KR';
-
-      recognition.onresult = (event: any) => {
-        let interim = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const res = event.results[i];
-          if (res.isFinal) {
-            const finalSpeech = res[0].transcript.trim();
-            if (finalSpeech) {
-              const newMsg: STTMessage = {
-                id: `stt-${Date.now()}`,
-                speaker,
-                text: finalSpeech,
-                timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-                confidence: res[0].confidence || 0.95
-              };
-              onSendMessage(newMsg, speaker === 'candidate');
-            }
-            setInterimText('');
-          } else {
-            interim += res[0].transcript;
-          }
-        }
-        setInterimText(interim);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.warn('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        if (isListening) {
-          try {
-            recognition.start();
-          } catch (e) {
-            setIsListening(false);
-          }
-        }
-      };
-
-      recognitionRef.current = recognition;
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [speaker, isListening, onSendMessage]);
-
-  const toggleMic = () => {
-    if (!recognitionRef.current) {
-      alert('현재 브라우저 환경에서 Web Speech API를 지원하지 않습니다. 모의 발언 생성 또는 텍스트 입력을 사용해주세요.');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-      setInterimText('');
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (e) {
-        console.error('Recognition start error:', e);
-      }
-    }
-  };
-
   const handleSendManual = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputText.trim()) return;
 
     const newMsg: STTMessage = {
-      id: `stt-manual-${Date.now()}`,
+      id: `stt-manual-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       speaker,
       text: inputText.trim(),
       timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
@@ -253,41 +208,15 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
     setInputText('');
   };
 
-  // Realistic Simulation Scripts
-  const SIMULATION_SCRIPTS = [
-    {
-      speaker: 'interviewer' as const,
-      text: `${candidateName} 지원자님, 본인이 구축했던 프로젝트에서 가장 심각했던 장애 상황과 그 해결 과정을 설명해주시겠습니까?`
-    },
-    {
-      speaker: 'candidate' as const,
-      text: '네, 대용량 트래픽 테스트 중 데이터베이스 커넥션 풀 고갈로 인한 504 게이트웨이 타임아웃 장애가 발생했습니다. 저는 HikariCP 커넥션 파라미터를 튜닝하고, Redis 캐시 계층을 도입하여 DB 부하를 70% 이상 경감시켰습니다.'
-    },
-    {
-      speaker: 'candidate' as const,
-      text: '또한 Kafka 메시지 큐의 Dead Letter Queue(DLQ)를 구축하여 비동기 트랜잭션 유실을 방지하고 재시도 메커니즘을 완성했습니다.'
-    },
-    {
-      speaker: 'interviewer' as const,
-      text: '팀 프로젝트에서 프론트엔드와 백엔드 간 API 스펙 변경으로 갈등이 생겼을 때는 어떻게 조율하셨나요?'
-    },
-    {
-      speaker: 'candidate' as const,
-      text: '초기 API 명세 불일치로 인한 병목을 막기 위해 Swagger 기반 Mock 서버를 선제 배포하고, 변경 사항 발생 시 Slack 웹훅으로 자동 브로드캐스트되는 파이프라인을 구축해 소통 비용을 획기적으로 줄였습니다.'
-    }
-  ];
-
-  const handleSimulateNextSpeech = () => {
-    const item = SIMULATION_SCRIPTS[simIndex % SIMULATION_SCRIPTS.length];
-    const newMsg: STTMessage = {
-      id: `stt-sim-${Date.now()}`,
-      speaker: item.speaker,
-      text: item.text,
-      timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
-      confidence: 0.98
-    };
-    onSendMessage(newMsg, item.speaker === 'candidate');
-    setSimIndex(prev => prev + 1);
+  const handleCopyAllTranscripts = () => {
+    if (transcript.length === 0) return;
+    const text = transcript
+      .map(
+        m => `[${m.timestamp}] ${m.speaker === 'candidate' ? `지원자 (${candidateName})` : '면접관'}: ${m.text}`
+      )
+      .join('\n\n');
+    navigator.clipboard.writeText(text);
+    showToast('📋 전체 음성 자막 대화록이 클립보드에 복사되었습니다.');
   };
 
   const handleCopyTailQuestion = (q: TailQuestion) => {
@@ -564,6 +493,9 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
                   </>
                 )}
               </button>
+
+              {/* TTS Global Quick Controller */}
+              <TTSQuickControl />
 
               {/* Direct Question / Intent Creator Button */}
               <button
@@ -1057,6 +989,9 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
 
                       {/* Card Action Buttons */}
                       <div className="flex items-center gap-1">
+                        {/* TTS Question Reader */}
+                        <TTSPlayButton text={q.question} size="sm" />
+
                         <button
                           type="button"
                           onClick={() => toggleBookmark(q.id)}
@@ -1177,35 +1112,57 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
         <div className="flex-1 flex flex-col bg-slate-900 text-slate-100 min-h-[260px] overflow-hidden border-t border-slate-800 animate-fade-in">
           
           {/* Terminal Header */}
-          <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950 border-b border-slate-800 text-xs shrink-0">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-emerald-400 animate-ping' : 'bg-slate-600'}`}></span>
-              <span className="font-bold text-slate-300 text-[11px] uppercase tracking-wide flex items-center gap-1.5">
-                <Mic className="w-3.5 h-3.5 text-sky-400" />
-                <span>Live STT 실시간 음성 자막 스트림</span>
-              </span>
+          <div className="flex flex-wrap items-center justify-between px-3.5 py-2 bg-slate-950 border-b border-slate-800 text-xs shrink-0 gap-2">
+            <div className="flex items-center gap-2.5">
+              <STTAudioMeter
+                status={sttStatus}
+                audioLevel={sttAudioLevel}
+                isListening={isListening}
+                lang={sttLang}
+              />
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleSimulateNextSpeech}
-                title="다음 모의 면접 발언 자동 시뮬레이션"
-                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[11px] font-medium flex items-center gap-1 transition-colors border border-slate-700 cursor-pointer"
-              >
-                <Play className="w-3 h-3 text-blue-400" />
-                <span>모의 발언 생성</span>
-              </button>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Language Selector */}
+              <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-2 py-0.5 text-[11px] text-slate-300">
+                <Globe className="w-3 h-3 text-slate-400" />
+                <select
+                  value={sttLang}
+                  onChange={(e) => setSTTLang(e.target.value)}
+                  className="bg-transparent text-[11px] text-slate-200 focus:outline-none cursor-pointer"
+                >
+                  <option value="ko-KR" className="bg-slate-900 text-slate-200">한국어 (ko-KR)</option>
+                  <option value="en-US" className="bg-slate-900 text-slate-200">English (en-US)</option>
+                  <option value="ja-JP" className="bg-slate-900 text-slate-200">日本語 (ja-JP)</option>
+                  <option value="zh-CN" className="bg-slate-900 text-slate-200">中文 (zh-CN)</option>
+                </select>
+              </div>
 
+              {/* Copy Full Transcript */}
+              {transcript.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleCopyAllTranscripts}
+                  title="전체 자막 대화록 복사"
+                  className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[11px] font-medium flex items-center gap-1 transition-colors border border-slate-800 cursor-pointer"
+                >
+                  <Copy className="w-3 h-3 text-sky-400" />
+                  <span>대화록 복사</span>
+                </button>
+              )}
+
+              {/* Main Microphone Action */}
               <button
+                type="button"
                 onClick={toggleMic}
-                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-sm ${
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
                   isListening
-                    ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-500/30 animate-pulse'
                     : 'bg-blue-600 hover:bg-blue-500 text-white'
                 }`}
               >
                 {isListening ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
-                <span>{isListening ? '마이크 종료' : '실시간 마이크 STT'}</span>
+                <span>{isListening ? '마이크 끄기' : '실시간 마이크 켜기'}</span>
               </button>
 
               <button
@@ -1219,6 +1176,70 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
             </div>
           </div>
 
+          {/* STT Error Notification Banner (if any) */}
+          {sttErrorMessage && (
+            <div className="px-3.5 py-2 bg-rose-950/80 border-b border-rose-800/60 flex items-center justify-between text-xs text-rose-200 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="font-medium text-[11px] leading-tight">{sttErrorMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={clearSTTError}
+                className="text-[10px] text-rose-300 hover:text-white underline ml-2 shrink-0 cursor-pointer"
+              >
+                닫기
+              </button>
+            </div>
+          )}
+
+          {/* Filter Bar */}
+          <div className="px-3.5 py-1.5 bg-slate-950/60 border-b border-slate-800/70 flex items-center justify-between gap-2 text-[11px]">
+            <div className="flex items-center gap-1">
+              <span className="text-slate-500 font-medium mr-1 flex items-center gap-1">
+                <Filter className="w-3 h-3 text-slate-400" />
+                <span>화자 필터:</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setTranscriptFilter('ALL')}
+                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                  transcriptFilter === 'ALL'
+                    ? 'bg-slate-800 text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                전체 ({transcript.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTranscriptFilter('candidate')}
+                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                  transcriptFilter === 'candidate'
+                    ? 'bg-sky-950/80 text-sky-300 font-bold border border-sky-600/40'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                지원자 ({transcript.filter(m => m.speaker === 'candidate').length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTranscriptFilter('interviewer')}
+                className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                  transcriptFilter === 'interviewer'
+                    ? 'bg-slate-800 text-slate-200 font-bold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                면접관 ({transcript.filter(m => m.speaker !== 'candidate').length})
+              </button>
+            </div>
+
+            <div className="text-[10px] text-slate-500 font-mono">
+              실시간 상태: {isListening ? '수신 중 (Continuous)' : '대기 (Idle)'}
+            </div>
+          </div>
+
           {/* Scrollable Subtitle Stream */}
           <div ref={scrollRef} className="flex-1 p-3 overflow-y-auto space-y-2 font-sans text-xs leading-relaxed scrollbar-thin max-h-[280px]">
             {transcript.length === 0 && !interimText && (
@@ -1226,40 +1247,53 @@ export const STTConsole: React.FC<STTConsoleProps> = ({
                 <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400">
                   <Mic className="w-5 h-5" />
                 </div>
-                <p className="text-xs font-bold text-slate-400">면접관 및 지원자의 발언이 실시간 자막으로 스트리밍됩니다.</p>
-                <p className="text-[11px] text-slate-600">상단의 [모의 발언 생성] 또는 [실시간 마이크 STT]를 시작해보세요.</p>
+                <p className="text-xs font-bold text-slate-400">면접관 및 지원자의 발언이 실시간 음성인식(STT) 자막으로 기록됩니다.</p>
+                <p className="text-[11px] text-slate-600">상단의 [실시간 마이크 켜기] 버튼을 누르거나 하단 텍스트 창에 직접 입력하세요.</p>
               </div>
             )}
 
-            {transcript.map((msg) => {
-              const isCandidate = msg.speaker === 'candidate';
-              return (
-                <div
-                  key={msg.id}
-                  className={`p-2.5 rounded-xl transition-all ${
-                    isCandidate
-                      ? 'bg-slate-800/90 border-l-4 border-sky-400 text-slate-200 shadow-xs'
-                      : 'bg-slate-800/40 border-l-4 border-slate-600 text-slate-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-[10px] mb-1 font-mono">
-                    <span className={`font-bold ${isCandidate ? 'text-sky-300' : 'text-slate-400'}`}>
-                      {isCandidate ? `지원자 (${candidateName})` : '면접관'}
-                    </span>
-                    <span className="text-slate-500 text-[9px]">{msg.timestamp}</span>
+            {transcript
+              .filter(m => {
+                if (transcriptFilter !== 'ALL' && m.speaker !== transcriptFilter) return false;
+                if (transcriptSearch.trim() && !m.text.toLowerCase().includes(transcriptSearch.toLowerCase())) return false;
+                return true;
+              })
+              .map((msg) => {
+                const isCandidate = msg.speaker === 'candidate';
+                return (
+                  <div
+                    key={msg.id}
+                    className={`p-2.5 rounded-xl transition-all ${
+                      isCandidate
+                        ? 'bg-slate-800/90 border-l-4 border-sky-400 text-slate-200 shadow-xs'
+                        : 'bg-slate-800/40 border-l-4 border-slate-600 text-slate-400'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px] mb-1 font-mono">
+                      <span className={`font-bold ${isCandidate ? 'text-sky-300' : 'text-slate-400'}`}>
+                        {isCandidate ? `지원자 (${candidateName})` : '면접관'}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <TTSPlayButton text={msg.text} size="sm" />
+                        <span className="text-slate-500 text-[9px]">{msg.timestamp}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.text}</p>
                   </div>
-                  <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-                </div>
-              );
-            })}
+                );
+              })}
 
-            {/* Current Interim Speech (Live typing preview) */}
+            {/* Current Interim Speech (Live speech preview) */}
             {interimText && (
-              <div className="p-2.5 rounded-xl bg-sky-950/60 border-l-4 border-sky-400 text-sky-200 animate-pulse">
-                <span className="text-[10px] font-mono text-sky-400 block mb-0.5">
-                  실시간 음성 인식 중...
-                </span>
-                <p className="text-xs">{interimText}</p>
+              <div className="p-2.5 rounded-xl bg-sky-950/70 border-l-4 border-sky-400 text-sky-200 animate-pulse shadow-sm">
+                <div className="flex items-center justify-between text-[10px] font-mono text-sky-400 mb-1">
+                  <span className="flex items-center gap-1.5 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+                    <span>실시간 음성 인식 중 ({speaker === 'candidate' ? candidateName : '면접관'})...</span>
+                  </span>
+                  <span className="text-sky-500 text-[9px]">음성 파형 수신 중</span>
+                </div>
+                <p className="text-xs leading-relaxed">{interimText}</p>
               </div>
             )}
           </div>
