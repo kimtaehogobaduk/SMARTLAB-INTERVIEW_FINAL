@@ -206,7 +206,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
   };
 
   // Theme Context for Quick Settings
-  const { resolvedMode, toggleMode, setIsThemeModalOpen, paletteInfo } = useTheme();
+  const { resolvedMode, toggleMode, setIsThemeModalOpen, setIsSettingsModalOpen, paletteInfo } = useTheme();
 
   // Settings Dropdown Menu State
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
@@ -535,6 +535,25 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                   </div>
 
                   <div className="py-1.5 space-y-1">
+                    {/* System Settings Modal (Voice guide, screensaver, intro, etc.) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSettingsMenuOpen(false);
+                        setIsSettingsModalOpen(true);
+                      }}
+                      className="w-full px-3 py-2 rounded-xl hover:bg-slate-800/80 text-left flex items-center justify-between transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Settings className="w-4 h-4 text-blue-400" />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-200 group-hover:text-white">시스템 환경설정</span>
+                          <span className="text-[10px] text-slate-400">음성 안내(TTS), 유휴 화면보호기</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" />
+                    </button>
+
                     {/* Theme & Palette Modal */}
                     <button
                       type="button"
@@ -551,7 +570,7 @@ export const CandidateListPage: React.FC<CandidateListPageProps> = ({
                         />
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-200 group-hover:text-white">디자인 & 테마 설정</span>
-                          <span className="text-[10px] text-slate-400">현재 팔레트: {paletteInfo.name}</span>
+                          <span className="text-[10px] text-slate-400">다크/화이트 모드 및 {paletteInfo.name}</span>
                         </div>
                       </div>
                       <Palette className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400" />

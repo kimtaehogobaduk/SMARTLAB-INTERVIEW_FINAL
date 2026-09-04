@@ -123,6 +123,8 @@ interface ThemeContextType {
   toggleMode: () => void;
   isThemeModalOpen: boolean;
   setIsThemeModalOpen: (open: boolean) => void;
+  isSettingsModalOpen: boolean;
+  setIsSettingsModalOpen: (open: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -157,6 +159,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [resolvedMode, setResolvedMode] = useState<'dark' | 'light'>('dark');
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Compute resolved mode based on system preference if mode === 'system'
   useEffect(() => {
@@ -234,7 +237,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setPalette,
         toggleMode,
         isThemeModalOpen,
-        setIsThemeModalOpen
+        setIsThemeModalOpen,
+        isSettingsModalOpen,
+        setIsSettingsModalOpen
       }}
     >
       {children}

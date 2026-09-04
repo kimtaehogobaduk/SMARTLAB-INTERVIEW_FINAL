@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Palette, Moon, Sun, Sparkles } from 'lucide-react';
+import { Palette, Moon, Sun, Sparkles, Settings } from 'lucide-react';
 
 interface ThemeQuickToggleProps {
   variant?: 'header' | 'floating' | 'button-only';
@@ -11,7 +11,7 @@ export const ThemeQuickToggle: React.FC<ThemeQuickToggleProps> = ({
   variant = 'header',
   className = ''
 }) => {
-  const { resolvedMode, paletteInfo, toggleMode, setIsThemeModalOpen } = useTheme();
+  const { resolvedMode, paletteInfo, toggleMode, setIsThemeModalOpen, setIsSettingsModalOpen } = useTheme();
 
   // Floating tab removed as per user request (플로팅 탭 삭제)
   if (variant === 'floating') {
@@ -63,6 +63,17 @@ export const ThemeQuickToggle: React.FC<ThemeQuickToggleProps> = ({
           className="w-2 h-2 rounded-full absolute bottom-1 right-1 border border-theme-surface shadow-2xs"
           style={{ backgroundColor: paletteInfo.primaryHex }}
         />
+      </button>
+
+      {/* System Settings Button (Voice, Screensaver, etc.) */}
+      <button
+        type="button"
+        onClick={() => setIsSettingsModalOpen(true)}
+        className="w-8 h-8 rounded-xl hover:bg-theme-elevated text-theme-secondary hover:text-theme-primary flex items-center justify-center transition-all cursor-pointer"
+        title="시스템 환경설정 (음성 안내, 화면보호기 등)"
+        aria-label="시스템 환경설정"
+      >
+        <Settings className="w-4 h-4 text-blue-400" />
       </button>
     </div>
   );

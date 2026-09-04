@@ -31,6 +31,7 @@ import { DBSchemaModal } from './components/DBSchemaModal';
 import { AIQualitativeModal } from './components/AIQualitativeModal';
 import { LiveNotificationToast } from './components/LiveNotificationToast';
 import { ThemeSelectorModal } from './components/ThemeSelectorModal';
+import { SystemSettingsModal } from './components/SystemSettingsModal';
 import { ThemeQuickToggle } from './components/ThemeQuickToggle';
 import { GrandIntroAnimation } from './components/GrandIntroAnimation';
 import confetti from 'canvas-confetti';
@@ -1148,6 +1149,9 @@ export default function App() {
 
       {/* Global Theme Selector Modal */}
       <ThemeSelectorModal />
+
+      {/* Global System Settings Modal (Voice Guide, Screensaver, etc.) */}
+      <SystemSettingsModal />
 
       {/* Daily Grand Entrance Animation (Appears once a day per device) */}
       <GrandIntroAnimation />
