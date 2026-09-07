@@ -109,15 +109,14 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden text-slate-100 select-none">
-      {/* Background Ambient Glow */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden text-slate-100 select-none">
+      {/* Subtle Ambient Radial Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
 
       {/* Main Container */}
-      <div className="w-full max-w-2xl bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-8 backdrop-blur-md relative z-10 space-y-6 animate-fade-in">
+      <div className="w-full max-w-2xl bg-slate-900/80 border border-slate-800 rounded-3xl shadow-xl p-6 sm:p-8 backdrop-blur-md relative z-10 space-y-6 animate-fade-in">
         {/* Brand & Heading */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-800/70">
           <div className="space-y-1 text-center sm:text-left">
             <SmartLabLogo size="md" />
             <p className="text-xs text-slate-400">
@@ -130,17 +129,17 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
               setErrorMessage('');
               setIsCreateModalOpen(true);
             }}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-98 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 cursor-pointer shrink-0"
+            className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium text-xs shadow-xs transition-all flex items-center gap-2 cursor-pointer shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            <span>새 면접 방 개설 (Admin)</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>새 면접 방 개설</span>
           </button>
         </div>
 
         {/* Room List */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-1">
-            <span>활성화된 면접 평가실 목록 ({rooms.length})</span>
+          <div className="flex items-center justify-between text-xs text-slate-400 font-medium px-1">
+            <span>활성화된 면접실 ({rooms.length})</span>
             <span className="text-[11px] text-slate-500 font-normal">방 선택 후 면접관 프로필 지정</span>
           </div>
 
@@ -149,31 +148,31 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
               면접 방 목록 불러오는 중...
             </div>
           ) : rooms.length === 0 ? (
-            <div className="p-8 text-center bg-slate-800/40 rounded-2xl border border-dashed border-slate-700 space-y-3">
-              <DoorOpen className="w-10 h-10 text-slate-500 mx-auto" />
-              <div className="text-sm font-bold text-slate-300">개설된 면접 방이 없습니다.</div>
+            <div className="p-8 text-center bg-slate-900/50 rounded-2xl border border-dashed border-slate-800 space-y-3">
+              <DoorOpen className="w-8 h-8 text-slate-600 mx-auto" />
+              <div className="text-sm font-semibold text-slate-300">개설된 면접 방이 없습니다</div>
               <p className="text-xs text-slate-500">
-                상단의 <strong>[새 면접 방 개설 (Admin)]</strong> 버튼을 눌러 첫 번째 평가 방을 만들어보세요.
+                상단의 <strong>[새 면접 방 개설]</strong> 버튼을 눌러 첫 번째 평가 방을 만들어보세요.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-2.5">
               {rooms.map((room) => (
                 <div
                   key={room.id}
                   onClick={() => onSelectRoom(room)}
-                  className="p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500 transition-all cursor-pointer flex items-center justify-between group shadow-sm"
+                  className="p-4 rounded-xl bg-slate-800/40 hover:bg-slate-800/70 border border-slate-700/60 hover:border-blue-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-xs"
                 >
-                  <div className="space-y-1.5 flex-1 pr-4">
+                  <div className="space-y-1 flex-1 pr-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
-                        <DoorOpen className="w-4 h-4" />
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-medium">
+                        <DoorOpen className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors">
+                        <h4 className="font-semibold text-xs sm:text-sm text-white group-hover:text-blue-400 transition-colors">
                           {room.name}
                         </h4>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-3">
+                        <div className="text-[11px] text-slate-400 flex items-center gap-2.5">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-slate-500" />
                             {room.createdAt}
@@ -185,24 +184,24 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
                     </div>
 
                     {room.description && (
-                      <p className="text-xs text-slate-400 pl-10.5 line-clamp-1">
+                      <p className="text-xs text-slate-400 pl-9.5 line-clamp-1">
                         {room.description}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => handleDeleteRoom(room.id, e)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                       title="방 삭제 (Admin)"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
 
-                    <div className="px-4 py-2 bg-blue-600 group-hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all">
-                      <span>방 입장</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <div className="px-3 py-1.5 bg-blue-600 group-hover:bg-blue-500 text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-xs transition-all">
+                      <span>입장</span>
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </div>
@@ -212,66 +211,66 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
         </div>
 
         {/* Footer info */}
-        <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
-          <span className="flex items-center gap-1">
+        <div className="pt-2 border-t border-slate-800/70 flex items-center justify-between text-[11px] text-slate-500">
+          <span className="flex items-center gap-1.5">
             <Lock className="w-3 h-3 text-slate-400" />
-            방 생성은 동아리 Admin 비밀번호로 승인됩니다.
+            방 생성은 관리자 비밀번호로 승인됩니다.
           </span>
-          <span className="font-mono text-slate-600">SmartLab Architecture</span>
+          <span className="font-mono text-slate-600">SmartLab v2.5</span>
         </div>
       </div>
 
       {/* Admin Room Creation Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 text-slate-100">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 text-slate-100">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
+                <div className="p-1.5 bg-blue-600/10 text-blue-400 rounded-lg border border-blue-500/20">
                   <Shield className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-bold text-white">신규 면접 방 개설 (Admin)</h3>
+                <h3 className="text-sm font-semibold text-white">신규 면접 방 개설</h3>
               </div>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-500 hover:text-slate-300 text-xs px-2 py-1 rounded cursor-pointer"
               >
-                ✕
+                닫기
               </button>
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-red-950/60 border border-red-800 text-red-300 rounded-xl text-xs font-medium">
+              <div className="p-2.5 bg-red-950/60 border border-red-800/80 text-red-300 rounded-xl text-xs font-medium">
                 {errorMessage}
               </div>
             )}
 
             <form onSubmit={handleCreateRoom} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">면접 방 이름 *</label>
+                <label className="block font-medium text-slate-300 mb-1">면접 방 이름 *</label>
                 <input
                   type="text"
                   required
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
                   placeholder="예: SmartLab 2026 하반기 신입 면접 1실"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">방 설명 (선택)</label>
+                <label className="block font-medium text-slate-300 mb-1">방 설명 (선택)</label>
                 <input
                   type="text"
                   value={roomDescription}
                   onChange={(e) => setRoomDescription(e.target.value)}
                   placeholder="예: 다대일 심층 기술 심사 및 실시간 블라인드 채점"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
 
-              <div className="p-3 bg-slate-800/70 border border-slate-700 rounded-xl space-y-1.5">
-                <label className="block font-bold text-slate-300 flex items-center gap-1.5">
+              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5">
+                <label className="block font-medium text-slate-300 flex items-center gap-1.5">
                   <KeyRound className="w-3.5 h-3.5 text-amber-400" />
                   관리자 비밀번호 확인 *
                 </label>
@@ -281,23 +280,23 @@ export const RoomSelectPage: React.FC<RoomSelectPageProps> = ({ onSelectRoom }) 
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="비밀번호 입력"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-white font-mono focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-hidden"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-2 border-t border-slate-800 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold transition-colors"
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition-colors cursor-pointer"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-md transition-all"
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium shadow-xs transition-all cursor-pointer"
                 >
-                  방 개설 완료
+                  방 개설
                 </button>
               </div>
             </form>

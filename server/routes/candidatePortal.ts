@@ -36,17 +36,33 @@ function computeEvaluatorTotal(
 ): number {
   if (!scores) return 0;
   let baseSum = 0;
-  let bSum = bonusTotal !== undefined ? bonusTotal : 0;
+  let bSum = 0;
 
-  criteria.forEach(crit => {
-    const raw = Number(scores[crit.id]) || 0;
+  const validCriteria = Array.isArray(criteria) && criteria.length > 0 ? criteria : [];
+  const totalWeight = validCriteria.reduce((sum, crit) => sum + (Number(crit.weight) || 0), 0);
+  const weightDivisor = totalWeight > 0 ? totalWeight : 100;
+
+  validCriteria.forEach(crit => {
+    const rawVal = Number(scores[crit.id]);
+    const validRaw = !isNaN(rawVal) ? rawVal : 0;
     const weight = Number(crit.weight) || 0;
-    baseSum += (raw * weight) / 100;
+    baseSum += validRaw * weight;
+
     if (bonusTotal === undefined) {
-      bSum += Number(bonuses?.[crit.id]) || 0;
+      const bVal = Number(bonuses?.[crit.id]);
+      if (!isNaN(bVal)) {
+        bSum += bVal;
+      }
     }
   });
-  return Math.round((baseSum + bSum) * 10) / 10;
+
+  if (bonusTotal !== undefined) {
+    const bTot = Number(bonusTotal);
+    bSum = !isNaN(bTot) ? bTot : 0;
+  }
+
+  const normalizedBase = baseSum / weightDivisor;
+  return Math.round((normalizedBase + bSum) * 10) / 10;
 }
 
 export function computeCandidateScore(
@@ -70,17 +86,24 @@ export function computeCandidateScore(
   const submitted = evals.filter(e => e.candidateId === candidate.id && e.status === 'SUBMITTED');
   if (submitted.length === 0) return 0;
 
-  const scoresList = submitted.map(e =>
+  const rawScoresList = submitted.map(e =>
     computeEvaluatorTotal(e.scores, e.presentationBonuses, e.presentationBonusTotal, activeCriteria)
   );
+  const scoresList = rawScoresList.filter(s => typeof s === 'number' && !isNaN(s));
+  if (scoresList.length === 0) return 0;
 
   const formula = room?.scoringFormula || settings.scoringFormula || 'TRIMMED_MEAN';
-  if (formula === 'TRIMMED_MEAN' && scoresList.length >= 3) {
-    const sorted = [...scoresList].sort((a, b) => a - b);
-    const trimmed = sorted.slice(1, -1);
-    const sum = trimmed.reduce((a, b) => a + b, 0);
-    return Math.round((sum / trimmed.length) * 10) / 10;
+  if (formula === 'TRIMMED_MEAN') {
+    if (scoresList.length >= 3) {
+      const sorted = [...scoresList].sort((a, b) => a - b);
+      const trimmed = sorted.slice(1, -1);
+      const sum = trimmed.reduce((a, b) => a + b, 0);
+      return Math.round((sum / trimmed.length) * 10) / 10;
+    }
+    const sum = scoresList.reduce((a, b) => a + b, 0);
+    return Math.round((sum / scoresList.length) * 10) / 10;
   }
+
   if (formula === 'MEDIAN') {
     const sorted = [...scoresList].sort((a, b) => a - b);
     const mid = Math.floor(scoresList.length / 2);
@@ -89,6 +112,8 @@ export function computeCandidateScore(
     }
     return Math.round(((sorted[mid - 1] + sorted[mid]) / 2) * 10) / 10;
   }
+
+  // Standard Arithmetic Mean / WEIGHTED_MEAN
   const sum = scoresList.reduce((a, b) => a + b, 0);
   return Math.round((sum / scoresList.length) * 10) / 10;
 }
@@ -595,19 +620,23 @@ candidatePortalRouter.get('/result', async (req, res) => {
       .filter(c => c.status !== 'NO_SHOW')
       .map(c => {
         const cRoom = db.rooms.find(r => r.id === c.roomId);
+        const hasSubmitted = db.evaluations.some(e => e.candidateId === c.id && e.status === 'SUBMITTED');
         return {
           id: c.id,
+          hasSubmitted,
           score: computeCandidateScore(c, db.evaluations, cRoom, db.settings)
         };
       })
-      .filter(c => c.score > 0);
+      .filter(c => c.hasSubmitted);
 
-    const totalCount = allCandidateScores.length || 1;
+    const totalCount = allCandidateScores.length;
     const rawScores = allCandidateScores.map(c => c.score);
     const scoreSum = rawScores.reduce((a, b) => a + b, 0);
-    const meanScore = Math.round((scoreSum / totalCount) * 10) / 10;
+    const meanScore = totalCount > 0 ? Math.round((scoreSum / totalCount) * 10) / 10 : 0;
 
-    const variance = rawScores.reduce((acc, val) => acc + Math.pow(val - meanScore, 2), 0) / totalCount;
+    const variance = totalCount > 0
+      ? rawScores.reduce((acc, val) => acc + Math.pow(val - meanScore, 2), 0) / totalCount
+      : 0;
     const stdDev = Math.round(Math.sqrt(variance) * 10) / 10;
 
     const sortedScores = [...rawScores].sort((a, b) => b - a);
@@ -622,8 +651,10 @@ candidatePortalRouter.get('/result', async (req, res) => {
         : 0;
 
     const higherCount = sortedScores.filter(s => s > myTotalScore).length;
-    const myRank = higherCount + 1;
-    const myPercentile = Math.round(((totalCount - higherCount) / totalCount) * 1000) / 10;
+    const myRank = totalCount > 0 ? higherCount + 1 : 1;
+    const myPercentile = totalCount > 0
+      ? Math.round(((totalCount - higherCount) / totalCount) * 1000) / 10
+      : 100;
 
     const criteriaStats: CandidateResultStats['criteriaStats'] = {};
     activeCriteria.forEach(crit => {

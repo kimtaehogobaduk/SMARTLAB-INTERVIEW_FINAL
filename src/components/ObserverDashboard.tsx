@@ -22,14 +22,14 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
 }) => {
   const submittedEvaluations = peerEvaluations.filter(e => e.status === 'SUBMITTED');
 
-  // Compute calculated scores for each evaluation
-  const scoredEvals = peerEvaluations.map(e => {
-    const calc = calculateEvaluatorScore(e.scores, e.presentationBonuses, settings.criteria || []);
+  // Compute calculated scores for each submitted evaluation
+  const scoredEvals = submittedEvaluations.map(e => {
+    const calc = calculateEvaluatorScore(e.scores, e.presentationBonuses, settings.criteria || [], e.presentationBonusTotal);
     return {
       ...e,
       computedTotal: calc.totalScore
     };
-  }).filter(e => e.computedTotal > 0);
+  });
 
   const averageScore = scoredEvals.length > 0
     ? (scoredEvals.reduce((acc, curr) => acc + curr.computedTotal, 0) / scoredEvals.length).toFixed(1)
@@ -188,15 +188,10 @@ export const ObserverDashboard: React.FC<ObserverDashboardProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Observer Guidelines */}
-        <div className="p-3.5 bg-slate-100/80 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
-          <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
-            <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
-            <span>관전 모드 안내</span>
-          </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            관전 모드에서는 채점표가 집계되지 않으며 순수 모니터링만 수행합니다. STT 자막, 질문 흐름, 서류 뷰어를 자유롭게 확인할 수 있습니다.
-          </p>
+        {/* Section 3: Observer Status */}
+        <div className="px-3.5 py-2.5 bg-slate-100/80 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center gap-2">
+          <ShieldCheck className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+          <span>관전 모드: 채점 집계 제외 · 실시간 모니터링 전용</span>
         </div>
       </div>
     </div>

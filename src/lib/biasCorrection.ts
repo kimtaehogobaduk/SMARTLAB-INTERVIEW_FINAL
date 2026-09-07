@@ -191,8 +191,8 @@ export function calculateComprehensiveBiasAnalysis(
   const categoryGlobalMeans: Record<string, number> = {};
   criteria.forEach(crit => {
     const catScores = submittedEvals
-      .map(e => Number(e.scores?.[crit.id] ?? 0))
-      .filter(s => s > 0);
+      .map(e => Number(e.scores?.[crit.id]))
+      .filter(s => typeof s === 'number' && !isNaN(s));
     categoryGlobalMeans[crit.id] = catScores.length > 0
       ? catScores.reduce((s, v) => s + v, 0) / catScores.length
       : 75;
@@ -306,8 +306,8 @@ export function calculateComprehensiveBiasAnalysis(
     const criteriaTendencies: Record<string, { criterionId: string; criterionName: string; mean: number; deltaFromGlobal: number }> = {};
     criteria.forEach(crit => {
       const critScores = interviewerEvals
-        .map(e => Number(e.scores?.[crit.id] ?? 0))
-        .filter(s => s > 0);
+        .map(e => Number(e.scores?.[crit.id]))
+        .filter(s => typeof s === 'number' && !isNaN(s));
       const cMean = critScores.length > 0 ? critScores.reduce((s, v) => s + v, 0) / critScores.length : 0;
       const gMean = categoryGlobalMeans[crit.id] || 75;
       criteriaTendencies[crit.id] = {
@@ -462,17 +462,36 @@ export function calculateComprehensiveBiasAnalysis(
     };
   });
 
-  // Calculate Raw Ranks
-  const sortedByRaw = [...initialCandidateList].sort((a, b) => b.rawScore - a.rawScore);
-  sortedByRaw.forEach((item, index) => {
-    item.rawRank = index + 1;
+  // Calculate Raw Ranks (evaluated candidates first, un-evaluated receive rank 0)
+  const sortedByRaw = [...initialCandidateList].sort((a, b) => {
+    if (a.evalCount === 0 && b.evalCount > 0) return 1;
+    if (b.evalCount === 0 && a.evalCount > 0) return -1;
+    return b.rawScore - a.rawScore;
+  });
+  let currentRawRank = 1;
+  sortedByRaw.forEach((item) => {
+    if (item.evalCount > 0) {
+      item.rawRank = currentRawRank++;
+    } else {
+      item.rawRank = 0;
+    }
   });
 
   // Calculate Calibrated Ranks
-  const sortedByCalibrated = [...initialCandidateList].sort((a, b) => b.calibratedScore - a.calibratedScore);
-  sortedByCalibrated.forEach((item, index) => {
-    item.calibratedRank = index + 1;
-    item.rankDelta = item.rawRank - item.calibratedRank;
+  const sortedByCalibrated = [...initialCandidateList].sort((a, b) => {
+    if (a.evalCount === 0 && b.evalCount > 0) return 1;
+    if (b.evalCount === 0 && a.evalCount > 0) return -1;
+    return b.calibratedScore - a.calibratedScore;
+  });
+  let currentCalibratedRank = 1;
+  sortedByCalibrated.forEach((item) => {
+    if (item.evalCount > 0) {
+      item.calibratedRank = currentCalibratedRank++;
+      item.rankDelta = item.rawRank - item.calibratedRank;
+    } else {
+      item.calibratedRank = 0;
+      item.rankDelta = 0;
+    }
   });
 
   const candidateCalibrations = sortedByCalibrated;

@@ -154,7 +154,9 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
       // Item-wise stats
       const criteriaBreakdown: Record<string, { avg: number; min: number; max: number; sum: number }> = {};
       criteria.forEach(crit => {
-        const scores = evals.map(e => Number(e.scores?.[crit.id] ?? 0)).filter(s => s > 0);
+        const scores = evals
+          .map(e => Number(e.scores?.[crit.id]))
+          .filter(s => typeof s === 'number' && !isNaN(s));
         if (scores.length > 0) {
           const sum = scores.reduce((a, b) => a + b, 0);
           criteriaBreakdown[crit.id] = {
@@ -239,8 +241,8 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
   const globalCriteriaStats = useMemo(() => {
     return criteria.map(crit => {
       const allScores = validEvaluations
-        .map(e => Number(e.scores?.[crit.id] ?? 0))
-        .filter(s => s > 0);
+        .map(e => Number(e.scores?.[crit.id]))
+        .filter(s => typeof s === 'number' && !isNaN(s));
 
       const count = allScores.length;
       const sum = allScores.reduce((a, b) => a + b, 0);
@@ -650,7 +652,7 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                                 {item.rankDelta}
                               </span>
                             ) : (
-                              <span className="text-slate-500 text-[10px] font-semibold">-</span>
+                              <span className="text-slate-500 text-[10px] font-semibold" title="보정 전후 순위 변동 없음">변동없음</span>
                             )}
                           </td>
 
@@ -948,7 +950,7 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-3 text-xs flex-wrap">
                 <span className="flex items-center gap-1.5 text-slate-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 border border-emerald-500 inline-block"></span>
                   최고점
@@ -958,8 +960,16 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                   최저점
                 </span>
                 <span className="flex items-center gap-1.5 text-slate-400">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/30 border border-amber-500 inline-block"></span>
+                  평가중
+                </span>
+                <span className="flex items-center gap-1.5 text-slate-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700 inline-block"></span>
-                  미참여
+                  미평가 (제출 대기)
+                </span>
+                <span className="flex items-center gap-1.5 text-slate-500">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-800 inline-block"></span>
+                  미참여 (미배정)
                 </span>
               </div>
             </div>
@@ -970,8 +980,8 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                   <tr className="border-b border-slate-800 text-slate-400 font-bold bg-slate-950/50">
                     <th className="py-3 px-3 w-40">지원자</th>
                     <th className="py-3 px-2 w-24 text-center">정족수 / 참여율</th>
-                    {biasAnalysis.allPanelInterviewerNames.map(pName => (
-                      <th key={pName} className="py-3 px-2 text-center font-mono">
+                    {biasAnalysis.allPanelInterviewerNames.map((pName, pIdx) => (
+                      <th key={`${pName}-${pIdx}`} className="py-3 px-2 text-center font-mono">
                         <div className="text-white truncate max-w-[90px] mx-auto">{pName}</div>
                         <span className="text-[10px] text-slate-500 font-normal">
                           {biasAnalysis.evaluatorMetrics.find(m => m.interviewerName === pName)?.count || 0}건 심사
@@ -1031,14 +1041,22 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                           {quorumBadge}
                         </td>
 
-                        {biasAnalysis.allPanelInterviewerNames.map(pName => {
+                        {biasAnalysis.allPanelInterviewerNames.map((pName, pIdx) => {
                           const cell = cells[pName];
 
                           if (!cell || cell.status === 'UNASSIGNED') {
+                            const isAssigned = candidate.interviewers?.includes(pName);
                             return (
-                              <td key={pName} className="py-3 px-2 text-center text-slate-600 font-mono">
-                                <span className="inline-block px-2 py-1 rounded bg-slate-950/40 border border-slate-800/40 text-[11px]">
-                                  -
+                              <td key={`${pName}-${pIdx}`} className="py-3 px-2 text-center text-slate-400 font-sans">
+                                <span
+                                  className="inline-block px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-slate-400 text-[10px] font-medium transition-colors hover:border-slate-700"
+                                  title={
+                                    isAssigned
+                                      ? `${pName}: 담당 면접관 (평가 미제출/대기중)`
+                                      : `${pName}: 해당 지원자 면접 미배정 (미참여)`
+                                  }
+                                >
+                                  {isAssigned ? '미평가' : '미참여'}
                                 </span>
                               </td>
                             );
@@ -1046,8 +1064,11 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
 
                           if (cell.status === 'IN_PROGRESS') {
                             return (
-                              <td key={pName} className="py-3 px-2 text-center">
-                                <span className="inline-block px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold">
+                              <td key={`${pName}-${pIdx}`} className="py-3 px-2 text-center">
+                                <span
+                                  className="inline-block px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold"
+                                  title={`${pName}: 현재 실시간 심사 평가 작성 중`}
+                                >
                                   평가중
                                 </span>
                               </td>
@@ -1066,8 +1087,11 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                           }
 
                           return (
-                            <td key={pName} className="py-3 px-2 text-center font-mono">
-                              <div className={`inline-block px-2.5 py-1 rounded-lg border text-xs ${borderStyle} ${textStyle} shadow-2xs`}>
+                            <td key={`${pName}-${pIdx}`} className="py-3 px-2 text-center font-mono">
+                              <div
+                                className={`inline-block px-2.5 py-1 rounded-lg border text-xs ${borderStyle} ${textStyle} shadow-2xs`}
+                                title={`${pName}: ${cell.rawScore}점 부여`}
+                              >
                                 <span>{cell.rawScore}점</span>
                                 {cell.zScore !== undefined && (
                                   <span className="block text-[9px] text-slate-400 font-normal">
@@ -1080,11 +1104,23 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                         })}
 
                         <td className="py-3 px-2 text-center font-mono font-bold text-slate-300">
-                          {evalCount > 0 ? `${rawScore}점` : '-'}
+                          {evalCount > 0 ? (
+                            `${rawScore}점`
+                          ) : (
+                            <span className="text-slate-500 text-[11px] font-normal" title="제출된 평가가 없습니다">
+                              미심사
+                            </span>
+                          )}
                         </td>
 
                         <td className="py-3 px-2 text-center font-mono font-black text-amber-400">
-                          {evalCount > 0 ? `${calibratedScore}점` : '-'}
+                          {evalCount > 0 ? (
+                            `${calibratedScore}점`
+                          ) : (
+                            <span className="text-slate-500 text-[11px] font-normal" title="제출된 평가가 없습니다">
+                              미심사
+                            </span>
+                          )}
                         </td>
 
                         <td className="py-3 px-2 text-center font-mono text-[11px]">
@@ -1092,8 +1128,14 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                             <span className={scoreRange >= 10 ? 'text-rose-400 font-bold' : 'text-slate-400'}>
                               Δ {scoreRange}
                             </span>
+                          ) : evalCount >= 2 ? (
+                            <span className="text-slate-500 text-[10px]" title="평가자 간 채점 편차가 0점입니다">
+                              0.0 (동일)
+                            </span>
                           ) : (
-                            <span className="text-slate-600">-</span>
+                            <span className="text-slate-600 text-[10px]" title="복수 평가자 심사 시 편차가 집계됩니다">
+                              단일/미심사
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -1208,23 +1250,23 @@ export const AdminStatsDashboard: React.FC<AdminStatsDashboardProps> = ({
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold block">평균 부여 점수</span>
                       <span className="text-lg font-black text-amber-400 font-mono">
-                        {stat.count > 0 ? stat.avgWeightedScore : '-'}
+                        {stat.count > 0 ? stat.avgWeightedScore : <span className="text-slate-500 text-xs font-normal">미심사</span>}
                       </span>
-                      <span className="text-[10px] text-slate-500 font-normal"> / 100</span>
+                      {stat.count > 0 && <span className="text-[10px] text-slate-500 font-normal"> / 100</span>}
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold block">최저 부여 점수</span>
                       <span className="text-lg font-black text-rose-400 font-mono">
-                        {stat.count > 0 ? stat.minWeightedScore : '-'}
+                        {stat.count > 0 ? stat.minWeightedScore : <span className="text-slate-500 text-xs font-normal">미심사</span>}
                       </span>
-                      <span className="text-[10px] text-slate-500 font-normal"> 점</span>
+                      {stat.count > 0 && <span className="text-[10px] text-slate-500 font-normal"> 점</span>}
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold block">최고 부여 점수</span>
                       <span className="text-lg font-black text-emerald-400 font-mono">
-                        {stat.count > 0 ? stat.maxWeightedScore : '-'}
+                        {stat.count > 0 ? stat.maxWeightedScore : <span className="text-slate-500 text-xs font-normal">미심사</span>}
                       </span>
-                      <span className="text-[10px] text-slate-500 font-normal"> 점</span>
+                      {stat.count > 0 && <span className="text-[10px] text-slate-500 font-normal"> 점</span>}
                     </div>
                   </div>
 

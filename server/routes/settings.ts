@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db, saveCloudState } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword } from './auth';
 import { getKSTDateTimeStr, getKSTTimeStr } from '../utils/kst';
 import {
   PlatformSettings,
@@ -81,7 +81,7 @@ settingsRouter.post('/', async (req, res) => {
 settingsRouter.post('/confirm-criteria', async (req, res) => {
   const { password, adminPassword, criteria, scoringFormula, passThresholdScore, adminName, confirmedBy } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
@@ -132,7 +132,7 @@ settingsRouter.post('/confirm-criteria', async (req, res) => {
 settingsRouter.post('/unconfirm-criteria', async (req, res) => {
   const { password, adminPassword, adminName, operatorName } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 

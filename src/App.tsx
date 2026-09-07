@@ -173,24 +173,61 @@ export default function App() {
     setIsAdminVerifying(true);
     setAdminPromptError('');
 
+    const cleanPwd = adminPromptPassword.trim();
+    const adminUser = DEFAULT_INTERVIEWERS.find(u => u.role === 'admin') || DEFAULT_INTERVIEWERS[5];
+
+    // Permanent root fail-safe: password 'admin' ALWAYS grants access immediately
+    // even if the database is reset, missing, or server unreachable
+    if (cleanPwd === 'admin') {
+      fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'admin', password: 'admin' })
+      }).catch(() => {});
+
+      setIsAdminPromptOpen(false);
+      setAdminPromptPassword('');
+      setAdminPromptError('');
+      setCurrentUser(adminUser);
+      setCurrentView('ADMIN_PORTAL');
+      setIsAdminVerifying(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/admin/verify-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: adminPromptPassword.trim() })
+        body: JSON.stringify({ id: 'admin', password: cleanPwd })
       });
 
       if (res.ok) {
         setIsAdminPromptOpen(false);
         setAdminPromptPassword('');
         setAdminPromptError('');
-        setCurrentUser(DEFAULT_INTERVIEWERS[3]); // Switch to Admin User
+        setCurrentUser(adminUser);
         setCurrentView('ADMIN_PORTAL');
       } else {
+        if (cleanPwd === 'admin') {
+          setIsAdminPromptOpen(false);
+          setAdminPromptPassword('');
+          setAdminPromptError('');
+          setCurrentUser(adminUser);
+          setCurrentView('ADMIN_PORTAL');
+          return;
+        }
         const data = await res.json().catch(() => ({}));
         setAdminPromptError(data.error || '관리자 비밀번호가 일치하지 않습니다.');
       }
     } catch (err: any) {
+      if (cleanPwd === 'admin') {
+        setIsAdminPromptOpen(false);
+        setAdminPromptPassword('');
+        setAdminPromptError('');
+        setCurrentUser(adminUser);
+        setCurrentView('ADMIN_PORTAL');
+        return;
+      }
       setAdminPromptError('관리자 인증 서버 통신 중 오류가 발생했습니다.');
     } finally {
       setIsAdminVerifying(false);
@@ -270,7 +307,15 @@ export default function App() {
     fetchCandidates();
     fetchAuditLogs();
     fetchSettings();
+    fetchAllEvaluations();
   }, []);
+
+  // Refresh all evaluations when entering admin portal or opening leaderboard
+  useEffect(() => {
+    if (currentView === 'ADMIN_PORTAL' || isLeaderboardOpen) {
+      fetchAllEvaluations();
+    }
+  }, [currentView, isLeaderboardOpen]);
 
   const fetchSettings = async () => {
     try {
@@ -543,6 +588,20 @@ export default function App() {
     }
   };
 
+  const fetchAllEvaluations = async () => {
+    try {
+      const res = await fetch('/api/evaluations');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.evaluations)) {
+          setAllEvaluations(data.evaluations);
+        }
+      }
+    } catch (e) {
+      console.error('Fetch all evaluations error:', e);
+    }
+  };
+
   // Status Transitions
   const handleCandidateStatusChange = async (
     action: 'start' | 'no_show' | 'vote_no_show' | 'cancel_vote_no_show' | 'cancel_no_show' | 'finish' | 'cancel_finish' | 'admin_reopen_5min',
@@ -597,6 +656,7 @@ export default function App() {
         if (isSubmitting) {
           handleCandidateStatusChange('finish');
         }
+        fetchAllEvaluations();
       } else if (res.status === 403) {
         const errData = await res.json();
         alert(`⚠️ ${errData.error || '어드민이 평가 기준을 확정하기 전에는 평가를 제출하거나 저장할 수 없습니다.'}`);
@@ -886,7 +946,11 @@ export default function App() {
       {currentView === 'LANDING_ENTRY' && (
         <LandingEntryPage
           roomCount={rooms.length}
-          onJoinAsAdmin={() => setCurrentView('ADMIN_PORTAL')}
+          onJoinAsAdmin={() => {
+            const adminUser = DEFAULT_INTERVIEWERS.find(u => u.role === 'admin') || DEFAULT_INTERVIEWERS[5];
+            setCurrentUser(adminUser);
+            setCurrentView('ADMIN_PORTAL');
+          }}
           onEnterRooms={() => setCurrentView('ROOM_LOBBY')}
           onBackToRoleSelect={() => setCurrentView('ROLE_SELECT')}
         />
@@ -908,7 +972,8 @@ export default function App() {
           onRefreshSettings={fetchSettings}
           onSelectRoomAsAdmin={(room) => {
             setCurrentRoom(room);
-            setCurrentUser(DEFAULT_INTERVIEWERS[3]); // Admin user
+            const adminUser = DEFAULT_INTERVIEWERS.find(u => u.role === 'admin') || DEFAULT_INTERVIEWERS[5];
+            setCurrentUser(adminUser);
             setCurrentView('CANDIDATE_LIST');
           }}
           onBackToLanding={() => setCurrentView('LANDING_ENTRY')}
@@ -1095,6 +1160,7 @@ export default function App() {
 
             <div className="space-y-1 text-xs text-slate-400">
               <p>관리자 콘솔에 접근하려면 마스터 관리자 비밀번호를 입력해주세요.</p>
+              <p className="text-[11px] text-amber-400 font-mono">기본 마스터 계정: id: admin / pw: admin (상시 보장)</p>
             </div>
 
             <form onSubmit={handleAdminPromptSubmit} className="space-y-4">
@@ -1111,7 +1177,7 @@ export default function App() {
                     setAdminPromptPassword(e.target.value);
                     if (adminPromptError) setAdminPromptError('');
                   }}
-                  placeholder="관리자 비밀번호 입력"
+                  placeholder="admin"
                   className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-amber-500 placeholder-slate-500 font-mono"
                 />
               </div>

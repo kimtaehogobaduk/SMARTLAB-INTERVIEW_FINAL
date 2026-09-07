@@ -113,32 +113,50 @@ export const COLOR_MAP: Record<string, CriterionColorStyle> = {
 
 /**
  * Calculates weighted score, presentation bonus, and total score for a single evaluation.
+ * Universally normalizes weights regardless of sum, and safeguards against missing/NaN values.
  */
 export function calculateEvaluatorScore(
   scores: Record<string, number> | undefined,
   bonuses: Record<string, number> | undefined,
-  criteria: EvaluationCriterion[]
+  criteria: EvaluationCriterion[],
+  presentationBonusTotal?: number
 ): { baseScore: number; bonusScore: number; totalScore: number } {
   if (!scores) {
     return { baseScore: 0, bonusScore: 0, totalScore: 0 };
   }
 
+  const activeCriteria = criteria && criteria.length > 0 ? criteria : DEFAULT_CRITERIA;
+  const totalWeight = activeCriteria.reduce((sum, crit) => sum + (Number(crit.weight) || 0), 0);
+  const weightDivisor = totalWeight > 0 ? totalWeight : 100;
+
   let baseSum = 0;
   let bonusSum = 0;
 
-  criteria.forEach(crit => {
-    const rawScore = Number(scores[crit.id]) || 0;
+  activeCriteria.forEach(crit => {
+    const rawVal = Number(scores[crit.id]);
+    const validRaw = !isNaN(rawVal) ? rawVal : 0;
     const weight = Number(crit.weight) || 0;
-    const bonus = Number(bonuses?.[crit.id]) || 0;
 
-    baseSum += (rawScore * weight) / 100;
-    bonusSum += bonus;
+    baseSum += validRaw * weight;
+
+    if (presentationBonusTotal === undefined) {
+      const bonusVal = Number(bonuses?.[crit.id]);
+      if (!isNaN(bonusVal)) {
+        bonusSum += bonusVal;
+      }
+    }
   });
 
-  const totalSum = baseSum + bonusSum;
+  if (presentationBonusTotal !== undefined) {
+    const pVal = Number(presentationBonusTotal);
+    bonusSum = !isNaN(pVal) ? pVal : 0;
+  }
+
+  const normalizedBase = baseSum / weightDivisor;
+  const totalSum = normalizedBase + bonusSum;
 
   return {
-    baseScore: Math.round(baseSum * 10) / 10,
+    baseScore: Math.round(normalizedBase * 10) / 10,
     bonusScore: Math.round(bonusSum * 10) / 10,
     totalScore: Math.round(totalSum * 10) / 10
   };
@@ -146,23 +164,31 @@ export function calculateEvaluatorScore(
 
 /**
  * Calculates candidate final aggregated score from all evaluators based on platform formula.
+ * Filters out invalid/NaN entries and cleanly calculates Trimmed Mean, Median, Weighted Mean, or Arithmetic Mean.
  */
 export function calculateAggregatedScore(
   evaluatorScores: number[],
   formula: ScoringFormula = 'TRIMMED_MEAN'
 ): number {
-  const count = evaluatorScores.length;
+  if (!Array.isArray(evaluatorScores)) return 0;
+  const validScores = evaluatorScores.filter(s => typeof s === 'number' && !isNaN(s));
+  const count = validScores.length;
   if (count === 0) return 0;
 
-  if (formula === 'TRIMMED_MEAN' && count >= 3) {
-    const sorted = [...evaluatorScores].sort((a, b) => a - b);
-    const trimmed = sorted.slice(1, -1);
-    const sum = trimmed.reduce((a, b) => a + b, 0);
-    return Math.round((sum / trimmed.length) * 10) / 10;
+  if (formula === 'TRIMMED_MEAN') {
+    if (count >= 3) {
+      const sorted = [...validScores].sort((a, b) => a - b);
+      const trimmed = sorted.slice(1, -1);
+      const sum = trimmed.reduce((a, b) => a + b, 0);
+      return Math.round((sum / trimmed.length) * 10) / 10;
+    }
+    // Fallback to mean for 1 or 2 evaluators where trimming would remove all data
+    const sum = validScores.reduce((a, b) => a + b, 0);
+    return Math.round((sum / count) * 10) / 10;
   }
 
   if (formula === 'MEDIAN') {
-    const sorted = [...evaluatorScores].sort((a, b) => a - b);
+    const sorted = [...validScores].sort((a, b) => a - b);
     const mid = Math.floor(count / 2);
     if (count % 2 !== 0) {
       return Math.round(sorted[mid] * 10) / 10;
@@ -171,8 +197,8 @@ export function calculateAggregatedScore(
     }
   }
 
-  // Default: Arithmetic MEAN
-  const sum = evaluatorScores.reduce((a, b) => a + b, 0);
+  // Standard Arithmetic Mean (also used for WEIGHTED_MEAN across evaluators whose scores are already criteria-weighted)
+  const sum = validScores.reduce((a, b) => a + b, 0);
   return Math.round((sum / count) * 10) / 10;
 }
 

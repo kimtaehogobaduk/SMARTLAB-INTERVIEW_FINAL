@@ -818,9 +818,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                   className="w-full px-3 py-2 border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-mono text-xs bg-white"
                   required
                 />
-                <p className="text-[10px] text-blue-700">
-                  💡 구글 닥스 공유 링크가 자동으로 <span className="font-bold font-mono">/preview</span> 인앱 뷰어로 변환되어 서류 탭 안에서 즉시 렌더링됩니다.
-                </p>
               </div>
             )}
 
@@ -829,7 +826,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
               <div className="space-y-2 bg-sky-50/60 p-4 rounded-xl border border-sky-200">
                 <label className="block font-bold text-sky-950 mb-1 flex items-center gap-1.5">
                   <Globe className="w-4 h-4 text-sky-600" />
-                  <span>외부 웹사이트 / 노션 포트폴리오 링크 (인앱 탭 로딩)</span>
+                  <span>웹 링크 (노션, 깃허브, 포트폴리오)</span>
                 </label>
                 <input
                   type="url"
@@ -838,13 +835,10 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                     setNewUrl(e.target.value);
                     if (!newTitle) setNewTitle('온라인 포트폴리오');
                   }}
-                  placeholder="https://notion.so/... or https://github.com/..."
+                  placeholder="https://notion.so/... 또는 https://github.com/..."
                   className="w-full px-3 py-2 border border-sky-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-hidden font-mono text-xs bg-white"
                   required
                 />
-                <p className="text-[10px] text-sky-700">
-                  💡 다른 페이지로 이동하지 않고 지원서류 탭 내 전용 인앱 뷰어에서 바로 로드됩니다.
-                </p>
               </div>
             )}
 

@@ -85,11 +85,25 @@ class TTSEngine {
     }
   }
 
+  private deduplicateVoices(rawList: SpeechSynthesisVoice[]): SpeechSynthesisVoice[] {
+    const seen = new Set<string>();
+    const unique: SpeechSynthesisVoice[] = [];
+    for (const v of rawList) {
+      const id = v.voiceURI || `${v.name}__${v.lang}`;
+      if (!seen.has(id)) {
+        seen.add(id);
+        unique.push(v);
+      }
+    }
+    return unique;
+  }
+
   private initVoices() {
     if (!this.isAvailable) return;
 
     const populate = () => {
-      this.voices = window.speechSynthesis.getVoices() || [];
+      const raw = window.speechSynthesis.getVoices() || [];
+      this.voices = this.deduplicateVoices(raw);
       this.notifyStateChanged();
     };
 
@@ -123,7 +137,8 @@ class TTSEngine {
 
   public getVoices(): SpeechSynthesisVoice[] {
     if (this.voices.length === 0 && this.isAvailable) {
-      this.voices = window.speechSynthesis.getVoices() || [];
+      const raw = window.speechSynthesis.getVoices() || [];
+      this.voices = this.deduplicateVoices(raw);
     }
     return this.voices;
   }

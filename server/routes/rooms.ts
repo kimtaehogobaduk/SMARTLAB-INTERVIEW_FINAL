@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db, saveCloudState } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword } from './auth';
 import { InterviewRoomInfo, SecurityQuizItem } from '../../src/types';
 
 export const roomsRouter = Router();
@@ -8,7 +8,7 @@ export const roomsRouter = Router();
 // GET /api/rooms - List all rooms with security status & candidate count
 roomsRouter.get('/', (req, res) => {
   const { isAdmin, adminPassword } = req.query;
-  const isMasterAdmin = isAdmin === 'true' && adminPassword === getEffectiveAdminPassword();
+  const isMasterAdmin = isAdmin === 'true' && isValidAdminPassword(adminPassword as string);
 
   const roomsWithCount = db.rooms.map(room => {
     const hasLock = Boolean(room.securityType && room.securityType !== 'NONE');
@@ -59,8 +59,7 @@ roomsRouter.post('/:id/verify-access', async (req, res) => {
   const room = db.rooms.find(r => r.id === id);
   if (!room) return res.status(404).json({ error: '존재하지 않는 면접방입니다.' });
 
-  const masterPwd = getEffectiveAdminPassword();
-  if (adminPassword && adminPassword === masterPwd) {
+  if (adminPassword && isValidAdminPassword(adminPassword)) {
     return res.json({ success: true, authorized: true, roomName: room.name, accessType: 'ADMIN_OVERRIDE' });
   }
 
@@ -187,7 +186,7 @@ roomsRouter.post('/', async (req, res) => {
     securityAnswer
   } = req.body;
   const pwd = adminPassword || password;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 권한 인증에 실패했습니다.' });
   }
   const roomName = (name || title || '').trim();
@@ -297,7 +296,7 @@ roomsRouter.put('/:id', async (req, res) => {
     securityQuizzes
   } = req.body;
   const pwd = adminPassword || password;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 권한 인증에 실패했습니다.' });
   }
 
@@ -417,7 +416,7 @@ roomsRouter.post('/:id/confirm-criteria', async (req, res) => {
   const { id } = req.params;
   const { password, adminPassword, criteria, scoringFormula, passThresholdScore, confirmedBy, adminName } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
@@ -473,7 +472,7 @@ roomsRouter.post('/:id/unconfirm-criteria', async (req, res) => {
   const { id } = req.params;
   const { password, adminPassword, adminName, operatorName } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
@@ -502,7 +501,7 @@ roomsRouter.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const { adminPassword, password } = req.body;
   const pwd = adminPassword || password;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 권한 인증에 실패했습니다.' });
   }
 

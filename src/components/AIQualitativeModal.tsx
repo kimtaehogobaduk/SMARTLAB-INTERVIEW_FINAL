@@ -104,9 +104,6 @@ export const AIQualitativeModal: React.FC<AIQualitativeModalProps> = ({
                 onRefreshAI={onRefreshSynthesis}
                 isLoading={isLoading}
               />
-              <div className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                💡 <strong>마인드맵 조작 안내:</strong> 마우스 드래그로 캔버스 이동, 휠로 확대/축소, 각 노드를 클릭하면 면접 중 포착된 세부 분석 내용이 팝업으로 노출됩니다.
-              </div>
             </div>
           ) : (
             <div className="space-y-5">

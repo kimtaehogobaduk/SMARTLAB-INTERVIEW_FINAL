@@ -147,60 +147,60 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden text-slate-100 font-sans">
-      {/* Background glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden text-slate-100 font-sans select-none">
+      {/* Subtle Ambient Radial Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
 
-      <div className="w-full max-w-2xl bg-slate-900/95 border border-slate-800 rounded-3xl shadow-2xl p-6 sm:p-8 backdrop-blur-xl relative z-10 space-y-6 animate-fade-in">
+      <div className="w-full max-w-2xl bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-6 sm:p-8 backdrop-blur-md relative z-10 space-y-6 animate-fade-in">
         
         {/* Top Navigation */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800/70">
           <button
             type="button"
             onClick={onBackToRoleSelect}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700/60"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>역할 선택으로 돌아가기</span>
           </button>
           
-          <div className="flex items-center gap-2 text-xs text-blue-400 font-semibold">
-            <GraduationCap className="w-4 h-4" />
-            <span>지원자(학생) 전용 등록 & 포털</span>
+          <div className="flex items-center gap-1.5 text-xs text-blue-400 font-medium">
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>지원자 포털</span>
           </div>
         </div>
 
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex justify-center scale-100">
+        <div className="text-center space-y-1.5 pt-1">
+          <div className="inline-flex justify-center">
             <SmartLabLogo size="md" />
           </div>
-          <h2 className="text-2xl font-black text-white">
-            지원자 면접 방 선택 및 본인 확인
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            지원자 본인 확인
           </h2>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            지원하신 <strong className="text-slate-200">면접 방</strong>을 선택하고, <strong className="text-slate-200">학번과 성함</strong>을 입력해주세요. 이전에 접속한 적이 있다면 기존에 등록하셨던 페이지와 제출 서류가 즉시 복원됩니다.
+            지원하신 면접 방을 선택하고 학번과 성함을 입력해주세요.
           </p>
         </div>
 
         {/* Quick Autofill Alert if previous session detected */}
         {hasSavedSession && savedSessionInfo && (
-          <div className="p-3.5 bg-blue-950/50 border border-blue-800/60 rounded-2xl flex items-center justify-between gap-3 text-xs animate-fade-in">
+          <div className="p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl flex items-center justify-between gap-3 text-xs animate-fade-in">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                <FileCheck className="w-4 h-4" />
+              <div className="w-6 h-6 rounded-md bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+                <FileCheck className="w-3.5 h-3.5" />
               </div>
               <div>
-                <span className="font-bold text-white">이전 접속 정보 감지: </span>
+                <span className="font-semibold text-white">이전 접속 정보: </span>
                 <span className="text-blue-300">{savedSessionInfo.name} ({savedSessionInfo.studentId})</span>
               </div>
             </div>
             <button
               type="button"
               onClick={handleApplySavedSession}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-[11px] transition-all cursor-pointer"
+              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md font-medium text-[11px] transition-all cursor-pointer"
             >
-              내 정보 불러오기
+              불러오기
             </button>
           </div>
         )}
@@ -209,10 +209,10 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
           
           {/* Step 1: Room Selection */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                <span>1. 지원할 면접 평가 방 선택 *</span>
+                <span>1. 지원할 면접 평가 방 선택</span>
               </span>
               <span className="text-[11px] text-slate-500 font-normal">개설된 방: {rooms.length}개</span>
             </label>
@@ -225,14 +225,14 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                     key={room.id}
                     type="button"
                     onClick={() => setSelectedRoomId(room.id)}
-                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
                       isSelected
-                        ? 'bg-blue-600/15 border-blue-500 ring-2 ring-blue-500/30 text-white'
-                        : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 text-slate-300'
+                        ? 'bg-blue-600/10 border-blue-500/80 text-white shadow-xs'
+                        : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/70 text-slate-300'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="font-bold text-xs text-white line-clamp-1">
+                      <div className="font-semibold text-xs text-white line-clamp-1">
                         {room.name || room.title}
                       </div>
                       {isSelected && (
@@ -243,7 +243,7 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                       {room.description || 'SmartLab 직무 심층 면접'}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-700/40">
-                      <span>면접관: {room.interviewers?.length || room.panelCount || 2}명 배정</span>
+                      <span>면접관 {room.interviewers?.length || room.panelCount || 2}명 배정</span>
                       <span>•</span>
                       <span>1인당 {room.minutesPerPerson || 30}분</span>
                     </div>
@@ -254,15 +254,15 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
           </div>
 
           {/* Step 2: Student Identification */}
-          <div className="space-y-3 pt-2 border-t border-slate-800">
-            <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <div className="space-y-3 pt-2 border-t border-slate-800/70">
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-blue-400" />
-              <span>2. 지원자 본인 확인 (학번 및 성명) *</span>
+              <span>2. 지원자 본인 확인</span>
             </label>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                <label className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
                   <Hash className="w-3 h-3 text-slate-500" />
                   <span>학번 *</span>
                 </label>
@@ -275,12 +275,12 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                     if (errorMsg) setErrorMsg('');
                   }}
                   placeholder="예: 202410101"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                <label className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
                   <User className="w-3 h-3 text-slate-500" />
                   <span>성함 *</span>
                 </label>
@@ -293,15 +293,15 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                     if (errorMsg) setErrorMsg('');
                   }}
                   placeholder="예: 김태호"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500 font-bold"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs font-semibold focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500"
                 />
               </div>
             </div>
 
             {/* Optional details (Phone) */}
-            <div className="pt-1">
+            <div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400">
+                <label className="text-[11px] font-medium text-slate-400">
                   비상 연락처 (선택)
                 </label>
                 <input
@@ -309,27 +309,24 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="예: 010-1234-5678"
-                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500"
                 />
               </div>
             </div>
           </div>
 
-          {/* Step 3: Mandatory Interview Schedule Details */}
-          <div className="space-y-3 pt-2 border-t border-slate-800">
-            <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+          {/* Step 3: Interview Schedule Details */}
+          <div className="space-y-3 pt-2 border-t border-slate-800/70">
+            <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-blue-400" />
-                <span>3. 면접 희망 / 예정 일정 확인 및 입력 *</span>
-              </span>
-              <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md font-semibold">
-                필수 입력 항목
+                <span>3. 면접 일정 입력</span>
               </span>
             </label>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400">
+                <label className="text-[11px] font-medium text-slate-400">
                   면접 일자 *
                 </label>
                 <input
@@ -337,40 +334,36 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
                   required
                   value={interviewDate}
                   onChange={(e) => setInterviewDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400">
-                  희망 시작 시간 *
+                <label className="text-[11px] font-medium text-slate-400">
+                  시작 시간 *
                 </label>
                 <input
                   type="time"
                   required
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400">
-                  희망 종료 시간 *
+                <label className="text-[11px] font-medium text-slate-400">
+                  종료 시간 *
                 </label>
                 <input
                   type="time"
                   required
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
-
-            <p className="text-[11px] text-slate-400 bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/50">
-              💡 입력하신 면접 시간은 면접관 시스템에 실시간으로 공유되며, 면접 10분 전 자동 알림 및 실시간 대기실 상태와 동기화됩니다.
-            </p>
           </div>
 
           {/* Error Message */}
@@ -386,18 +379,20 @@ export const CandidateEntryFlow: React.FC<CandidateEntryFlowProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || !studentId.trim() || !name.trim()}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg font-medium text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>{isSubmitting ? '지원자 포털 불러오는 중...' : '지원자 포털 입장하기'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>{isSubmitting ? '불러오는 중...' : '지원자 포털 입장하기'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <p className="text-[11px] text-slate-500 text-center">
-            * 입력하신 학번과 성함은 다음 접속 시 브라우저 및 서버에 기억되어 동일한 지원서 상태로 안전하게 연결됩니다.
-          </p>
-
         </form>
+
+        {/* Footer info */}
+        <div className="pt-2 border-t border-slate-800/70 flex items-center justify-between text-[11px] text-slate-500">
+          <span>지원자 본인 식별 및 서류 등록 시스템</span>
+          <span className="font-mono text-slate-500">SmartLab Platform</span>
+        </div>
 
       </div>
     </div>

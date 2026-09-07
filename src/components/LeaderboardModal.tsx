@@ -44,7 +44,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
     // Calculate individual weighted totals for each evaluator based on active criteria + presentation bonuses
     const evaluatorScores = candidateEvals.map(e => {
-      const res = calculateEvaluatorScore(e.scores, e.presentationBonuses, activeCriteria);
+      const res = calculateEvaluatorScore(e.scores, e.presentationBonuses, activeCriteria, e.presentationBonusTotal);
       return res.totalScore;
     });
 
@@ -59,8 +59,11 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
     const criteriaAverages: Record<string, number> = {};
     activeCriteria.forEach(crit => {
       if (candidateEvals.length > 0) {
-        const sum = candidateEvals.reduce((s, e) => s + (e.scores?.[crit.id] ?? 0), 0);
-        criteriaAverages[crit.id] = sum / candidateEvals.length;
+        const sum = candidateEvals.reduce((s, e) => {
+          const val = Number(e.scores?.[crit.id]);
+          return s + (!isNaN(val) ? val : 0);
+        }, 0);
+        criteriaAverages[crit.id] = Math.round((sum / candidateEvals.length) * 10) / 10;
       } else {
         criteriaAverages[crit.id] = 0;
       }
@@ -91,6 +94,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const filteredRankings = computedList
     .filter(item => selectedTrack === 'ALL' || item.candidate.track === selectedTrack)
     .sort((a, b) => {
+      if (a.evalCount === 0 && b.evalCount > 0) return 1;
+      if (b.evalCount === 0 && a.evalCount > 0) return -1;
       if (b.finalScore !== a.finalScore) {
         return b.finalScore - a.finalScore;
       }

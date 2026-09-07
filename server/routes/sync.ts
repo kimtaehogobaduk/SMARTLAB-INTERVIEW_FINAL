@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db, saveCloudState, loadCloudState } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword } from './auth';
 import { checkAndAutoFinalizeReopenedCandidates } from '../utils/autoFinalize';
 import { getKSTDateTimeStr } from '../utils/kst';
 
@@ -85,7 +85,7 @@ syncRouter.post('/cloud-restore', async (req, res) => {
 syncRouter.get('/export/backup', (req, res) => {
   const { password, adminPassword } = req.query;
   const pwd = (password || adminPassword || '').toString();
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
@@ -110,7 +110,7 @@ syncRouter.get('/export/backup', (req, res) => {
 syncRouter.post('/import/backup', async (req, res) => {
   const { password, adminPassword, backupData } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
@@ -152,7 +152,7 @@ syncRouter.post('/import/backup', async (req, res) => {
 syncRouter.post('/reset-data', async (req, res) => {
   const { password, adminPassword, keepRooms = true } = req.body;
   const pwd = password || adminPassword;
-  if (pwd !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 

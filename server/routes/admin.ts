@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db, saveCloudState } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword, isValidAdminCredentials } from './auth';
 import { getKSTDateTimeStr, getKSTTimeStr } from '../utils/kst';
 import { generateCandidateDetailedReportAI, generateQualitativeSynthesisAI } from '../ai';
 import { InterviewerNameDisplayPolicy } from '../../src/types';
@@ -16,10 +16,11 @@ adminRouter.get('/admin/audit-logs', handleGetAuditLogs);
 
 // POST /api/admin/verify-password & /api/verify-password
 const handleVerifyPassword = (req: any, res: any) => {
-  const { password, adminPassword } = req.body || {};
+  const { password, adminPassword, id, username } = req.body || {};
+  const inputId = (id || username || '').toString().trim().toLowerCase();
   const pwd = (password || adminPassword || '').trim();
-  if (pwd === getEffectiveAdminPassword()) {
-    return res.json({ success: true, authorized: true });
+  if (isValidAdminCredentials(inputId, pwd) || isValidAdminPassword(pwd)) {
+    return res.json({ success: true, authorized: true, valid: true });
   }
   return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
 };
@@ -28,8 +29,9 @@ adminRouter.post('/admin/verify-password', handleVerifyPassword);
 
 // POST /api/admin/unlock-edit - Temporary unlock
 const handleUnlockEdit = async (req: any, res: any) => {
-  const { password, candidateId, durationSeconds, operatorName } = req.body;
-  if (password !== getEffectiveAdminPassword()) {
+  const { password, adminPassword, candidateId, durationSeconds, operatorName } = req.body;
+  const pwd = password || adminPassword;
+  if (!isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 

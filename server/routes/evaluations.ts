@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import { db, saveCloudState, atomicUpsertEvaluation } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword } from './auth';
 import { getKSTDateTimeStr, getKSTTimeStr } from '../utils/kst';
 import { candidateMutex } from '../utils/mutex';
 import { generateQualitativeSynthesisAI, generateCandidateDetailedReportAI } from '../ai';
 import { Evaluation, InterviewerNameDisplayPolicy } from '../../src/types';
 
 export const evaluationsRouter = Router();
+
+// GET /api/evaluations - Get all evaluations for admin overview and bias analysis
+evaluationsRouter.get('/', (req, res) => {
+  res.json({ evaluations: db.evaluations || [] });
+});
 
 // GET /api/candidates/:id/evaluations - Get candidate evaluations with blind protection
 evaluationsRouter.get('/candidates/:id/evaluations', (req, res) => {
@@ -103,7 +108,7 @@ evaluationsRouter.post('/candidates/:id/evaluations', async (req, res) => {
 // POST /api/admin/unlock-edit - Admin 5-min grace period unlock
 evaluationsRouter.post('/admin/unlock-edit', async (req, res) => {
   const { password, candidateId, durationSeconds, operatorName } = req.body;
-  if (password !== getEffectiveAdminPassword()) {
+  if (!isValidAdminPassword(password)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 

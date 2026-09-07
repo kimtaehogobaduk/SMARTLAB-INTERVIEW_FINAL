@@ -143,11 +143,13 @@ export const SystemSettingsModal: React.FC = () => {
                   className="w-full px-2.5 py-2 bg-theme-app border border-theme-main rounded-xl text-xs text-theme-primary focus:outline-hidden focus:border-theme-accent"
                 >
                   <option value="">자동 선택 (시스템 최적 한국어 음성)</option>
-                  {(koreanVoices.length > 0 ? koreanVoices : allVoices).map((v) => (
-                    <option key={v.voiceURI} value={v.voiceURI}>
-                      {v.name} ({v.lang})
-                    </option>
-                  ))}
+                  {(koreanVoices.length > 0 ? koreanVoices : allVoices)
+                    .filter((v, idx, arr) => arr.findIndex(other => (other.voiceURI ? other.voiceURI === v.voiceURI : other.name === v.name && other.lang === v.lang)) === idx)
+                    .map((v, idx) => (
+                      <option key={`${v.voiceURI || v.name}-${v.lang}-${idx}`} value={v.voiceURI}>
+                        {v.name} ({v.lang})
+                      </option>
+                    ))}
                 </select>
               </div>
 

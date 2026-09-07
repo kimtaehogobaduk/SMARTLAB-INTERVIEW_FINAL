@@ -248,24 +248,16 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({
         </div>
       </div>
 
-      {/* ⚠️ CRITICAL NOTICE: Unconfirmed Criteria Blocking Banner */}
+      {/* Unconfirmed Criteria Blocking Banner */}
       {!isCriteriaConfirmed ? (
-        <div className="bg-rose-50 border-b border-rose-200 px-4 py-3 text-xs text-rose-900 flex items-start gap-2.5">
-          <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <div className="font-bold flex items-center gap-1.5">
-              <span>어드민 평가 기준 미확정 (평가 불가)</span>
-              <span className="px-1.5 py-0.2 bg-rose-200 text-rose-800 text-[10px] rounded font-semibold">입력 차단됨</span>
-            </div>
-            <p className="text-[11px] text-rose-700 leading-snug">
-              어드민이 가중 합산 기준 및 평가 항목을 확정하기 전에는 사용자가 점수를 입력하거나 제출해도 <strong>시스템에 반영되지 않도록 비활성화</strong>되어 있습니다.
-            </p>
-          </div>
+        <div className="bg-rose-50 border-b border-rose-200 px-4 py-2.5 text-xs text-rose-900 flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
+          <span className="font-medium">평가 기준 미확정: 관리자가 기준을 확정하기 전까지 점수 입력이 차단됩니다.</span>
         </div>
       ) : isLocked ? (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center gap-2">
           <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span>하단의 <strong>[면접 시작]</strong> 버튼을 누르면 점수 입력이 활성화됩니다.</span>
+          <span><strong>[면접 시작]</strong> 버튼을 누르면 점수 입력이 활성화됩니다.</span>
         </div>
       ) : null}
 
@@ -280,13 +272,10 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({
       >
         {/* Scroll prompt guide badge if not scrolled yet */}
         {!hasScrolled && (
-          <div className="bg-slate-100/90 border border-slate-300/80 rounded-xl p-3 text-center text-slate-600 space-y-1">
-            <div className="text-[11px] font-bold text-slate-700 flex items-center justify-center gap-1.5">
-              <span>📜 점수 확인 및 입력을 위해 평가표를 아래로 스크롤하세요</span>
-            </div>
-            <p className="text-[10px] text-slate-500">
-              블라인드 편향 방지를 위해 스크롤 조작 전까지 점수 수치가 숨김 처리됩니다.
-            </p>
+          <div className="bg-slate-100/90 border border-slate-300/80 rounded-xl p-2.5 text-center text-slate-600">
+            <span className="text-[11px] font-medium text-slate-700">
+              점수 입력을 위해 평가표를 아래로 스크롤하세요.
+            </span>
           </div>
         )}
 

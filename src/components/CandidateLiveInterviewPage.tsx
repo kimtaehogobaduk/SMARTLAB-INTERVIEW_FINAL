@@ -504,15 +504,10 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
               </div>
             </div>
 
-            {/* Fairness Recording Notice (Strictly professional, no AI evaluation mention) */}
-            <div className="p-3.5 bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-slate-900 border border-blue-800/40 rounded-2xl space-y-1.5">
-              <div className="flex items-center gap-2 text-blue-300 font-bold text-xs">
-                <Shield className="w-3.5 h-3.5 text-blue-400" />
-                <span>면접 평가 공정성 및 기록 보존 안내</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                면접의 공정하고 객관적인 평가와 원활한 기록 보존을 위해 면접 음성 녹음 및 실시간 발화 전사가 안전하게 진행되고 있습니다.
-              </p>
+            {/* Recording Status Bar */}
+            <div className="px-3.5 py-2.5 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-2 text-xs text-slate-400">
+              <Shield className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span>공정한 평가 기록을 위해 면접 발화가 안전하게 전사·보존됩니다.</span>
             </div>
 
           </div>

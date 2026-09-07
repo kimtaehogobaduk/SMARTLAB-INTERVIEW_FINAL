@@ -173,19 +173,18 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden text-slate-100 select-none font-sans">
-      {/* Background Ambience */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Subtle Ambient Radial Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
 
       {/* Main Container */}
-      <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-7 sm:p-9 backdrop-blur-xl relative z-10 space-y-6 animate-fade-in">
+      <div className="w-full max-w-lg bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-6 sm:p-8 backdrop-blur-md relative z-10 space-y-6 animate-fade-in">
         
         {/* Navigation Bar */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-slate-800/70 pb-3">
           <button
             type="button"
             onClick={onBackToLanding}
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700/60"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>처음 화면으로</span>
@@ -196,11 +195,11 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
         </div>
 
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex justify-center mb-1">
+        <div className="text-center space-y-1.5 pt-1">
+          <div className="inline-flex justify-center mb-0.5">
             <SmartLabLogo size="md" />
           </div>
-          <h2 className="text-xl font-black text-white">면접 평가 방 선택</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">면접 평가 방 선택</h2>
           <p className="text-xs text-slate-400">
             참여할 면접 평가 방을 선택하여 면접관 슬롯으로 입장하세요
           </p>
@@ -248,41 +247,41 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                     key={room.id}
                     onClick={() => setSelectedRoomId(room.id)}
                     onDoubleClick={() => handleRoomEntryAttempt(room)}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col gap-2 ${
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 ${
                       isSelected
-                        ? 'bg-blue-950/70 border-blue-500 ring-2 ring-blue-500/30 text-white shadow-lg'
-                        : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 text-slate-300'
+                        ? 'bg-blue-600/10 border-blue-500/80 text-white shadow-xs'
+                        : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/70 text-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="font-bold text-sm text-white flex items-center gap-2">
-                        <DoorOpen className={`w-4 h-4 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className="font-semibold text-xs sm:text-sm text-white flex items-center gap-2">
+                        <DoorOpen className={`w-3.5 h-3.5 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
                         <span>{room.name || room.title}</span>
                       </div>
                       
                       <div className="flex items-center gap-2">
                         {/* Security Type Badges */}
                         {secType === 'PASSWORD' && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                             <Lock className="w-2.5 h-2.5" />
-                            <span>비번 잠금</span>
+                            <span>비밀번호</span>
                           </span>
                         )}
                         {secType === 'QUIZ' && (
                           quizVerifiedMap[room.id] || isQuizVerifiedOnDevice(room.id) ? (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1" title="현재 기기에서 보안 인증이 완료되어 퀴즈가 자동으로 스킵됩니다.">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center gap-1" title="현재 기기에서 보안 인증이 완료되어 퀴즈가 자동으로 스킵됩니다.">
                               <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
-                              <span>기기 인증됨 (스킵)</span>
+                              <span>기기 인증됨</span>
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-purple-500/10 text-purple-300 border border-purple-500/30 flex items-center gap-1">
                               <HelpCircle className="w-2.5 h-2.5" />
-                              <span>퀴즈 보안</span>
+                              <span>보안 퀴즈</span>
                             </span>
                           )
                         )}
                         {secType === 'NONE' && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                             <Unlock className="w-2.5 h-2.5" />
                             <span>자유 입장</span>
                           </span>
@@ -297,16 +296,16 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                     </div>
 
                     <div className="text-xs text-slate-400 line-clamp-1">
-                      {room.description || 'SmartLab 동아리 실시간 면접 평가실'}
+                      {room.description || 'SmartLab 실시간 면접 평가실'}
                     </div>
 
                     {/* Interviewers Badges */}
                     {intvList.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-1">
+                      <div className="flex flex-wrap gap-1 pt-0.5">
                         {intvList.map((i) => (
                           <span
                             key={i.id}
-                            className="px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700/80 rounded-md text-[10px] font-medium"
+                            className="px-2 py-0.5 bg-slate-800/80 text-slate-300 border border-slate-700/60 rounded-md text-[10px] font-medium"
                           >
                             {i.name}
                           </span>
@@ -331,27 +330,27 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
             type="button"
             disabled={!activeRoom}
             onClick={() => activeRoom && handleRoomEntryAttempt(activeRoom)}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:scale-98 disabled:opacity-40 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-lg font-medium text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <span>{activeRoom?.securityType && activeRoom.securityType !== 'NONE' ? '보안 인증 후 방 입장하기' : '선택한 방으로 입장하기'}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>{activeRoom?.securityType && activeRoom.securityType !== 'NONE' ? '보안 인증 후 입장하기' : '선택한 방으로 입장하기'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         )}
 
-        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-          <span>SmartLab 독립 블라인드 격리 시스템</span>
-          <span className="font-mono">v2.5</span>
+        <div className="pt-2 border-t border-slate-800/70 flex items-center justify-between text-[11px] text-slate-500">
+          <span>실시간 면접 평가실 격리 시스템</span>
+          <span className="font-mono text-slate-500">SmartLab Platform</span>
         </div>
 
       </div>
 
       {/* Security Challenge Modal for Password / Quiz Lock */}
       {challengingRoom && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-7 space-y-5 animate-scale-in">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 space-y-4 animate-scale-in text-slate-100">
             
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2 text-white font-bold text-sm">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-800/80">
+              <div className="flex items-center gap-2 text-white font-semibold text-sm">
                 {challengingRoom.securityType === 'PASSWORD' ? (
                   <>
                     <Lock className="w-4 h-4 text-amber-400" />
@@ -360,7 +359,7 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                 ) : (
                   <>
                     <HelpCircle className="w-4 h-4 text-purple-400" />
-                    <span>보안 퀴즈(질문) 인증</span>
+                    <span>보안 퀴즈 인증</span>
                   </>
                 )}
               </div>
@@ -371,15 +370,15 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                   setChallengeInput('');
                   setChallengeError('');
                 }}
-                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded"
+                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-2">
-              <div className="text-xs text-slate-300 font-bold">
-                [{challengingRoom.name || challengingRoom.title}]
+            <div className="space-y-1">
+              <div className="text-xs text-slate-200 font-semibold">
+                {challengingRoom.name || challengingRoom.title}
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
                 {challengingRoom.securityType === 'PASSWORD'
@@ -389,14 +388,14 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
             </div>
 
             {/* Security Question/Password Form */}
-            <form onSubmit={handleChallengeSubmit} className="space-y-4">
+            <form onSubmit={handleChallengeSubmit} className="space-y-3.5">
               {challengingRoom.securityType === 'PASSWORD' && (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 block">
-                    방 비밀번호 입력
+                <div className="space-y-1">
+                  <label className="text-[11px] font-medium text-slate-300 block">
+                    방 비밀번호
                   </label>
                   <div className="relative">
-                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <KeyRound className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="password"
                       autoFocus
@@ -406,33 +405,33 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                         setChallengeInput(e.target.value);
                         if (challengeError) setChallengeError('');
                       }}
-                      placeholder="방 비밀번호를 입력하세요"
-                      className="w-full pl-9 pr-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                      placeholder="비밀번호 입력"
+                      className="w-full pl-8 pr-3 py-2 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500"
                     />
                   </div>
                 </div>
               )}
 
               {challengingRoom.securityType === 'QUIZ' && (
-                <div className="space-y-3.5 max-h-72 overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
                   {((challengingRoom.securityQuizzes && challengingRoom.securityQuizzes.length > 0)
                     ? challengingRoom.securityQuizzes
                     : [{ id: 'q-0', question: challengingRoom.securityQuestion || challengingRoom.quizQuestion || '보안 퀴즈' }]
                   ).map((quiz, idx, arr) => (
                     <div
                       key={quiz.id || idx}
-                      className="p-3.5 bg-purple-950/40 border border-purple-800/60 rounded-2xl space-y-2"
+                      className="p-3 bg-purple-950/20 border border-purple-800/40 rounded-xl space-y-1.5"
                     >
-                      <div className="flex items-center justify-between text-[11px] font-bold text-purple-300">
+                      <div className="flex items-center justify-between text-[11px] font-medium text-purple-300">
                         <span className="flex items-center gap-1.5">
                           <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
-                          <span>{arr.length > 1 ? `보안 퀴즈 문제 ${idx + 1}` : '보안 퀴즈 문제'}</span>
+                          <span>{arr.length > 1 ? `문제 ${idx + 1}` : '보안 퀴즈'}</span>
                         </span>
                       </div>
-                      <p className="text-xs text-white font-semibold leading-relaxed">
+                      <p className="text-xs text-white font-medium leading-relaxed">
                         {quiz.question}
                       </p>
-                      <div className="space-y-1 pt-1">
+                      <div className="pt-0.5">
                         <input
                           type="text"
                           required
@@ -447,8 +446,8 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                             }));
                             if (challengeError) setChallengeError('');
                           }}
-                          placeholder="정답 입력 (띄어쓰기/대소문자 무관)"
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-purple-500 placeholder-slate-500"
+                          placeholder="정답 입력"
+                          className="w-full px-3 py-1.5 bg-slate-950/60 border border-slate-700/80 rounded-lg text-white text-xs focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 placeholder-slate-500"
                         />
                       </div>
                     </div>
@@ -457,20 +456,20 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
               )}
 
               {challengingRoom.securityType === 'QUIZ' && (
-                <div className="p-2.5 bg-purple-950/40 border border-purple-800/50 rounded-xl text-[11px] text-purple-200 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>현재 기기에서 최초 1회 인증하면 다음부터 퀴즈가 자동으로 스킵됩니다.</span>
+                <div className="p-2 bg-purple-950/30 border border-purple-800/40 rounded-lg text-[11px] text-purple-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>현재 기기에서 인증 완료 시 다음부터 퀴즈가 자동으로 스킵됩니다.</span>
                 </div>
               )}
 
               {challengeError && (
-                <div className="p-3 bg-red-950/60 border border-red-800 text-red-400 rounded-xl text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                <div className="p-2 bg-red-950/40 border border-red-800/60 text-red-400 rounded-lg text-xs flex items-center gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{challengeError}</span>
                 </div>
               )}
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-800/80">
                 <button
                   type="button"
                   onClick={() => {
@@ -479,21 +478,20 @@ export const RoomLobbyPage: React.FC<RoomLobbyPageProps> = ({
                     setQuizAnswersMap({});
                     setChallengeError('');
                   }}
-                  className="px-3.5 py-2 border border-slate-700 rounded-xl text-slate-400 hover:text-white text-xs cursor-pointer"
+                  className="px-3 py-1.5 border border-slate-700/80 rounded-lg text-slate-300 hover:text-white text-xs font-medium cursor-pointer transition-colors"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-600/20 cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg font-medium text-xs shadow-xs cursor-pointer flex items-center gap-1.5 transition-colors"
                 >
-                  <span>{isVerifying ? '인증 확인 중...' : '확인 및 방 입장'}</span>
+                  <span>{isVerifying ? '확인 중...' : '확인 및 방 입장'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </form>
-
           </div>
         </div>
       )}

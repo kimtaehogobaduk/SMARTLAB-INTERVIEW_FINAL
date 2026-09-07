@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db, saveCloudState } from '../db';
-import { getEffectiveAdminPassword } from './auth';
+import { getEffectiveAdminPassword, isValidAdminPassword } from './auth';
 import { candidateMutex } from '../utils/mutex';
 import {
   generateRealtimeFeedbackAI,
@@ -503,7 +503,7 @@ aiRouter.post('/knowledge/learn', async (req, res) => {
       customApiKey
     } = req.body;
 
-    if (adminPassword && adminPassword !== getEffectiveAdminPassword()) {
+    if (adminPassword && !isValidAdminPassword(adminPassword)) {
       return res.status(401).json({ error: '관리자 권한 인증에 실패했습니다.' });
     }
 
@@ -577,7 +577,7 @@ aiRouter.delete('/knowledge/:id', async (req, res) => {
   const { id } = req.params;
   const { password, adminPassword } = req.body || {};
   const pwd = password || adminPassword;
-  if (pwd && pwd !== getEffectiveAdminPassword()) {
+  if (pwd && !isValidAdminPassword(pwd)) {
     return res.status(401).json({ error: '관리자 비밀번호가 일치하지 않습니다.' });
   }
 
