@@ -280,40 +280,39 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
   const maxMinutes = room.minutesPerPerson || 30;
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans select-none overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans select-none overflow-hidden relative">
+      {/* Subtle Ambient Radial Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
 
       {/* Top Header Bar */}
-      <header className="bg-slate-900/90 border-b border-slate-800/90 px-4 sm:px-6 py-3.5 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between shadow-xl">
+      <header className="bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 py-3 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
           <SmartLabLogo size="sm" />
-          <div className="hidden sm:block h-5 w-px bg-slate-800" />
+          <div className="hidden sm:block h-4 w-px bg-slate-800" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-white">
+              <span className="font-semibold text-xs sm:text-sm text-white">
                 {room.name || room.title || 'SmartLab 면접실'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-500/15 border border-red-500/30 text-red-400 animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                <span>실시간 면접 진행 중</span>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-500/10 border border-red-500/20 text-red-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                <span>실시간 면접 중</span>
               </span>
             </div>
-            <div className="text-[11px] text-slate-400">
-              지원자: <strong className="text-white">{candidate.name}</strong> ({candidate.studentId})
+            <div className="text-[11px] text-slate-400 mt-0.5">
+              지원자: <strong className="text-white font-medium">{candidate.name}</strong> ({candidate.studentId})
             </div>
           </div>
         </div>
 
         {/* Live Timer & Controls */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="bg-slate-950/80 border border-slate-800 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 text-xs">
-            <Clock className="w-4 h-4 text-amber-400 animate-spin-slow" />
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] text-slate-400 font-semibold">면접 진행 시간</span>
-              <span className="font-mono font-black text-amber-300 text-sm">
-                {formatTime(elapsedSeconds)} <span className="text-[11px] font-normal text-slate-500">/ {maxMinutes}분</span>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="bg-slate-950/60 border border-slate-800/80 px-3 py-1 rounded-xl flex items-center gap-2 text-xs">
+            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <div className="flex flex-col items-end leading-tight">
+              <span className="text-[9px] text-slate-400 font-medium">진행 시간</span>
+              <span className="font-mono font-semibold text-amber-300 text-xs">
+                {formatTime(elapsedSeconds)} <span className="text-[10px] font-normal text-slate-500">/ {maxMinutes}분</span>
               </span>
             </div>
           </div>
@@ -321,16 +320,16 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
           <button
             type="button"
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className={`relative p-2.5 rounded-2xl border transition-all cursor-pointer ${
+            className={`relative p-2 rounded-xl border transition-colors cursor-pointer ${
               isChatOpen
-                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30'
+                ? 'bg-blue-600 border-blue-500 text-white shadow-xs'
                 : 'bg-slate-800/80 border-slate-700/80 hover:bg-slate-700 text-slate-300'
             }`}
             title="면접관 문의 메시지"
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-3.5 h-3.5" />
             {messages.length > 0 && !isChatOpen && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full animate-ping" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
             )}
           </button>
 
@@ -338,7 +337,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
             <button
               type="button"
               onClick={onExit}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">포털로 돌아가기</span>
@@ -348,38 +347,38 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
       </header>
 
       {/* Main Container Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5 relative z-10 overflow-hidden">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 relative z-10 overflow-hidden">
         
         {/* Left Column: Interviewer Panel & Fairness Guidelines */}
         <div className="lg:col-span-1 space-y-4 flex flex-col">
           
           {/* Panel Card: Currently Evaluating Interviewers (Strictly NO scores) */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl backdrop-blur-md space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs backdrop-blur-md space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-400" />
-                <h3 className="font-bold text-xs text-white">
-                  현재 면접 평가위원 ({interviewersList.length}인)
+                <Users className="w-3.5 h-3.5 text-blue-400" />
+                <h3 className="font-semibold text-xs text-white">
+                  면접 평가위원 ({interviewersList.length}인)
                 </h3>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>실시간 연결됨</span>
+                <span>실시간 연결</span>
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {interviewersList.map((interviewer, idx) => (
                 <div
                   key={interviewer.id || idx}
-                  className="p-3 bg-slate-800/60 border border-slate-700/60 rounded-2xl flex items-center justify-between"
+                  className="p-2.5 bg-slate-800/40 border border-slate-700/60 rounded-xl flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 font-semibold text-xs flex items-center justify-center">
                       {interviewer.name ? interviewer.name.substring(0, 1) : '관'}
                     </div>
                     <div>
-                      <div className="font-bold text-xs text-white flex items-center gap-1.5">
+                      <div className="font-medium text-xs text-white flex items-center gap-1.5">
                         <span>{interviewer.name}</span>
                         <span className="text-[10px] text-slate-400 font-normal">면접관</span>
                       </div>
@@ -388,25 +387,25 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                  <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
                     <span>참여 중</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
+            <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
               <Info className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
-              <span>면접관 명단은 실시간 배정 현황에 따라 동기화되며, 공정한 심사를 위해 평가 세부 점수 및 평점은 블라인드 보호됩니다.</span>
+              <span>공정한 심사를 위해 평가 세부 점수 및 평점은 블라인드 보호됩니다.</span>
             </div>
           </div>
 
           {/* Microphone Status & Live Voice Visualizer Card */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl backdrop-blur-md space-y-4">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs backdrop-blur-md space-y-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-emerald-400" />
-                <h3 className="font-bold text-xs text-white">마이크 입력 상태</h3>
+                <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                <h3 className="font-semibold text-xs text-white">마이크 입력 상태</h3>
               </div>
               <STTAudioMeter
                 status={sttStatus}
@@ -419,11 +418,11 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
 
             {/* STT Error Alert Banner (if any) */}
             {sttErrorMessage && (
-              <div className="p-3 bg-rose-950/80 border border-rose-800/80 rounded-2xl flex items-start justify-between text-xs text-rose-200 animate-fade-in">
+              <div className="p-2.5 bg-rose-950/60 border border-rose-800/60 rounded-xl flex items-start justify-between text-xs text-rose-200 animate-fade-in">
                 <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
-                    <p className="font-bold text-xs">마이크 연결 확인 필요</p>
+                    <p className="font-medium text-xs">마이크 연결 확인</p>
                     <p className="text-[11px] text-rose-300 leading-relaxed">{sttErrorMessage}</p>
                   </div>
                 </div>
@@ -438,38 +437,38 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
             )}
 
             <div className="flex items-center justify-between pt-1">
-              <span className="text-xs text-slate-400">마이크 동작 제어:</span>
+              <span className="text-xs text-slate-400">마이크 제어:</span>
               <button
                 type="button"
                 onClick={toggleMic}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
                   isMicActive
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                    : 'bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30'
+                    ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                    : 'bg-red-500/10 text-red-300 border-red-500/30 hover:bg-red-500/20'
                 }`}
               >
                 {isMicActive ? (
                   <>
                     <Mic className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                    <span>마이크 켜짐 (클릭시 음소거)</span>
+                    <span>켜짐 (음소거하기)</span>
                   </>
                 ) : (
                   <>
                     <MicOff className="w-3.5 h-3.5 text-red-400" />
-                    <span>마이크 꺼짐 (클릭시 활성화)</span>
+                    <span>꺼짐 (켜기)</span>
                   </>
                 )}
               </button>
             </div>
 
             {/* Audio Wave Visualizer Bars */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400 text-[11px]">음성 입력 감도 레벨</span>
-                <span className="font-mono font-bold text-emerald-400 text-xs">{micAudioLevel}%</span>
+                <span className="text-slate-400 text-[11px]">입력 감도</span>
+                <span className="font-mono font-medium text-emerald-400 text-xs">{micAudioLevel}%</span>
               </div>
               
-              <div className="h-6 flex items-center justify-center gap-1">
+              <div className="h-5 flex items-center justify-center gap-1">
                 {[...Array(24)].map((_, i) => {
                   const factor = Math.sin((i / 24) * Math.PI);
                   const barHeight = isMicActive
@@ -494,20 +493,20 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
               <div className="text-[11px] text-slate-400 text-center">
                 {isMicActive ? (
                   <span className="text-emerald-400 font-medium">
-                    🎙️ 마이크가 활성화되어 발언하시는 내용이 실시간으로 기록됩니다.
+                    마이크가 활성화되어 발언 내용이 실시간 기록됩니다.
                   </span>
                 ) : (
                   <span className="text-amber-400 font-medium">
-                    ⚠️ 마이크가 꺼져 있습니다. 상단 버튼을 눌러 마이크를 켜주세요.
+                    마이크가 꺼져 있습니다. 버튼을 눌러 활성화하세요.
                   </span>
                 )}
               </div>
             </div>
 
             {/* Recording Status Bar */}
-            <div className="px-3.5 py-2.5 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-2 text-xs text-slate-400">
+            <div className="px-3 py-2 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center gap-2 text-xs text-slate-400">
               <Shield className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-              <span>공정한 평가 기록을 위해 면접 발화가 안전하게 전사·보존됩니다.</span>
+              <span>면접 발화가 전사·보존됩니다.</span>
             </div>
 
           </div>
@@ -518,34 +517,34 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
         <div className="lg:col-span-2 flex flex-col space-y-4 overflow-hidden">
           
           {/* Main STT Live Transcript Feed Card */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl backdrop-blur-md flex-1 flex flex-col min-h-[420px] overflow-hidden">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs backdrop-blur-md flex-1 flex flex-col min-h-[420px] overflow-hidden">
             
             {/* Feed Header */}
-            <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 mb-4 gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="font-bold text-sm text-white">
-                  실시간 발화 기록 모니터링
+            <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-2.5 mb-3 gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <h3 className="font-semibold text-xs sm:text-sm text-white">
+                  실시간 발화 기록
                 </h3>
               </div>
               <div className="flex items-center gap-2">
                 <TTSQuickControl />
-                <span className="text-[11px] text-slate-400 bg-slate-800 px-3 py-1 rounded-xl">
-                  기록 건수: <strong className="text-white">{transcript.length}건</strong>
+                <span className="text-[11px] text-slate-400 bg-slate-800/80 border border-slate-700/60 px-2.5 py-0.5 rounded-lg">
+                  기록 <strong className="text-white font-medium">{transcript.length}건</strong>
                 </span>
               </div>
             </div>
 
             {/* Scrollable Live Transcript Stream */}
-            <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 custom-scrollbar max-h-[480px]">
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar max-h-[480px]">
               {transcript.length === 0 && !interimText && (
-                <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-center p-6 text-slate-500 space-y-2">
-                  <Mic className="w-8 h-8 text-slate-600 animate-bounce" />
-                  <p className="text-xs font-semibold text-slate-400">
-                    마이크에 대고 답변을 말씀하시면 실시간으로 이곳에 표시됩니다.
+                <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-center p-6 text-slate-500 space-y-1.5">
+                  <Mic className="w-6 h-6 text-slate-600" />
+                  <p className="text-xs font-medium text-slate-400">
+                    마이크에 대고 답변하시면 실시간으로 표시됩니다.
                   </p>
-                  <p className="text-[11px] text-slate-600">
-                    (공정한 기록 보존을 위해 발화 내용이 면접관 화면에 안전하게 전사됩니다.)
+                  <p className="text-[11px] text-slate-500">
+                    발화 내용은 공정 심사를 위해 면접관 화면에 안전하게 전사됩니다.
                   </p>
                 </div>
               )}
@@ -560,7 +559,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                     }`}
                   >
                     <div className="flex items-center gap-2 text-[10px] text-slate-400 px-1">
-                      <span className={`font-bold ${isCandidate ? 'text-blue-400' : 'text-amber-400'}`}>
+                      <span className={`font-medium ${isCandidate ? 'text-blue-400' : 'text-amber-400'}`}>
                         {isCandidate ? `${candidate.name} (본인)` : '면접관 질문'}
                       </span>
                       <span>•</span>
@@ -569,10 +568,10 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                     </div>
 
                     <div
-                      className={`max-w-[88%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-md ${
+                      className={`max-w-[88%] p-3 rounded-xl text-xs leading-relaxed ${
                         isCandidate
-                          ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                          : 'bg-slate-800/90 text-slate-100 border border-slate-700/80 rounded-tl-none'
+                          ? 'bg-blue-600 text-white rounded-tr-none font-normal'
+                          : 'bg-slate-800/80 text-slate-100 border border-slate-700/60 rounded-tl-none'
                       }`}
                     >
                       {msg.text}
@@ -584,11 +583,11 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
               {/* Interim Realtime Speech Bubble */}
               {interimText && (
                 <div className="flex flex-col items-end space-y-1 animate-fade-in">
-                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 px-1 font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>실시간 음성 인식 중...</span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 px-1 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>음성 인식 중...</span>
                   </div>
-                  <div className="max-w-[88%] p-3.5 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-200 text-xs rounded-tr-none font-medium italic animate-pulse">
+                  <div className="max-w-[88%] p-3 rounded-xl bg-emerald-600/10 border border-emerald-500/30 text-emerald-200 text-xs rounded-tr-none font-normal">
                     {interimText}
                   </div>
                 </div>
@@ -598,21 +597,21 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
             </div>
 
             {/* Manual Speech Text Input Bar (Fallback if mic is quiet or unsupported) */}
-            <form onSubmit={handleManualSendSpeech} className="mt-4 pt-3 border-t border-slate-800 flex gap-2">
+            <form onSubmit={handleManualSendSpeech} className="mt-3 pt-2.5 border-t border-slate-800/80 flex gap-2">
               <input
                 type="text"
                 value={manualSpeechText}
                 onChange={(e) => setManualSpeechText(e.target.value)}
-                placeholder="마이크 음성 자동 인식 외에 직접 답변 텍스트를 입력하여 전송할 수도 있습니다..."
-                className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-xs placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                placeholder="직접 답변 텍스트를 입력하여 전송할 수도 있습니다..."
+                className="flex-1 px-3 py-1.5 bg-slate-950/60 border border-slate-800 rounded-lg text-white text-xs placeholder-slate-500 focus:outline-hidden focus:border-blue-500"
               />
               <button
                 type="submit"
                 disabled={!manualSpeechText.trim()}
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold text-xs rounded-2xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-md"
+                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-medium text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
               >
                 <span>전송</span>
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-3 h-3" />
               </button>
             </form>
 
@@ -620,25 +619,25 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
 
           {/* Quick Drawer: Emergency Inquiries to Interviewers */}
           {isChatOpen && (
-            <div className="bg-slate-900/95 border border-blue-500/40 rounded-3xl p-4 shadow-2xl backdrop-blur-xl space-y-3 animate-fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-xl backdrop-blur-md space-y-2.5 animate-fade-in">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-blue-400" />
-                  <h4 className="font-bold text-xs text-white">면접관 전체 실시간 전달 / 문의 메시지</h4>
+                  <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                  <h4 className="font-semibold text-xs text-white">면접관 문의 메시지</h4>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsChatOpen(false)}
-                  className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                  className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded cursor-pointer"
                 >
-                  닫기
+                  ✕
                 </button>
               </div>
 
-              <div className="max-h-40 overflow-y-auto space-y-2 pr-1 custom-scrollbar text-xs">
+              <div className="max-h-36 overflow-y-auto space-y-2 pr-1 custom-scrollbar text-xs">
                 {messages.length === 0 ? (
                   <p className="text-[11px] text-slate-500 text-center py-2">
-                    면접관에게 전달할 긴급 메시지(화면 공유 준비, 오디오 확인 요청 등)를 보낼 수 있습니다.
+                    면접관에게 전달할 긴급 메시지를 보낼 수 있습니다.
                   </p>
                 ) : (
                   messages.map((m) => {
@@ -649,13 +648,13 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                         className={`flex flex-col space-y-0.5 ${isMine ? 'items-end' : 'items-start'}`}
                       >
                         <span className="text-[10px] text-slate-400">
-                          {isMine ? '지원자 (본인)' : 'SmartLab 면접관'} • {m.timestamp}
+                          {isMine ? '본인' : '면접관'} • {m.timestamp}
                         </span>
                         <div
-                          className={`p-2.5 rounded-xl text-xs max-w-[85%] ${
+                          className={`p-2 rounded-lg text-xs max-w-[85%] ${
                             isMine
                               ? 'bg-blue-600 text-white rounded-tr-none'
-                              : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-none'
+                              : 'bg-slate-800 text-slate-200 border border-slate-700/70 rounded-tl-none'
                           }`}
                         >
                           {m.text}
@@ -672,13 +671,13 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="면접관 팀 전체에게 전달할 메시지 입력..."
-                  className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+                  placeholder="메시지 입력..."
+                  className="flex-1 px-3 py-1.5 bg-slate-950/60 border border-slate-800 rounded-lg text-white text-xs focus:outline-hidden focus:border-blue-500 placeholder-slate-500"
                 />
                 <button
                   type="submit"
                   disabled={isSendingChat || !chatInput.trim()}
-                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-medium text-xs rounded-lg transition-colors cursor-pointer shrink-0 flex items-center gap-1"
                 >
                   <Send className="w-3 h-3" />
                   <span>전송</span>
@@ -693,19 +692,19 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
 
       {/* Completion Modal if Interview is Marked as Completed by Interviewers */}
       {isInterviewCompleted && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 shadow-2xl animate-scale-up">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
-              <CheckCircle2 className="w-8 h-8 animate-bounce" />
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl animate-scale-in">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-6 h-6" />
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-white">
-                면접이 모두 완료되었습니다!
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-white">
+                면접이 완료되었습니다
               </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                {candidate.name} 지원자님, 수고 많으셨습니다.<br />
-                제출하신 서류 및 발화 기록은 안전하게 보존되며, 결과는 추후 공지될 예정입니다.
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {candidate.name} 지원자님, 수고하셨습니다.<br />
+                제출 서류와 기록은 안전하게 보존되며 결과는 별도 안내됩니다.
               </p>
             </div>
 
@@ -713,7 +712,7 @@ export const CandidateLiveInterviewPage: React.FC<CandidateLiveInterviewPageProp
               <button
                 type="button"
                 onClick={onExit}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all cursor-pointer"
+                className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-xs shadow-xs transition-colors cursor-pointer"
               >
                 포털 홈으로 이동하기
               </button>
