@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, MicOff, AlertCircle, Volume2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { STTStatus } from '../lib/stt';
 
 interface STTAudioMeterProps {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InterviewerUser, InterviewRoomItem, ClubLeadership } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
-import { UserCheck, Shield, ArrowRight, ArrowLeft, DoorOpen, Users, Crown, Star, Lock, KeyRound } from 'lucide-react';
+import { ArrowRight, ArrowLeft, DoorOpen, Users, Crown, Star, Lock } from 'lucide-react';
 import { getLeadershipRole } from '../lib/leadership';
 import { InterviewerPinModal } from './InterviewerPinModal';
 

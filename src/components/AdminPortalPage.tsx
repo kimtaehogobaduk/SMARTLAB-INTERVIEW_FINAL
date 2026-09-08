@@ -62,12 +62,9 @@ import {
   KeyRound,
   Palette,
   Sun,
-  Moon,
-  Laptop
+  Moon
 } from 'lucide-react';
 import { ThemeQuickToggle } from './ThemeQuickToggle';
-import { useTheme, PALETTE_LIST } from '../contexts/ThemeContext';
-import { ThemePalette, ThemeMode } from '../types';
 import { PRESET_TEMPLATES } from './admin/AdminPresetTemplates';
 import { AdminAuditTab } from './admin/AdminAuditTab';
 

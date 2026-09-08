@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThemeMode, ThemePalette, ThemeConfig } from '../types';
+import { ThemeMode, ThemePalette } from '../types';
 
 export interface PaletteInfo {
   id: ThemePalette;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Evaluation, CandidateStatus, PlatformSettings, EvaluationCriterion } from '../types';
-import { Lock, CheckCircle, Eye, EyeOff, UserCheck, AlertTriangle, ShieldAlert, Sliders, Mic } from 'lucide-react';
+import { Evaluation, CandidateStatus, PlatformSettings } from '../types';
+import { Lock, CheckCircle, Eye, EyeOff, UserCheck, ShieldAlert, Mic } from 'lucide-react';
 import { COLOR_MAP, DEFAULT_CRITERIA, calculateEvaluatorScore } from '../lib/scoring';
 
 interface EvaluationFormProps {

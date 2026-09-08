@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Candidate, Evaluation, ScoringFormula, PlatformSettings, EvaluationCriterion } from '../types';
-import { Trophy, Medal, Award, TrendingUp, Filter, Sparkles, X, ChevronRight, CheckCircle2, ShieldAlert, CheckCircle } from 'lucide-react';
+import { Candidate, Evaluation, ScoringFormula, PlatformSettings } from '../types';
+import { Trophy, Filter, X, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { DEFAULT_CRITERIA, calculateEvaluatorScore, calculateAggregatedScore, calculateAveragePresentationBonus } from '../lib/scoring';
 
 interface LeaderboardModalProps {

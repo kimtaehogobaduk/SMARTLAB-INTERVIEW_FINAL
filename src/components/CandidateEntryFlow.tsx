@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
 import { InterviewRoomItem, Candidate, CandidateChatMessage } from '../types';
-import { GraduationCap, ArrowLeft, ArrowRight, Lock, CheckCircle2, User, Hash, AlertCircle, Building2, Sparkles, BookOpen, Clock, FileCheck } from 'lucide-react';
+import { GraduationCap, ArrowLeft, ArrowRight, CheckCircle2, User, Hash, AlertCircle, Building2, Clock, FileCheck } from 'lucide-react';
 
 interface CandidateEntryFlowProps {
   rooms: InterviewRoomItem[];

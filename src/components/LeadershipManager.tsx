@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { PlatformSettings, InterviewRoomItem, ClubLeadership, LeadershipMember } from '../types';
-import { Crown, Star, ShieldCheck, UserCheck, Plus, Trash2, CheckCircle2, AlertCircle, Sparkles, MessageSquare, Info, Shield, Radio } from 'lucide-react';
+import { PlatformSettings, InterviewRoomItem } from '../types';
+import { Crown, Star, ShieldCheck, UserCheck, Plus, Trash2, CheckCircle2, AlertCircle, Sparkles, MessageSquare, Info, Radio } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 import { getLeadershipBadgeConfig } from '../lib/leadership';
 

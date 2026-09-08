@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
-import { Shield, DoorOpen, ArrowRight, Lock, KeyRound, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Shield, DoorOpen, ArrowRight, Lock, KeyRound, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface LandingEntryPageProps {
   onJoinAsAdmin: () => void;

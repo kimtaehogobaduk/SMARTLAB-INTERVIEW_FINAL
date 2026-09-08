@@ -1,4 +1,4 @@
-import { ClubLeadership, LeadershipRole, LeadershipMember } from '../types';
+import { ClubLeadership, LeadershipRole } from '../types';
 import { formatInterviewerDisplayName } from '../components/ObserverDashboard';
 
 /**

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Square } from 'lucide-react';
+import { Volume2, Square } from 'lucide-react';
 import { useTTS } from '../hooks/useTTS';
 
 interface TTSPlayButtonProps {

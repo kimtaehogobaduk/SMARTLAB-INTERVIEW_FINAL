@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Candidate, InterviewRoomItem, CandidateChatMessage, InterviewerUser } from '../types';
-import { MessageSquare, Send, X, Shield, User, Clock, CheckCheck, Sparkles } from 'lucide-react';
+import { MessageSquare, Send, X, Shield, User } from 'lucide-react';
 
 interface CandidateChatModalProps {
   isOpen: boolean;

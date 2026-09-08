@@ -35,10 +35,7 @@ import {
   Shield,
   Crown,
   Star,
-  SlidersHorizontal,
   Eye,
-  EyeOff,
-  Activity,
   Users,
   Zap,
   AlertTriangle,
@@ -50,20 +47,16 @@ import {
   Pin,
   PinOff,
   Radio,
-  Sparkles,
   MessageSquare,
   MessageSquareText,
   X,
   GripVertical,
-  Move,
   Columns,
   Rows,
-  SplitSquareVertical,
   SplitSquareHorizontal,
-  Maximize2,
   ShieldAlert
 } from 'lucide-react';
-import { getKSTTimeStr, getKSTDateTimeStr } from '../utils/time';
+import { getKSTTimeStr } from '../utils/time';
 
 interface InterviewRoomProps {
   candidate: Candidate;

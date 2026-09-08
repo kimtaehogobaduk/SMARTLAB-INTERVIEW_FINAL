@@ -18,21 +18,16 @@ import {
   Crown,
   Star,
   Trash2,
-  Play,
   CheckCircle2,
   Clock,
   UserX,
   LogOut,
-  RotateCcw,
-  FileText,
   Search,
   ChevronRight,
   Database,
   ArrowLeft,
   AlertTriangle,
   Sliders,
-  Upload,
-  Link2,
   Eye,
   MessageSquare,
   X,
@@ -45,10 +40,7 @@ import {
   Sun,
   Moon,
   ExternalLink,
-  ChevronDown,
-  Inbox,
-  User,
-  Loader2
+  Inbox
 } from 'lucide-react';
 
 interface CandidateListPageProps {

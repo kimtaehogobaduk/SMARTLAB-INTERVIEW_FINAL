@@ -1,6 +1,6 @@
 import React from 'react';
 import { Candidate, InterviewerUser } from '../types';
-import { Eye, Award, CheckSquare, Sparkles, X, ChevronRight, Users, Shield } from 'lucide-react';
+import { Eye, CheckSquare, X, ChevronRight, Users, Shield } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 
 interface EntryModeModalProps {

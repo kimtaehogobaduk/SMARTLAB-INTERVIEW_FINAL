@@ -1,9 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
-  CandidateFullResultData,
-  InterviewerNameDisplayPolicy,
-  CandidateEvaluatorScoreDetail,
-  EvaluationCriterion
+  CandidateFullResultData
 } from '../types';
 import { SmartLabLogo } from './SmartLabLogo';
 import {
@@ -14,19 +11,16 @@ import {
   TrendingUp,
   Sparkles,
   Download,
-  Shield,
   UserCheck,
   Crown,
   BookOpen,
   Target,
   ArrowUpRight,
-  Info,
   Calendar,
   Layers,
   ChevronDown,
   ChevronUp,
   RefreshCw,
-  Printer,
   FileCheck
 } from 'lucide-react';
 import jsPDF from 'jspdf';

@@ -6,7 +6,6 @@ import {
   X,
   Sparkles,
   Users,
-  AlertCircle,
   Volume2,
   VolumeX,
   Trash2,
@@ -18,14 +17,11 @@ import {
   Copy,
   Check,
   Eye,
-  Sliders,
-  Target,
   Crown,
   ShieldCheck
 } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 import { QuestionDetailModal } from './QuestionDetailModal';
-import { getLeadershipBadgeConfig } from '../lib/leadership';
 
 interface InterviewerChatProps {
   currentUser: { id: string; name: string; role: string; leadershipRole?: LeadershipRole };

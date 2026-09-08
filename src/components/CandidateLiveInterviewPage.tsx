@@ -9,19 +9,15 @@ import { STTAudioMeter } from './STTAudioMeter';
 import {
   Mic,
   MicOff,
-  Volume2,
   Users,
   Clock,
   Radio,
-  FileText,
   MessageSquare,
   Send,
   CheckCircle2,
   Shield,
   AlertCircle,
-  Sparkles,
   ArrowLeft,
-  ChevronDown,
   Info
 } from 'lucide-react';
 

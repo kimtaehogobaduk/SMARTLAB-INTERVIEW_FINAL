@@ -10,10 +10,8 @@ import {
   Compass,
   Search,
   RotateCw,
-  Plus,
   Tag,
-  SlidersHorizontal,
-  Flame
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface QuestionPersonaSelectorProps {

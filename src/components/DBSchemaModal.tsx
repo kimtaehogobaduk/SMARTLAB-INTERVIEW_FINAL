@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Code, Cpu, Server, X, Copy, Check } from 'lucide-react';
+import { Database, Cpu, Server, X, Copy, Check } from 'lucide-react';
 
 interface DBSchemaModalProps {
   isOpen: boolean;

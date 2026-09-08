@@ -7,17 +7,12 @@ import {
   Target,
   CheckCircle2,
   AlertTriangle,
-  HelpCircle,
   Copy,
   Check,
-  Send,
   Bookmark,
   Share2,
   ArrowRight,
   Sliders,
-  Award,
-  Flame,
-  ShieldCheck,
   MessageSquareQuote,
   Lightbulb
 } from 'lucide-react';

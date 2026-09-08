@@ -12,7 +12,6 @@ import {
   Users,
   Image as ImageIcon,
   Trash2,
-  Edit3,
   Plus,
   HelpCircle,
   FileSpreadsheet

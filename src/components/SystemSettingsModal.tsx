@@ -4,7 +4,6 @@ import {
   Settings,
   X,
   Volume2,
-  VolumeX,
   MonitorPlay,
   Sparkles,
   Power,
@@ -13,7 +12,6 @@ import {
   Play,
   Sliders,
   Palette,
-  Check,
   ChevronRight,
   Info,
   Film

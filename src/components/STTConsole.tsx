@@ -17,7 +17,6 @@ import {
   AlertTriangle,
   HelpCircle,
   Check,
-  Play,
   RefreshCw,
   Zap,
   Bookmark,
@@ -31,11 +30,8 @@ import {
   ChevronUp,
   PlusCircle,
   PenTool,
-  CheckCircle2,
   Users,
   MessageSquareQuote,
-  Lightbulb,
-  ArrowRight,
   Filter,
   Globe,
   AlertCircle,
@@ -49,7 +45,6 @@ import { TTSQuickControl } from './TTSQuickControl';
 import { STTAudioMeter } from './STTAudioMeter';
 import { HighlightableTranscriptText } from './HighlightableTranscriptText';
 import { useSTT } from '../hooks/useSTT';
-import { COLOR_MAP } from '../lib/scoring';
 
 interface STTConsoleProps {
   transcript: STTMessage[];

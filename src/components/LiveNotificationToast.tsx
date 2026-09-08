@@ -2,17 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { LiveNotification } from '../types';
 import {
   Play,
-  Bell,
   ChevronRight,
   X,
-  Sparkles,
-  HelpCircle,
   AlertTriangle,
   Lightbulb,
   Clock,
   UserCheck,
-  Zap,
-  HandMetal
+  Zap
 } from 'lucide-react';
 import { formatInterviewerDisplayName } from './ObserverDashboard';
 

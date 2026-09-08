@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { parseTranscriptTokens, extractKeyEntities, HighlightToken } from '../lib/sttAnalysis';
+import { parseTranscriptTokens, extractKeyEntities } from '../lib/sttAnalysis';
 import { TrendingUp, Code, CheckCircle2, Quote } from 'lucide-react';
 
 interface HighlightableTranscriptTextProps {

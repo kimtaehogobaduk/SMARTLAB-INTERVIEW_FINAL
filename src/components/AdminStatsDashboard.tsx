@@ -3,34 +3,25 @@ import {
   Candidate,
   Evaluation,
   PlatformSettings,
-  EvaluationCriterion,
   ScoringFormula,
   InterviewRoomItem
 } from '../types';
 import {
-  BarChart3,
-  TrendingUp,
-  Award,
   Users,
   Target,
   Sparkles,
   ArrowUpRight,
   ArrowDownRight,
-  Minus,
   CheckCircle2,
-  HelpCircle,
   PieChart as PieIcon,
   Layers,
   Brain,
   ThumbsUp,
   AlertCircle,
   FileSpreadsheet,
-  Zap,
   Filter,
   Scale,
   ShieldCheck,
-  Flame,
-  UserCheck,
   Sliders,
   ChevronDown,
   ChevronUp,
@@ -42,10 +33,7 @@ import {
 import { calculateEvaluatorScore } from '../lib/scoring';
 import {
   calculateComprehensiveBiasAnalysis,
-  ComprehensiveBiasAnalysisResult,
-  EvaluatorBiasMetrics,
-  CandidateCalibrationResult,
-  DiscrepancyCandidateInsight
+  ComprehensiveBiasAnalysisResult
 } from '../lib/biasCorrection';
 
 interface AdminStatsDashboardProps {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTheme, PALETTE_LIST } from '../contexts/ThemeContext';
-import { ThemePalette, ThemeMode } from '../types';
-import { Palette, Sun, Moon, Laptop, CheckCircle2, Sparkles, Sliders, Check } from 'lucide-react';
+import { Palette, Sun, Moon, Laptop, Sparkles, Sliders, Check } from 'lucide-react';
 
 export const AdminThemeSettings: React.FC = () => {
   const { mode, palette, setMode, setPalette, toggleMode } = useTheme();

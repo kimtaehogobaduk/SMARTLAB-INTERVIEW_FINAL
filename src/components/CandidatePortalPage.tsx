@@ -5,13 +5,10 @@ import { CandidateLiveInterviewPage } from './CandidateLiveInterviewPage';
 import { CandidateResultScorecard } from './CandidateResultScorecard';
 import { ThemeQuickToggle } from './ThemeQuickToggle';
 import {
-  GraduationCap,
   Calendar,
   Clock,
   FileText,
-  UploadCloud,
   Send,
-  Bell,
   BellRing,
   CheckCircle2,
   AlertCircle,
@@ -22,17 +19,13 @@ import {
   Link2,
   MessageSquare,
   Sparkles,
-  Info,
   Building2,
   LogOut,
   RefreshCw,
-  Eye,
   Check,
   Shield,
   Radio,
   Award,
-  BarChart3,
-  TrendingUp,
   FileCheck
 } from 'lucide-react';
 

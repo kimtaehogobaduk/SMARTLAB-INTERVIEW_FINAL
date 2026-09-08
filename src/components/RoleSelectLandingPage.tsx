@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SmartLabLogo } from './SmartLabLogo';
-import { UserCheck, GraduationCap, ShieldCheck, ArrowRight, Clock, FileText, BellRing, Bell, MessageSquareText, Sparkles, CheckCircle2 } from 'lucide-react';
-import { InterviewRoomItem } from '../types';
+import { GraduationCap, ShieldCheck, ArrowRight, Clock, FileText, BellRing, Bell, MessageSquareText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { ThemeQuickToggle } from './ThemeQuickToggle';
 
 interface RoleSelectLandingPageProps {

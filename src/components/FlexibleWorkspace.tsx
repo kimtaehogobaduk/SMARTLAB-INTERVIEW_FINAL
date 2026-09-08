@@ -15,7 +15,6 @@ import { EvaluationForm } from './EvaluationForm';
 import { ObserverDashboard } from './ObserverDashboard';
 import { InterviewerChat } from './InterviewerChat';
 import {
-  Mic,
   FileText,
   ClipboardCheck,
   MessageSquare,

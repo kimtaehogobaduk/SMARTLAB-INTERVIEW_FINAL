@@ -1,4 +1,4 @@
-import { Candidate, Evaluation, EvaluationCriterion, PlatformSettings, ScoringFormula } from '../types';
+import { Candidate, Evaluation, EvaluationCriterion, ScoringFormula } from '../types';
 import { calculateEvaluatorScore, calculateAggregatedScore } from './scoring';
 
 export type EvaluatorTendencyType =
